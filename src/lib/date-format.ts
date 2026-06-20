@@ -19,3 +19,30 @@ export function formatDateOnly(dateString?: string | null): string {
   const year = d.getFullYear();
   return `${day}/${month}/${year}`;
 }
+
+/** Converts UTC ISO string to datetime-local value in Asia/Kolkata. */
+export function convertUtcToDateTimeLocal(dateStr?: string | null): string {
+  if (!dateStr) return "";
+  const dateObj = new Date(dateStr);
+  const localDate = dateObj.toLocaleDateString("en-US", {
+    timeZone: "Asia/Kolkata",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+  const localTime = dateObj.toLocaleTimeString("en-US", {
+    timeZone: "Asia/Kolkata",
+    hour12: false,
+  });
+  const dateSplitArr = localDate.split("/");
+  const month = dateSplitArr[0];
+  const date = dateSplitArr[1];
+  const year = dateSplitArr[2];
+  const timeSplitArr = localTime.split(":");
+  const hour = timeSplitArr[0];
+  const minute = timeSplitArr[1];
+  if (!year || !month || !date || !hour || !minute) {
+    return "";
+  }
+  return `${year}-${month}-${date}T${hour}:${minute}`;
+}

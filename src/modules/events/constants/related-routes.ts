@@ -1,7 +1,7 @@
 /** Drill-down routes for event pages not yet migrated to Next.js. */
 export const EVENT_LEGACY_ROUTES = {
-  addEvent: "/addevent",
-  editEvent: (eventId: string) => `/edit-event/${eventId}`,
+  addEvent: "/events/add",
+  editEvent: (eventId: string) => `/events/${eventId}/edit`,
   viewVehicles: (eventId: string, category: string) =>
     `/view-vehicls/${eventId}?category=${category}`,
   addVehicle: (eventId: string) => `/add-vehicle/${eventId}`,

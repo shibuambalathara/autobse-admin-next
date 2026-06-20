@@ -41,33 +41,50 @@ function NavLink({
   }, [childActive]);
 
   if (hasChildren) {
+    const rowActive = active || childActive;
+
     return (
       <div>
-        <button
-          type="button"
-          onClick={() => setExpanded((v) => !v)}
+        <div
           className={cn(
-            "flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-            childActive
+            "flex w-full items-center rounded-md transition-colors",
+            rowActive
               ? "bg-brand-800 text-white"
-              : "text-brand-200 hover:bg-brand-800/60 hover:text-white",
-            collapsed && "justify-center px-2"
+              : "text-brand-200 hover:bg-brand-800/60 hover:text-white"
           )}
-          title={collapsed ? item.label : undefined}
-          aria-expanded={expanded}
         >
-          <Icon className="h-4 w-4 shrink-0" />
+          <Link
+            href={item.href}
+            onClick={onNavigate}
+            aria-current={active ? "page" : undefined}
+            className={cn(
+              "flex min-w-0 flex-1 items-center gap-3 rounded-md px-3 py-2 text-sm font-medium",
+              collapsed && "justify-center px-2"
+            )}
+            title={collapsed ? item.label : undefined}
+          >
+            <Icon className="h-4 w-4 shrink-0" />
+            {!collapsed && (
+              <span className="flex-1 truncate text-left">{item.label}</span>
+            )}
+          </Link>
+
           {!collapsed && (
-            <>
-              <span className="flex-1 text-left">{item.label}</span>
+            <button
+              type="button"
+              onClick={() => setExpanded((value) => !value)}
+              className="mr-1 rounded-md p-1 text-brand-200 transition-colors hover:bg-brand-700/60 hover:text-white"
+              aria-label={`${expanded ? "Collapse" : "Expand"} ${item.label} menu`}
+              aria-expanded={expanded}
+            >
               {expanded ? (
                 <ChevronDown className="h-4 w-4 shrink-0" />
               ) : (
                 <ChevronRight className="h-4 w-4 shrink-0" />
               )}
-            </>
+            </button>
           )}
-        </button>
+        </div>
 
         {!collapsed && expanded && (
           <div className="ml-3 mt-1 space-y-0.5 border-l border-brand-700 pl-3">

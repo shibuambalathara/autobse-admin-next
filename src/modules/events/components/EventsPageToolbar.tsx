@@ -2,12 +2,11 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Filter, Layers, Plus } from "lucide-react";
+import { Filter, Plus } from "lucide-react";
 import { Button } from "@/components/ui";
 import { FilterSlideOver } from "@/components/filters/FilterSlideOver";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/constants/routes";
-import { EVENT_LEGACY_ROUTES } from "@/modules/events/constants/related-routes";
 import {
   EventsFilterFields,
   type EventsFilterFieldsProps,
@@ -70,7 +69,7 @@ export function EventsPageToolbar({
           </button>
 
           <Link
-            href={EVENT_LEGACY_ROUTES.addEvent}
+            href={ROUTES.eventsAdd}
             className={cn(
               mobileActionButtonClass,
               "justify-center border-neutral-900 bg-neutral-900 text-white hover:bg-neutral-800"
@@ -78,13 +77,6 @@ export function EventsPageToolbar({
           >
             <Plus className="h-4 w-4 shrink-0" />
             <span className="truncate">Add event</span>
-          </Link>
-        </div>
-
-        <div className="flex w-full min-w-0 flex-col gap-2">
-          <Link href={ROUTES.eventsTypes} className={mobileActionButtonClass}>
-            <Layers className="h-4 w-4 shrink-0 text-neutral-500" />
-            <span className="truncate">Event types</span>
           </Link>
         </div>
 

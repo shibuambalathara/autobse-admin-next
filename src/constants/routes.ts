@@ -12,6 +12,12 @@ export const ROUTES = {
   usersPending: "/users/pending",
   userDetail: (id: string) => `/users/${id}` as const,
   events: "/events",
+  eventsAdd: "/events/add",
+  eventEdit: (id: string) => `/events/${id}/edit` as const,
+  eventVehicles: (id: string, category?: string) =>
+    category
+      ? (`/view-vehicls/${id}?category=${category}` as const)
+      : (`/view-vehicls/${id}` as const),
   eventsTypes: "/events/types",
   auctions: "/auctions",
   auctionsFind: "/auctions/find",

@@ -1,0 +1,51 @@
+export interface EventVehiclesHeader {
+  id: string;
+  eventNo: number;
+  eventCategory: string;
+  endDate: string;
+  seller?: { name?: string | null } | null;
+  location?: { name?: string | null } | null;
+}
+
+export interface EventVehiclesHeaderResult {
+  event: EventVehiclesHeader;
+}
+
+export interface EventVehicleListItem {
+  id: string;
+  lotNumber?: number | null;
+  loanAgreementNo?: string | null;
+  vehicleIndexNo?: number | null;
+  registrationNumber?: string | null;
+  model?: string | null;
+  bidStatus?: string | null;
+  bidStartTime?: string | null;
+  bidTimeExpire?: string | null;
+  totalBids?: number | null;
+  image?: string | null;
+  currentBidAmount?: number | null;
+  currentBidUser?: {
+    firstName?: string | null;
+    lastName?: string | null;
+  } | null;
+  event?: {
+    seller?: { name?: string | null } | null;
+  } | null;
+}
+
+export interface VehiclesListResult {
+  vehicles: {
+    vehiclesCount: number;
+    vehicles: EventVehicleListItem[];
+  };
+}
+
+export interface VehiclesListVariables {
+  orderBy?: Array<Record<string, "ASC" | "DESC">>;
+  take?: number;
+  skip?: number;
+  search?: string;
+  where?: {
+    event?: { id: string };
+  };
+}
