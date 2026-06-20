@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { Button, StatusBadge } from "@/components/ui";
 import { ROUTES } from "@/constants/routes";
-import { USER_LEGACY_ROUTES } from "@/modules/users/constants/related-routes";
+import { USER_LEGACY_ROUTES, USER_ROUTES } from "@/modules/users/constants/related-routes";
 import { formatDate, formatDateOnly } from "@/lib/date-format";
 import type { UserListItem } from "@/modules/users/types";
 import type { TableColumn } from "@/types";
@@ -131,14 +131,12 @@ export function createUsersTableColumns(
           );
         }
         return (
-          <a
-            href={USER_LEGACY_ROUTES.bids(row.id)}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href={USER_ROUTES.bids(row.id)}
             className="inline-flex h-8 min-w-8 items-center justify-center rounded-md bg-emerald-50 px-2 text-sm font-medium text-emerald-700 hover:bg-emerald-100"
           >
             {count}
-          </a>
+          </Link>
         );
       },
     },
@@ -181,14 +179,12 @@ export function createUsersTableColumns(
           );
         }
         return (
-          <a
-            href={USER_LEGACY_ROUTES.payments(row.id)}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href={USER_ROUTES.payments(row.id)}
             className="inline-flex h-8 min-w-8 items-center justify-center rounded-md bg-rose-50 px-2 text-sm font-medium text-rose-700 hover:bg-rose-100"
           >
             {count}
-          </a>
+          </Link>
         );
       },
     },
@@ -197,14 +193,12 @@ export function createUsersTableColumns(
       header: "Create Payment",
       mobileFooter: true,
       cell: (row) => (
-        <a
-          href={USER_LEGACY_ROUTES.createPayment(row.id)}
-          target="_blank"
-          rel="noopener noreferrer"
+        <Link
+          href={USER_ROUTES.createPayment(row.id)}
           className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-red-50 text-red-600 hover:bg-red-100"
         >
           <CreditCard className="h-4 w-4" />
-        </a>
+        </Link>
       ),
     },
     {

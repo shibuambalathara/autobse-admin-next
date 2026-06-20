@@ -3,6 +3,7 @@ export interface EventVehiclesHeader {
   eventNo: number;
   eventCategory: string;
   endDate: string;
+  bidLock?: string | null;
   seller?: { name?: string | null } | null;
   location?: { name?: string | null } | null;
 }
@@ -24,6 +25,8 @@ export interface EventVehicleListItem {
   totalBids?: number | null;
   image?: string | null;
   currentBidAmount?: number | null;
+  startPrice?: number | null;
+  quoteIncreament?: number | null;
   currentBidUser?: {
     firstName?: string | null;
     lastName?: string | null;

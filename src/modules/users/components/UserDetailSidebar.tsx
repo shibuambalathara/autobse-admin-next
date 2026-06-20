@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
-import { USER_LEGACY_ROUTES } from "@/modules/users/constants/related-routes";
+import { USER_LEGACY_ROUTES, USER_ROUTES } from "@/modules/users/constants/related-routes";
 import { formatDate } from "@/lib/date-format";
 import type { UserDetail } from "@/modules/users/types";
 
@@ -21,9 +21,9 @@ export function UserDetailSidebar({
   onResetPassword,
 }: UserDetailSidebarProps) {
   const quickLinks = [
-    { label: "Active Bids", href: USER_LEGACY_ROUTES.bids(userId) },
-    { label: "Payment Details", href: USER_LEGACY_ROUTES.payments(userId) },
-    { label: "Create Payment", href: USER_LEGACY_ROUTES.createPayment(userId) },
+    { label: "Active Bids", href: USER_ROUTES.bids(userId) },
+    { label: "Payment Details", href: USER_ROUTES.payments(userId) },
+    { label: "Create Payment", href: USER_ROUTES.createPayment(userId) },
     { label: "Notifications", href: USER_LEGACY_ROUTES.notifications(userId) },
     { label: "Blocked Sellers", href: USER_LEGACY_ROUTES.blockedSellers(userId) },
     { label: "Audit Log", href: USER_LEGACY_ROUTES.auditLog(userId) },

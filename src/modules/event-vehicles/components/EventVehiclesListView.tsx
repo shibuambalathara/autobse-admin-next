@@ -1,18 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Plus } from "lucide-react";
-import Swal from "sweetalert2";
 import { PageContainer, Button, buttonVariants } from "@/components/ui";
 import { DataTable } from "@/components/table";
 import { LoadingState } from "@/components/feedback";
 import { ROUTES } from "@/constants/routes";
 import { APP_ROLES } from "@/auth/roles";
 import { useAccess } from "@/auth/use-access";
+import { BidModal } from "@/modules/bids";
 import { ChangeVehicleStatusModal } from "@/modules/event-vehicles/components/ChangeVehicleStatusModal";
 import { UpdateBidTimeModal } from "@/modules/event-vehicles/components/UpdateBidTimeModal";
-import { VEHICLE_LEGACY_ROUTES } from "@/modules/event-vehicles/constants";
+import { VEHICLE_ROUTES } from "@/modules/event-vehicles/constants";
 import { useEventVehiclesList } from "@/modules/event-vehicles/hooks/useEventVehiclesList";
 import { useEventVehicleRowActions } from "@/modules/event-vehicles/hooks/useEventVehicleRowActions";
 import { createEventVehiclesTableColumns } from "@/modules/event-vehicles/tables/event-vehicles-table-columns";
@@ -31,15 +31,12 @@ export function EventVehiclesListView({
   const isAdmin = role?.toLowerCase() === APP_ROLES.ADMIN;
   const list = useEventVehiclesList(eventId);
   const rowActions = useEventVehicleRowActions(() => list.refetch());
+  const [bidVehicle, setBidVehicle] = useState<EventVehicleListItem | null>(null);
 
   const resolvedCategory = eventCategory ?? list.event?.eventCategory ?? "";
 
-  const handleBidNow = useCallback(async (_vehicle: EventVehicleListItem) => {
-    await Swal.fire({
-      icon: "info",
-      title: "Bid modal",
-      text: "Live bidding UI is not yet migrated. Use the legacy panel for bidding.",
-    });
+  const handleBidNow = useCallback((vehicle: EventVehicleListItem) => {
+    setBidVehicle(vehicle);
   }, []);
 
   const columns = useMemo(
@@ -59,32 +56,26 @@ export function EventVehiclesListView({
   const toolbarActions = (
     <div className="flex flex-wrap gap-2">
       {list.isEventActive && (
-        <a
-          href={VEHICLE_LEGACY_ROUTES.addVehicle(eventId)}
-          target="_blank"
-          rel="noopener noreferrer"
+        <Link
+          href={VEHICLE_ROUTES.addVehicle(eventId)}
           className={buttonVariants({ size: "sm" })}
         >
           <Plus className="h-4 w-4" />
           Add Vehicle
-        </a>
+        </Link>
       )}
-      <a
-        href={VEHICLE_LEGACY_ROUTES.deletedBids(eventId)}
-        target="_blank"
-        rel="noopener noreferrer"
+      <Link
+        href={VEHICLE_ROUTES.deletedBids(eventId)}
         className={buttonVariants({ size: "sm", variant: "outline" })}
       >
         Deleted Bids
-      </a>
-      <a
-        href={VEHICLE_LEGACY_ROUTES.deletedVehicles(eventId)}
-        target="_blank"
-        rel="noopener noreferrer"
+      </Link>
+      <Link
+        href={VEHICLE_ROUTES.deletedVehicles(eventId)}
         className={buttonVariants({ size: "sm", variant: "outline" })}
       >
         Deleted Vehicles
-      </a>
+      </Link>
       <Link href={ROUTES.events} className={buttonVariants({ size: "sm", variant: "outline" })}>
         Back to Events
       </Link>
@@ -144,6 +135,25 @@ export function EventVehiclesListView({
         update={rowActions.bidTimeUpdate}
         onClose={() => rowActions.setBidTimeUpdate(null)}
         onSave={rowActions.handleBidTimeUpdate}
+      />
+
+      <BidModal
+        open={Boolean(bidVehicle)}
+        vehicle={
+          bidVehicle
+            ? {
+                id: bidVehicle.id,
+                registrationNumber: bidVehicle.registrationNumber,
+                startPrice: bidVehicle.startPrice ?? undefined,
+                currentBidAmount: bidVehicle.currentBidAmount ?? undefined,
+                quoteIncreament: bidVehicle.quoteIncreament ?? undefined,
+              }
+            : null
+        }
+        event={list.event ? { bidLock: list.event.bidLock } : null}
+        eventCategory={resolvedCategory}
+        onClose={() => setBidVehicle(null)}
+        onSuccess={() => list.refetch()}
       />
     </div>
   );

@@ -50,7 +50,7 @@ export function TableToolbar({
             {filters.map((filter) => (
               <Select
                 key={filter.id}
-                className="w-full sm:w-40"
+                className="w-full sm:min-w-[11rem] sm:w-auto"
                 value={filter.value ?? ""}
                 onChange={(e) => onFilterChange?.(filter.id, e.target.value)}
                 placeholder={filter.label}

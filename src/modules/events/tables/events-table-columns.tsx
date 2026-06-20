@@ -9,7 +9,7 @@ import {
   FileDown,
   FilePenLine,
   FileUp,
-  Image,
+  Image as ImageIcon,
   Link2,
   Loader2,
   MessageCircle,
@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { Button, StatusBadge } from "@/components/ui";
 import { ROUTES } from "@/constants/routes";
-import { EVENT_LEGACY_ROUTES } from "@/modules/events/constants/related-routes";
+import { EVENT_LEGACY_ROUTES, EVENT_ROUTES } from "@/modules/events/constants/related-routes";
 import { formatDate } from "@/lib/date-format";
 import type { EventListItem } from "@/modules/events/types";
 import type { TableColumn } from "@/types";
@@ -176,15 +176,13 @@ export function createEventsTableColumns(
       mobileFooter: true,
       cell: (row) =>
         isEventActive(row.endDate) ? (
-          <a
-            href={EVENT_LEGACY_ROUTES.addVehicle(row.id)}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href={EVENT_ROUTES.addVehicle(row.id)}
             className={legacyActionClass("bg-emerald-50 text-emerald-700 hover:bg-emerald-100")}
             title="Add vehicle"
           >
             <Car className="h-4 w-4" />
-          </a>
+          </Link>
         ) : (
           "—"
         ),
@@ -226,14 +224,12 @@ export function createEventsTableColumns(
           );
         }
         return (
-          <a
-            href={EVENT_LEGACY_ROUTES.deletedVehicles(row.id)}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href={EVENT_ROUTES.deletedVehicles(row.id)}
             className={legacyActionClass("bg-red-50 text-red-700 hover:bg-red-100")}
           >
             {count}
-          </a>
+          </Link>
         );
       },
     },
@@ -242,15 +238,13 @@ export function createEventsTableColumns(
       header: "Upload Vehicles",
       mobileFooter: true,
       cell: (row) => (
-        <a
-          href={EVENT_LEGACY_ROUTES.uploadVehicles(row.id, row.eventCategory)}
-          target="_blank"
-          rel="noopener noreferrer"
+        <Link
+          href={EVENT_ROUTES.uploadVehicles(row.id, row.eventCategory ?? undefined)}
           className={legacyActionClass("bg-emerald-50 text-emerald-700 hover:bg-emerald-100")}
           title="Upload vehicles excel"
         >
           <FileUp className="h-4 w-4" />
-        </a>
+        </Link>
       ),
     },
     {
@@ -258,15 +252,13 @@ export function createEventsTableColumns(
       header: "Edit Vehicles",
       mobileFooter: true,
       cell: (row) => (
-        <a
-          href={EVENT_LEGACY_ROUTES.updateVehicles(row.id)}
-          target="_blank"
-          rel="noopener noreferrer"
+        <Link
+          href={EVENT_ROUTES.updateVehicles(row.id)}
           className={legacyActionClass("bg-emerald-100 text-emerald-800 hover:bg-emerald-200")}
           title="Update vehicles excel"
         >
           <FilePenLine className="h-4 w-4" />
-        </a>
+        </Link>
       ),
     },
     {
@@ -274,15 +266,13 @@ export function createEventsTableColumns(
       header: "Upload Image",
       mobileFooter: true,
       cell: (row) => (
-        <a
-          href={EVENT_LEGACY_ROUTES.uploadImages(row.id)}
-          target="_blank"
-          rel="noopener noreferrer"
+        <Link
+          href={EVENT_ROUTES.uploadImages(row.id)}
           className={legacyActionClass("bg-blue-50 text-blue-700 hover:bg-blue-100")}
           title="Upload vehicle images"
         >
-          <Image className="h-4 w-4" />
-        </a>
+          <ImageIcon className="h-4 w-4" aria-hidden />
+        </Link>
       ),
     },
     {
@@ -290,15 +280,13 @@ export function createEventsTableColumns(
       header: "Upload RAR/ZIP",
       mobileFooter: true,
       cell: (row) => (
-        <a
-          href={EVENT_LEGACY_ROUTES.uploadZip(row.id)}
-          target="_blank"
-          rel="noopener noreferrer"
+        <Link
+          href={EVENT_ROUTES.uploadZip(row.id)}
           className={legacyActionClass("bg-emerald-200 text-emerald-900 hover:bg-emerald-300")}
           title="Upload RAR/ZIP"
         >
           <FileArchive className="h-4 w-4" />
-        </a>
+        </Link>
       ),
     },
     {
@@ -371,15 +359,13 @@ export function createEventsTableColumns(
       mobileFooter: true,
       cell: (row) =>
         row.createdById ? (
-          <a
-            href={EVENT_LEGACY_ROUTES.createdByUser(row.createdById)}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href={EVENT_ROUTES.createdByUser(row.createdById)}
             className={legacyActionClass("bg-brand-50 text-brand-700 hover:bg-brand-100")}
             title="View creator"
           >
             <Pencil className="h-4 w-4" />
-          </a>
+          </Link>
         ) : (
           "—"
         ),

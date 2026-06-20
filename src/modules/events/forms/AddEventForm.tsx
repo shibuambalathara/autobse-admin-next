@@ -18,7 +18,7 @@ import {
   META_EVENT_TYPE_OPTIONS,
   META_SELLER_NAMES,
 } from "@/modules/events/constants/add-event";
-import { EVENT_LEGACY_ROUTES } from "@/modules/events/constants/related-routes";
+import { EVENT_ROUTES } from "@/modules/events/constants/related-routes";
 import { addEventValidation } from "@/modules/events/forms/validation";
 import { useEventFilterOptions } from "@/modules/events/hooks/useEventFilterOptions";
 import type {
@@ -149,7 +149,7 @@ export function AddEventForm() {
         showConfirmButton: false,
       });
       router.push(
-        EVENT_LEGACY_ROUTES.uploadVehicles(eventId, formData.eventCategory)
+        EVENT_ROUTES.uploadVehicles(eventId, formData.eventCategory)
       );
     } catch (error: unknown) {
       const { message } = extractGraphqlError(error);

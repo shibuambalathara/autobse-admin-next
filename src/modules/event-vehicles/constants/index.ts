@@ -1,12 +1,17 @@
+import { ROUTES } from "@/constants/routes";
+
 export const EVENT_VEHICLES_PAGE_SIZE = 10;
 
-export const VEHICLE_LEGACY_ROUTES = {
-  editVehicle: (vehicleId: string) => `/edit-vehicle/${vehicleId}`,
-  bidDetails: (vehicleId: string) => `/bid-details/${vehicleId}`,
-  vehicleStatusHistory: (vehicleId: string) =>
-    `/ViewVehicleStatusHistory/search?type=vehicle&id=${vehicleId}`,
-  openAuctionBid: (vehicleId: string) => `/openAuction-bid/${vehicleId}`,
-  addVehicle: (eventId: string) => `/add-vehicle/${eventId}`,
-  deletedVehicles: (eventId: string) => `/Deleted-vehicles/${eventId}`,
-  deletedBids: (eventId: string) => `/deleted-bids/${eventId}`,
+/** In-app vehicle routes (migrated from legacy CRA paths). */
+export const VEHICLE_ROUTES = {
+  editVehicle: (vehicleId: string) => ROUTES.vehicleEdit(vehicleId),
+  addVehicle: (eventId: string) => ROUTES.vehicleAdd(eventId),
+  deletedVehicles: (eventId: string) => ROUTES.deletedVehicles(eventId),
+  vehicleStatusHistory: (vehicleId: string) => ROUTES.vehicleStatusHistory(vehicleId),
+  bidDetails: (vehicleId: string) => ROUTES.bidDetails(vehicleId),
+  deletedBids: (eventId: string) => ROUTES.deletedBids(eventId),
+  openAuctionBid: (vehicleId: string) => ROUTES.openAuctionBid(vehicleId),
 } as const;
+
+/** Routes not yet migrated to Next.js. */
+export const VEHICLE_LEGACY_ROUTES = {} as const;

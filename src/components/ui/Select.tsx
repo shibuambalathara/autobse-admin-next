@@ -22,12 +22,12 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
     { className, options, placeholder, error, inputSize = "md", ...props },
     ref
   ) => (
-    <div className="relative w-full">
+    <div className={cn("relative w-full", className)}>
       <select
         ref={ref}
         className={cn(
-          getFieldClassName({ error, size: inputSize, className }),
-          "appearance-none pr-8"
+          getFieldClassName({ error, size: inputSize }),
+          "w-full appearance-none pr-8"
         )}
         aria-invalid={error ? true : undefined}
         {...props}

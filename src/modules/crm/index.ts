@@ -1,0 +1,9 @@
+export { CrmListView } from "@/modules/crm/components/CrmListView";
+export { CreateCrmView } from "@/modules/crm/components/CreateCrmView";
+export { EditCrmView } from "@/modules/crm/components/EditCrmView";
+export { DeletedCrmListView } from "@/modules/crm/components/DeletedCrmListView";
+export { CrmUploadView } from "@/modules/crm/components/CrmUploadView";
+export { CallLogsListView } from "@/modules/crm/components/CallLogsListView";
+export { CreateCallLogView } from "@/modules/crm/components/CreateCallLogView";
+export { EditCallLogView } from "@/modules/crm/components/EditCallLogView";
+export { DeletedCallLogsListView } from "@/modules/crm/components/DeletedCallLogsListView";

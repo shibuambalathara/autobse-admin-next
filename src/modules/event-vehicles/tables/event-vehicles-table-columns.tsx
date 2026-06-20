@@ -1,8 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { Trash2 } from "lucide-react";
 import { formatDate } from "@/lib/date-format";
-import { VEHICLE_LEGACY_ROUTES } from "@/modules/event-vehicles/constants";
+import { VEHICLE_ROUTES } from "@/modules/event-vehicles/constants";
 import type { EventVehicleListItem } from "@/modules/event-vehicles/types";
 import type { BidTimeUpdateState } from "@/modules/event-vehicles/hooks/useEventVehicleRowActions";
 import type { TableColumn } from "@/types";
@@ -56,14 +57,12 @@ export function createEventVehiclesTableColumns(
       id: "registrationNumber",
       header: "Vehicle Details",
       cell: (row) => (
-        <a
-          href={VEHICLE_LEGACY_ROUTES.editVehicle(row.id)}
-          target="_blank"
-          rel="noopener noreferrer"
+        <Link
+          href={VEHICLE_ROUTES.editVehicle(row.id)}
           className={actionClass("bg-sky-500 text-white hover:bg-sky-600")}
         >
           {row.registrationNumber ?? "—"}
-        </a>
+        </Link>
       ),
     },
     {
@@ -93,14 +92,12 @@ export function createEventVehiclesTableColumns(
       id: "statusHistory",
       header: "Vehicle Status History",
       cell: (row) => (
-        <a
-          href={VEHICLE_LEGACY_ROUTES.vehicleStatusHistory(row.id)}
-          target="_blank"
-          rel="noopener noreferrer"
+        <Link
+          href={VEHICLE_ROUTES.vehicleStatusHistory(row.id)}
           className={actionClass("bg-blue-500 text-white hover:bg-blue-600")}
         >
           View
-        </a>
+        </Link>
       ),
     },
     {
@@ -167,14 +164,12 @@ export function createEventVehiclesTableColumns(
         const totalBids = row.totalBids ?? 0;
         if (totalBids === 0) return "0";
         return (
-          <a
-            href={VEHICLE_LEGACY_ROUTES.bidDetails(row.id)}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href={VEHICLE_ROUTES.bidDetails(row.id)}
             className={actionClass("bg-blue-500 text-white hover:bg-blue-600")}
           >
             {totalBids}
-          </a>
+          </Link>
         );
       },
     },
@@ -225,14 +220,12 @@ export function createEventVehiclesTableColumns(
       id: "bidForOpen",
       header: "Bid For Open",
       cell: (row) => (
-        <a
-          href={VEHICLE_LEGACY_ROUTES.openAuctionBid(row.id)}
-          target="_blank"
-          rel="noopener noreferrer"
+        <Link
+          href={VEHICLE_ROUTES.openAuctionBid(row.id)}
           className={actionClass("bg-emerald-600 text-white hover:bg-emerald-700")}
         >
           Bid For Open
-        </a>
+        </Link>
       ),
     });
   }
