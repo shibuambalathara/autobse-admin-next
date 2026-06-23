@@ -1,5 +1,5 @@
-import { ModulePlaceholder } from "@/components/feedback";
+import { LocationsListView } from "@/modules/locations/components/LocationsListView";
 
 export function LocationsModuleView() {
-  return <ModulePlaceholder title="Locations" />;
+  return <LocationsListView />;
 }

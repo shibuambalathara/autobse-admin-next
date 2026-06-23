@@ -120,10 +120,11 @@ export function UsersExcelModal({
           />
         </FormField>
         <div className="flex justify-end gap-2 pt-2">
-          <Button variant="outline" onClick={onClose}>
+          <Button type="button" variant="outline" onClick={onClose}>
             Cancel
           </Button>
           <Button
+            type="button"
             isLoading={loading}
             onClick={async () => {
               const ok = await onDownload(Number(skip), Number(take));

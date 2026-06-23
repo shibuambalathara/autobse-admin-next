@@ -1,27 +1,111 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
-import { Layers, Plus } from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
+import { Plus } from "lucide-react";
 import { PageContainer, buttonVariants } from "@/components/ui";
 import { DataTable } from "@/components/table";
 import { LoadingState } from "@/components/feedback";
 import { ROUTES } from "@/constants/routes";
+import { LocationModal } from "@/modules/events/components/modals/LocationModal";
+import { PptDownloadModal } from "@/modules/events/components/modals/PptDownloadModal";
+import { PptLinkModal } from "@/modules/events/components/modals/PptLinkModal";
 import { EventsPageToolbar } from "@/modules/events/components/EventsPageToolbar";
-import { EVENT_LEGACY_ROUTES } from "@/modules/events/constants/related-routes";
 import { useEventFilterOptions } from "@/modules/events/hooks/useEventFilterOptions";
 import { useEventRowActions } from "@/modules/events/hooks/useEventRowActions";
 import { useEventsList } from "@/modules/events/hooks/useEventsList";
 import { createEventsTableColumns } from "@/modules/events/tables/events-table-columns";
+import { getEventPptUrl } from "@/modules/events/utils/event-ppt";
+import Swal from "sweetalert2";
 
 export function EventsListView() {
   const list = useEventsList();
   const filterOptions = useEventFilterOptions();
   const rowActions = useEventRowActions(() => list.refetch());
 
+  const [locationModalOpen, setLocationModalOpen] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState("");
+  const [selectedEventId, setSelectedEventId] = useState("");
+  const [pptDownloadOpen, setPptDownloadOpen] = useState(false);
+  const [pptLinkOpen, setPptLinkOpen] = useState(false);
+  const [includeVahan, setIncludeVahan] = useState<boolean | null>(null);
+  const [pptLoading, setPptLoading] = useState(false);
+  const [pptUrl, setPptUrl] = useState("");
+  const [pptCopied, setPptCopied] = useState(false);
+
+  const resetPptState = useCallback(() => {
+    setIncludeVahan(null);
+    setPptUrl("");
+    setPptCopied(false);
+    setPptLoading(false);
+  }, []);
+
+  const handleOpenPptDownload = useCallback(
+    (eventId: string) => {
+      setSelectedEventId(eventId);
+      resetPptState();
+      setPptDownloadOpen(true);
+    },
+    [resetPptState]
+  );
+
+  const handleOpenPptLink = useCallback(
+    (eventId: string) => {
+      setSelectedEventId(eventId);
+      resetPptState();
+      setPptLinkOpen(true);
+    },
+    [resetPptState]
+  );
+
+  const handleViewLocation = useCallback((location: string) => {
+    setSelectedLocation(location);
+    setLocationModalOpen(true);
+  }, []);
+
+  const handlePptVahanSelection = useCallback(
+    async (value: boolean, mode: "download" | "link") => {
+      if (!selectedEventId) return;
+
+      setIncludeVahan(value);
+      setPptLoading(true);
+      try {
+        const url = await getEventPptUrl(selectedEventId, value);
+        setPptUrl(url);
+      } catch (error: unknown) {
+        const message =
+          error instanceof Error ? error.message : "Failed to generate PPT";
+        await Swal.fire({
+          icon: "error",
+          title: "Failed",
+          text: mode === "download" ? "Failed to prepare PPT download" : message,
+        });
+        if (mode === "download") {
+          setPptDownloadOpen(false);
+        } else {
+          setPptLinkOpen(false);
+        }
+        resetPptState();
+      } finally {
+        setPptLoading(false);
+      }
+    },
+    [resetPptState, selectedEventId]
+  );
+
   const columns = useMemo(
-    () => createEventsTableColumns({ onArchive: rowActions.handleArchive }),
-    [rowActions]
+    () =>
+      createEventsTableColumns({
+        onArchive: rowActions.handleArchive,
+        onDownloadAcr: rowActions.handleDownloadAcr,
+        onWhatsApp: rowActions.handleWhatsApp,
+        onOpenPptDownload: handleOpenPptDownload,
+        onOpenPptLink: handleOpenPptLink,
+        onViewLocation: handleViewLocation,
+        acrLoadingEventId: rowActions.acrLoadingEventId,
+        whatsappLoading: rowActions.whatsappLoading,
+      }),
+    [handleOpenPptDownload, handleOpenPptLink, handleViewLocation, rowActions]
   );
 
   return (
@@ -32,14 +116,7 @@ export function EventsListView() {
         actions={
           <div className="hidden flex-wrap gap-2 lg:flex">
             <Link
-              href={ROUTES.eventsTypes}
-              className={buttonVariants({ size: "sm", variant: "outline" })}
-            >
-              <Layers className="h-4 w-4 shrink-0" />
-              Event Types
-            </Link>
-            <Link
-              href={EVENT_LEGACY_ROUTES.addEvent}
+              href={ROUTES.eventsAdd}
               className={buttonVariants({ size: "sm" })}
             >
               <Plus className="h-4 w-4 shrink-0" />
@@ -73,7 +150,7 @@ export function EventsListView() {
           <DataTable
             columns={columns}
             data={list.events}
-            tableMinWidth={2200}
+            tableMinWidth={3600}
             variant="users"
             searchValue={list.searchInput}
             onSearchChange={list.setSearchInput}
@@ -89,6 +166,43 @@ export function EventsListView() {
           />
         )}
       </PageContainer>
+
+      <LocationModal
+        open={locationModalOpen}
+        location={selectedLocation}
+        onClose={() => setLocationModalOpen(false)}
+      />
+
+      <PptDownloadModal
+        open={pptDownloadOpen}
+        includeVahan={includeVahan}
+        loading={pptLoading}
+        pptUrl={pptUrl}
+        onSelectVahan={(value) => handlePptVahanSelection(value, "download")}
+        onClose={() => {
+          setPptDownloadOpen(false);
+          resetPptState();
+        }}
+      />
+
+      <PptLinkModal
+        open={pptLinkOpen}
+        includeVahan={includeVahan}
+        loading={pptLoading}
+        pptUrl={pptUrl}
+        copied={pptCopied}
+        onSelectVahan={(value) => handlePptVahanSelection(value, "link")}
+        onCopy={() => {
+          if (!pptUrl) return;
+          navigator.clipboard.writeText(pptUrl);
+          setPptCopied(true);
+          setTimeout(() => setPptCopied(false), 2000);
+        }}
+        onClose={() => {
+          setPptLinkOpen(false);
+          resetPptState();
+        }}
+      />
     </div>
   );
 }

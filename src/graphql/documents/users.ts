@@ -168,24 +168,9 @@ export const VIEW_USER_QUERY = gql`
   }
 `;
 
-export const STATES_QUERY = gql`
-  query States {
-    States {
-      id
-      name
-      createdAt
-    }
-  }
-`;
+export { STATES_QUERY } from "@/graphql/documents/states";
 
-export const SELLERS_QUERY = gql`
-  query Sellers {
-    sellers {
-      id
-      name
-    }
-  }
-`;
+export { SELLERS_QUERY } from "@/graphql/documents/sellers";
 
 export const EMD_APPROVED_USERS_LIST_QUERY = gql`
   query emdApprovedUsersList(

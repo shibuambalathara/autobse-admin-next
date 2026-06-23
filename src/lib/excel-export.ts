@@ -8,6 +8,13 @@ export function exportRowsToExcel(
   data: ExcelRow[],
   fileName = "export.xlsx"
 ): void {
+  if (typeof window === "undefined") {
+    throw new Error("Excel export is only available in the browser.");
+  }
+
+  if (!data.length) {
+    throw new Error("No rows to export.");
+  }
   const formattedData = data.map((row) => {
     const { id, __typename, role, country, ...rest } = row as ExcelRow & {
       id?: string;

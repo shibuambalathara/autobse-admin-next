@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import {
   DELETE_USERS_BY_DATE_RANGE_MUTATION,
@@ -12,6 +12,7 @@ import { USERS_PAGE_SIZE } from "@/modules/users/constants";
 import { buildEmdExcelWhere } from "@/modules/users/utils";
 import type {
   EmdAmountOperator,
+  EmdApprovedUser,
   UserRoleType,
   UsersQueryResult,
   UsersQueryVariables,
@@ -20,6 +21,7 @@ import type {
 } from "@/modules/users/types";
 import { formatDateOnly } from "@/lib/date-format";
 import { exportRowsToExcel } from "@/lib/excel-export";
+import { extractGraphqlError } from "@/lib/graphql-errors";
 import { useDebouncedValue } from "@/modules/users/utils/useDebouncedValue";
 import Swal from "sweetalert2";
 
@@ -102,167 +104,197 @@ export function useUsersList() {
         : "",
     }));
 
-  const downloadUsersExcel = async (skip: number, take: number) => {
-    if (Number.isNaN(take) || take <= 0) {
-      await Swal.fire({
-        icon: "warning",
-        title: "Invalid Take",
-        text: "Please enter a valid take value greater than 0.",
-      });
-      return;
-    }
-    if (Number.isNaN(skip) || skip < 0) {
-      await Swal.fire({
-        icon: "warning",
-        title: "Invalid Skip",
-        text: "Please enter a valid skip value (0 or greater).",
-      });
-      return;
-    }
+  const formatEmdUsersForExcel = (list: EmdApprovedUser[]) =>
+    list.map((user) => ({
+      "First Name": user.firstName ?? "",
+      "Last Name": user.lastName ?? "",
+      Mobile: user.mobile ?? "",
+      State: user.state?.replace(/_/g, " ") ?? "",
+      Status: user.status ?? "",
+      "Created At": user.createdAt ? formatDateOnly(user.createdAt) : "",
+    }));
 
-    try {
-      const { data: excelData } = await fetchUsersForExcel({
-        variables: {
-          where: usersFilterWhere,
-          search: searchQuery || undefined,
-          skip,
-          take,
-          orderBy: [{ createdAt: "DESC" }],
-        },
-      });
-
-      const rows = excelData?.users?.users ?? [];
-      if (rows.length === 0) {
+  const downloadUsersExcel = useCallback(
+    async (skip: number, take: number) => {
+      if (Number.isNaN(take) || take <= 0) {
         await Swal.fire({
-          icon: "info",
-          title: "No Data",
-          text: "No users found for the current filters, skip, and take.",
+          icon: "warning",
+          title: "Invalid Take",
+          text: "Please enter a valid take value greater than 0.",
         });
-        return;
+        return false;
       }
-
-      exportRowsToExcel(formatUsersForExcel(rows), "users.xlsx");
-      await Swal.fire({
-        icon: "success",
-        title: "Downloaded",
-        text: `${rows.length} user(s) exported.`,
-        timer: 2500,
-        showConfirmButton: false,
-      });
-      return true;
-    } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : "Failed to download Excel";
-      await Swal.fire({ icon: "error", title: "Download Failed", text: message });
-      return false;
-    }
-  };
-
-  const getFilteredCount = async () => {
-    const { data: countData } = await fetchFilteredCount({
-      variables: {
-        where: usersFilterWhere,
-        search: searchQuery || undefined,
-      },
-    });
-    return countData?.users?.usersCount ?? 0;
-  };
-
-  const downloadEmdExcel = async (params: {
-    skip: number;
-    take: number;
-    operator: EmdAmountOperator;
-    amount: number;
-    state: string;
-    paymentFor: string;
-    paymentStatus: string;
-  }) => {
-    const { skip, take, operator, amount, state, paymentFor, paymentStatus } =
-      params;
-
-    if (Number.isNaN(amount) || amount < 0) {
-      await Swal.fire({
-        icon: "warning",
-        title: "Invalid Amount",
-        text: "Please enter a valid EMD amount (0 or greater).",
-      });
-      return false;
-    }
-    if (Number.isNaN(take) || take <= 0) {
-      await Swal.fire({
-        icon: "warning",
-        title: "Invalid Take",
-        text: "Please enter a valid take value greater than 0.",
-      });
-      return false;
-    }
-    if (Number.isNaN(skip) || skip < 0) {
-      await Swal.fire({
-        icon: "warning",
-        title: "Invalid Skip",
-        text: "Please enter a valid skip value (0 or greater).",
-      });
-      return false;
-    }
-
-    try {
-      const where = buildEmdExcelWhere(
-        operator,
-        amount,
-        state,
-        paymentFor,
-        paymentStatus
-      );
-      const { data: emdData } = await fetchEmdUsers({
-        variables: { where, skip, take },
-      });
-
-      const rows = emdData?.emdApprovedUsers?.users ?? [];
-      if (rows.length === 0) {
+      if (Number.isNaN(skip) || skip < 0) {
         await Swal.fire({
-          icon: "info",
-          title: "No Data",
-          text: "No EMD approved users found for the selected skip and take.",
+          icon: "warning",
+          title: "Invalid Skip",
+          text: "Please enter a valid skip value (0 or greater).",
         });
         return false;
       }
 
-      exportRowsToExcel(rows as Record<string, unknown>[], "emd_approved_users.xlsx");
-      await Swal.fire({
-        icon: "success",
-        title: "Downloaded",
-        text: `${rows.length} EMD approved user(s) exported.`,
-        timer: 2500,
-        showConfirmButton: false,
-      });
-      return true;
-    } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : "Failed to download Excel";
-      await Swal.fire({ icon: "error", title: "Download Failed", text: message });
-      return false;
-    }
-  };
+      try {
+        const { data: excelData, error } = await fetchUsersForExcel({
+          variables: {
+            where: usersFilterWhere,
+            search: searchQuery || undefined,
+            skip,
+            take,
+            orderBy: [{ createdAt: "DESC" }],
+          },
+          errorPolicy: "none",
+        });
 
-  const getEmdApprovedCount = async (params: {
-    operator: EmdAmountOperator;
-    amount: number;
-    state: string;
-    paymentFor: string;
-    paymentStatus: string;
-  }) => {
-    const where = buildEmdExcelWhere(
-      params.operator,
-      params.amount,
-      params.state,
-      params.paymentFor,
-      params.paymentStatus
-    );
-    const { data: emdData } = await fetchEmdUsers({
-      variables: { where, skip: 0, take: 1 },
+        if (error) throw error;
+
+        const rows = excelData?.users?.users ?? [];
+        if (rows.length === 0) {
+          await Swal.fire({
+            icon: "info",
+            title: "No Data",
+            text: "No users found for the current filters, skip, and take.",
+          });
+          return false;
+        }
+
+        exportRowsToExcel(formatUsersForExcel(rows), "users.xlsx");
+        await Swal.fire({
+          icon: "success",
+          title: "Downloaded",
+          text: `${rows.length} user(s) exported.`,
+          timer: 2500,
+          showConfirmButton: false,
+        });
+        return true;
+      } catch (error: unknown) {
+        const { message } = extractGraphqlError(error);
+        await Swal.fire({ icon: "error", title: "Download Failed", text: message });
+        return false;
+      }
+    },
+    [fetchUsersForExcel, searchQuery, usersFilterWhere]
+  );
+
+  const getFilteredCount = useCallback(async () => {
+    const { data: countData, error } = await fetchFilteredCount({
+      variables: {
+        where: usersFilterWhere,
+        search: searchQuery || undefined,
+      },
+      errorPolicy: "none",
     });
-    return emdData?.emdApprovedUsers?.usersCount ?? 0;
-  };
+    if (error) throw error;
+    return countData?.users?.usersCount ?? 0;
+  }, [fetchFilteredCount, searchQuery, usersFilterWhere]);
+
+  const downloadEmdExcel = useCallback(
+    async (params: {
+      skip: number;
+      take: number;
+      operator: EmdAmountOperator;
+      amount: number;
+      state: string;
+      paymentFor: string;
+      paymentStatus: string;
+    }) => {
+      const { skip, take, operator, amount, state, paymentFor, paymentStatus } =
+        params;
+
+      if (Number.isNaN(amount) || amount < 0) {
+        await Swal.fire({
+          icon: "warning",
+          title: "Invalid Amount",
+          text: "Please enter a valid EMD amount (0 or greater).",
+        });
+        return false;
+      }
+      if (Number.isNaN(take) || take <= 0) {
+        await Swal.fire({
+          icon: "warning",
+          title: "Invalid Take",
+          text: "Please enter a valid take value greater than 0.",
+        });
+        return false;
+      }
+      if (Number.isNaN(skip) || skip < 0) {
+        await Swal.fire({
+          icon: "warning",
+          title: "Invalid Skip",
+          text: "Please enter a valid skip value (0 or greater).",
+        });
+        return false;
+      }
+
+      try {
+        const where = buildEmdExcelWhere(
+          operator,
+          amount,
+          state,
+          paymentFor,
+          paymentStatus
+        );
+        const { data: emdData, error } = await fetchEmdUsers({
+          variables: { where, skip, take },
+          errorPolicy: "none",
+        });
+
+        if (error) throw error;
+
+        const rows = emdData?.emdApprovedUsers?.users ?? [];
+        if (rows.length === 0) {
+          await Swal.fire({
+            icon: "info",
+            title: "No Data",
+            text: "No EMD approved users found for the selected filters, skip, and take.",
+          });
+          return false;
+        }
+
+        exportRowsToExcel(
+          formatEmdUsersForExcel(rows),
+          "emd_approved_users.xlsx"
+        );
+        await Swal.fire({
+          icon: "success",
+          title: "Downloaded",
+          text: `${rows.length} EMD approved user(s) exported.`,
+          timer: 2500,
+          showConfirmButton: false,
+        });
+        return true;
+      } catch (error: unknown) {
+        const { message } = extractGraphqlError(error);
+        await Swal.fire({ icon: "error", title: "Download Failed", text: message });
+        return false;
+      }
+    },
+    [fetchEmdUsers]
+  );
+
+  const getEmdApprovedCount = useCallback(
+    async (params: {
+      operator: EmdAmountOperator;
+      amount: number;
+      state: string;
+      paymentFor: string;
+      paymentStatus: string;
+    }) => {
+      const where = buildEmdExcelWhere(
+        params.operator,
+        params.amount,
+        params.state,
+        params.paymentFor,
+        params.paymentStatus
+      );
+      const { data: emdData, error } = await fetchEmdUsers({
+        variables: { where, skip: 0, take: 1 },
+        errorPolicy: "none",
+      });
+      if (error) throw error;
+      return emdData?.emdApprovedUsers?.usersCount ?? 0;
+    },
+    [fetchEmdUsers]
+  );
 
   const deleteByDateRange = async (startDate: string, endDate: string) => {
     if (!startDate || !endDate) {

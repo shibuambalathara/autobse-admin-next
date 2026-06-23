@@ -1,5 +1,5 @@
-import { PaymentsModuleView } from "@/modules/payments";
+import { PaymentsListView } from "@/modules/payments";
 
 export default function PaymentsPage() {
-  return <PaymentsModuleView />;
+  return <PaymentsListView />;
 }

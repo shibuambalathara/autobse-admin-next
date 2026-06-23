@@ -32,7 +32,21 @@ export function Header({
       ? "Users"
       : pathname === ROUTES.events || pathname === `${ROUTES.events}/`
         ? "Events"
-        : crumbs[crumbs.length - 1]?.label;
+        : pathname === ROUTES.sellers || pathname.startsWith(`${ROUTES.sellers}/`)
+          ? "Sellers"
+          : pathname === ROUTES.locations || pathname.startsWith(`${ROUTES.locations}/`)
+            ? "Locations"
+            : pathname === ROUTES.states || pathname.startsWith(`${ROUTES.states}/`)
+              ? "States"
+            : pathname === ROUTES.eventsTypes ||
+              pathname.startsWith(`${ROUTES.eventsTypes}/`)
+              ? "Vehicle Category"
+            : pathname === ROUTES.blockedDealers ||
+              pathname.startsWith(`${ROUTES.blockedDealers}/`)
+            ? "Blocked Dealers"
+            : pathname.startsWith("/blocked-sellers/")
+              ? "Blocked Sellers"
+              : crumbs[crumbs.length - 1]?.label;
 
   return (
     <header
