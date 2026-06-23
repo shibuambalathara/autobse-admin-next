@@ -55,8 +55,8 @@ export function DataTableScrollView<T extends { id: string }>({
       >
         <table
           className={cn(
-            "border-collapse text-sm",
-            isUsersVariant ? "w-max min-w-full border border-[#e8e0d4]" : "w-full"
+            "w-full border-collapse text-sm",
+            isUsersVariant && "border border-[#e8e0d4]"
           )}
           style={{ minWidth: tableMinWidth }}
         >

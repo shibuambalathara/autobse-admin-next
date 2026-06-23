@@ -45,6 +45,9 @@ export const PERMISSIONS = {
   LOCATIONS_READ: "locations:read",
   LOCATIONS_MANAGE: "locations:manage",
 
+  STATES_READ: "states:read",
+  STATES_MANAGE: "states:manage",
+
   NOTIFICATIONS_READ: "notifications:read",
   NOTIFICATIONS_MANAGE: "notifications:manage",
 
@@ -170,9 +173,13 @@ export const ROUTE_PERMISSIONS: Record<string, Permission> = {
   [ROUTES.auctionsFind]: PERMISSIONS.AUCTIONS_MANAGE,
   [ROUTES.vehicles]: PERMISSIONS.VEHICLES_READ,
   [ROUTES.sellers]: PERMISSIONS.SELLERS_READ,
+  [ROUTES.sellersAdd]: PERMISSIONS.SELLERS_MANAGE,
+  [ROUTES.blockedDealers]: PERMISSIONS.SELLERS_MANAGE,
+  "/blocked-sellers": PERMISSIONS.SELLERS_MANAGE,
   [ROUTES.payments]: PERMISSIONS.PAYMENTS_READ,
   [ROUTES.paymentsCreate]: PERMISSIONS.PAYMENTS_CREATE,
   [ROUTES.locations]: PERMISSIONS.LOCATIONS_READ,
+  [ROUTES.states]: PERMISSIONS.STATES_READ,
   [ROUTES.notifications]: PERMISSIONS.NOTIFICATIONS_READ,
   [ROUTES.enquiries]: PERMISSIONS.ENQUIRIES_READ,
   [ROUTES.settings]: PERMISSIONS.SETTINGS_READ,

@@ -25,7 +25,7 @@ export function UserDetailSidebar({
     { label: "Payment Details", href: USER_ROUTES.payments(userId) },
     { label: "Create Payment", href: USER_ROUTES.createPayment(userId) },
     { label: "Notifications", href: USER_LEGACY_ROUTES.notifications(userId) },
-    { label: "Blocked Sellers", href: USER_LEGACY_ROUTES.blockedSellers(userId) },
+    { label: "Blocked Sellers", href: USER_ROUTES.blockedSellers(userId) },
     { label: "Audit Log", href: USER_LEGACY_ROUTES.auditLog(userId) },
     { label: "Accepted Events", href: USER_LEGACY_ROUTES.termsCondition(userId) },
   ];

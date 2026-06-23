@@ -7,3 +7,8 @@ export * from "./documents/events";
 export * from "./documents/vehicles";
 export * from "./documents/bids";
 export * from "./documents/payments";
+export * from "./documents/sellers";
+export * from "./documents/blocked-dealers";
+export * from "./documents/locations";
+export * from "./documents/vehicle-categories";
+export * from "./documents/states";

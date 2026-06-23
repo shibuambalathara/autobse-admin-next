@@ -12,6 +12,9 @@ import {
   UserX,
   Plus,
   BookUser,
+  ShieldBan,
+  Car,
+  Globe2,
 } from "lucide-react";
 import { filterNavByPermission } from "@/auth/access-control";
 import type { AppRole } from "@/auth/roles";
@@ -203,12 +206,36 @@ export const NAVIGATION: NavItem[] = [
     permission: PERMISSIONS.SELLERS_READ,
   },
   {
+    id: "blocked-dealers",
+    label: "Blocked Dealers",
+    href: ROUTES.blockedDealers,
+    icon: ShieldBan,
+    module: NAV_MODULES.inventory.id,
+    permission: PERMISSIONS.SELLERS_MANAGE,
+  },
+  {
     id: "locations",
     label: "Locations",
     href: ROUTES.locations,
     icon: MapPin,
     module: NAV_MODULES.system.id,
     permission: PERMISSIONS.LOCATIONS_READ,
+  },
+  {
+    id: "states",
+    label: "States",
+    href: ROUTES.states,
+    icon: Globe2,
+    module: NAV_MODULES.system.id,
+    permission: PERMISSIONS.STATES_READ,
+  },
+  {
+    id: "vehicle-categories",
+    label: "Vehicle Category",
+    href: ROUTES.eventsTypes,
+    icon: Car,
+    module: NAV_MODULES.system.id,
+    permission: PERMISSIONS.EVENTS_TYPES_MANAGE,
   },
   {
     id: "notifications",

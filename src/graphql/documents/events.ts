@@ -46,34 +46,11 @@ export const NEW_EVENTS_LISTING_QUERY = gql`
   }
 `;
 
-export const LOCATIONS_FILTER_QUERY = gql`
-  query LocationsFilter {
-    locations {
-      locations {
-        id
-        name
-      }
-    }
-  }
-`;
+export { LOCATIONS_FILTER_QUERY } from "@/graphql/documents/locations";
 
-export const SELLERS_FILTER_QUERY = gql`
-  query SellersFilter {
-    sellers {
-      id
-      name
-    }
-  }
-`;
+export { SELLERS_FILTER_QUERY } from "@/graphql/documents/sellers";
 
-export const VEHICLE_CATEGORIES_QUERY = gql`
-  query VehicleCategories {
-    vehicleCategories {
-      id
-      name
-    }
-  }
-`;
+export { VEHICLE_CATEGORIES_QUERY } from "@/graphql/documents/vehicle-categories";
 
 export const ARCHIVE_EVENT_MUTATION = gql`
   mutation ArchiveEventVehicleAndBid($eventId: String!) {
