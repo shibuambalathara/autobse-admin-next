@@ -76,6 +76,38 @@ export const ROUTES = {
   blockedSellersByUser: (userId: string) => `/blocked-sellers/${userId}` as const,
   locations: "/locations",
   states: "/states",
+  proVahan: "/pro-vahan",
+  whatsapp: "/whatsapp",
+  whatsappResponses: "/whatsapp/responses",
+  whatsappDeleted: "/whatsapp/deleted",
+  splitExcel: "/split-excel",
+  vehicleImages: "/vehicle-images",
+  pdfImageExtract: "/pdf-image-extract",
+  archiveEvents: "/archive-events",
+  archiveEventVehicles: (
+    id: string,
+    params?: { eventNo?: number | null; sellerName?: string }
+  ) => {
+    const search = new URLSearchParams();
+    if (params?.eventNo != null) search.set("eventNo", String(params.eventNo));
+    if (params?.sellerName) search.set("sellerName", params.sellerName);
+    const query = search.toString();
+    return query
+      ? (`/archive-events/${id}/vehicles?${query}` as const)
+      : (`/archive-events/${id}/vehicles` as const);
+  },
+  archiveEventTerms: (
+    id: string,
+    params?: { eventNo?: number | null; sellerName?: string }
+  ) => {
+    const search = new URLSearchParams();
+    if (params?.eventNo != null) search.set("eventNo", String(params.eventNo));
+    if (params?.sellerName) search.set("sellerName", params.sellerName);
+    const query = search.toString();
+    return query
+      ? (`/archive-events/${id}/terms?${query}` as const)
+      : (`/archive-events/${id}/terms` as const);
+  },
   notifications: "/notifications",
   enquiries: "/enquiries",
   settings: "/settings",

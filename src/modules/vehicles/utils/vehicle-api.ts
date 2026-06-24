@@ -30,6 +30,49 @@ export async function uploadVehicleImages(
   }
 }
 
+export async function uploadVehicleImagesByUrl(
+  loanAgreementNo: string,
+  registrationNumber: string,
+  imageUrls: string
+): Promise<void> {
+  const response = await fetch(`${env.apiBaseUrl}/fileupload/vehicleImg/url`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      loanAgreementNo,
+      registrationNumber,
+      imageUrls,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(await parseUploadError(response));
+  }
+}
+
+export async function updateVehicleImageUrls(
+  loanAgreementNo: string,
+  registrationNumber: string,
+  imageUrls: string[]
+): Promise<void> {
+  const response = await fetch(
+    `${env.apiBaseUrl}/fileupload/vehicleImg/url/update`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        loanAgreementNo,
+        registrationNumber,
+        imageUrls,
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(await parseUploadError(response));
+  }
+}
+
 export async function downloadVehicleImage(
   index: number,
   loanAgreementNo: string,

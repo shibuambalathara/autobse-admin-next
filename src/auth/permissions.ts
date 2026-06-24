@@ -48,6 +48,20 @@ export const PERMISSIONS = {
   STATES_READ: "states:read",
   STATES_MANAGE: "states:manage",
 
+  VAHAN_CHALLAN_READ: "vahan-challan:read",
+  VAHAN_CHALLAN_MANAGE: "vahan-challan:manage",
+
+  WHATSAPP_READ: "whatsapp:read",
+  WHATSAPP_MANAGE: "whatsapp:manage",
+
+  SPLIT_EXCEL_READ: "split-excel:read",
+
+  VEHICLE_IMAGES_READ: "vehicle-images:read",
+
+  PDF_IMAGE_EXTRACT_READ: "pdf-image-extract:read",
+
+  ARCHIVE_EVENTS_READ: "archive-events:read",
+
   NOTIFICATIONS_READ: "notifications:read",
   NOTIFICATIONS_MANAGE: "notifications:manage",
 
@@ -83,6 +97,7 @@ const BASE_ROLE_PERMISSIONS: Record<string, readonly Permission[]> = {
     PERMISSIONS.EVENT_BOTS_MANAGE,
     PERMISSIONS.CRM_READ,
     PERMISSIONS.CRM_MANAGE,
+    PERMISSIONS.VEHICLE_IMAGES_READ,
   ],
 
   [APP_ROLES.ACCOUNTANT]: [
@@ -180,6 +195,15 @@ export const ROUTE_PERMISSIONS: Record<string, Permission> = {
   [ROUTES.paymentsCreate]: PERMISSIONS.PAYMENTS_CREATE,
   [ROUTES.locations]: PERMISSIONS.LOCATIONS_READ,
   [ROUTES.states]: PERMISSIONS.STATES_READ,
+  [ROUTES.proVahan]: PERMISSIONS.VAHAN_CHALLAN_READ,
+  [ROUTES.whatsapp]: PERMISSIONS.WHATSAPP_READ,
+  [ROUTES.whatsappResponses]: PERMISSIONS.WHATSAPP_READ,
+  [ROUTES.whatsappDeleted]: PERMISSIONS.WHATSAPP_READ,
+  [ROUTES.splitExcel]: PERMISSIONS.SPLIT_EXCEL_READ,
+  [ROUTES.vehicleImages]: PERMISSIONS.VEHICLE_IMAGES_READ,
+  [ROUTES.pdfImageExtract]: PERMISSIONS.PDF_IMAGE_EXTRACT_READ,
+  [ROUTES.archiveEvents]: PERMISSIONS.ARCHIVE_EVENTS_READ,
+  "/archive-events/": PERMISSIONS.ARCHIVE_EVENTS_READ,
   [ROUTES.notifications]: PERMISSIONS.NOTIFICATIONS_READ,
   [ROUTES.enquiries]: PERMISSIONS.ENQUIRIES_READ,
   [ROUTES.settings]: PERMISSIONS.SETTINGS_READ,

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
-import { Plus } from "lucide-react";
+import { Archive, Plus } from "lucide-react";
 import { PageContainer, buttonVariants } from "@/components/ui";
 import { DataTable } from "@/components/table";
 import { LoadingState } from "@/components/feedback";
@@ -115,6 +115,13 @@ export function EventsListView() {
         description="Manage auction events and schedules."
         actions={
           <div className="hidden flex-wrap gap-2 lg:flex">
+            <Link
+              href={ROUTES.archiveEvents}
+              className={buttonVariants({ size: "sm", variant: "outline" })}
+            >
+              <Archive className="h-4 w-4 shrink-0" />
+              Archived events
+            </Link>
             <Link
               href={ROUTES.eventsAdd}
               className={buttonVariants({ size: "sm" })}
