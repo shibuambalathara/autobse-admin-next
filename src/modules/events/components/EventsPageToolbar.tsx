@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Filter, Plus } from "lucide-react";
+import { Archive, Filter, Plus } from "lucide-react";
 import { Button } from "@/components/ui";
 import { FilterSlideOver } from "@/components/filters/FilterSlideOver";
 import { cn } from "@/lib/utils";
@@ -68,6 +68,16 @@ export function EventsPageToolbar({
             )}
           </button>
 
+          <Link
+            href={ROUTES.archiveEvents}
+            className={cn(mobileActionButtonClass, "justify-center")}
+          >
+            <Archive className="h-4 w-4 shrink-0" />
+            <span className="truncate">Archived</span>
+          </Link>
+        </div>
+
+        <div className="grid w-full min-w-0 grid-cols-1 gap-2">
           <Link
             href={ROUTES.eventsAdd}
             className={cn(

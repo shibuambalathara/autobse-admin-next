@@ -38,6 +38,32 @@ export function Header({
             ? "Locations"
             : pathname === ROUTES.states || pathname.startsWith(`${ROUTES.states}/`)
               ? "States"
+            : pathname === ROUTES.proVahan ||
+              pathname.startsWith(`${ROUTES.proVahan}/`)
+              ? "Vahan & Challan"
+            : pathname === ROUTES.whatsapp ||
+              pathname.startsWith(`${ROUTES.whatsapp}/`)
+              ? pathname.includes("/responses")
+                ? "Recipients"
+                : pathname.includes("/deleted")
+                  ? "Deleted WhatsApp"
+                  : "WhatsApp"
+            : pathname === ROUTES.splitExcel ||
+              pathname.startsWith(`${ROUTES.splitExcel}/`)
+              ? "Split Excel Files"
+            : pathname === ROUTES.vehicleImages ||
+              pathname.startsWith(`${ROUTES.vehicleImages}/`)
+              ? "Vehicle Image"
+            : pathname === ROUTES.pdfImageExtract ||
+              pathname.startsWith(`${ROUTES.pdfImageExtract}/`)
+              ? "PDF image extract"
+            : pathname === ROUTES.archiveEvents ||
+              pathname.startsWith(`${ROUTES.archiveEvents}/`)
+              ? pathname.includes("/vehicles")
+                ? "Archived Vehicles"
+                : pathname.includes("/terms")
+                  ? "Archived T&C Users"
+                  : "Archive Events"
             : pathname === ROUTES.eventsTypes ||
               pathname.startsWith(`${ROUTES.eventsTypes}/`)
               ? "Vehicle Category"
