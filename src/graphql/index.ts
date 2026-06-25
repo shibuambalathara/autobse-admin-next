@@ -16,3 +16,8 @@ export * from "./documents/vahan-challan";
 export * from "./documents/whatsapp";
 export * from "./documents/vehicle-images";
 export * from "./documents/archive-events";
+export * from "./documents/enquiries";
+export * from "./documents/blogs";
+export * from "./documents/careers";
+export * from "./documents/job-applications";
+export * from "./documents/schedule-calls";
