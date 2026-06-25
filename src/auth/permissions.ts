@@ -68,6 +68,18 @@ export const PERMISSIONS = {
   ENQUIRIES_READ: "enquiries:read",
   ENQUIRIES_MANAGE: "enquiries:manage",
 
+  BLOG_READ: "blog:read",
+  BLOG_MANAGE: "blog:manage",
+
+  CAREER_READ: "career:read",
+  CAREER_MANAGE: "career:manage",
+
+  JOB_APPLICATIONS_READ: "job-applications:read",
+  JOB_APPLICATIONS_MANAGE: "job-applications:manage",
+
+  SCHEDULE_CALLS_READ: "schedule-calls:read",
+  SCHEDULE_CALLS_MANAGE: "schedule-calls:manage",
+
   SETTINGS_READ: "settings:read",
   SETTINGS_MANAGE: "settings:manage",
 
@@ -206,6 +218,19 @@ export const ROUTE_PERMISSIONS: Record<string, Permission> = {
   "/archive-events/": PERMISSIONS.ARCHIVE_EVENTS_READ,
   [ROUTES.notifications]: PERMISSIONS.NOTIFICATIONS_READ,
   [ROUTES.enquiries]: PERMISSIONS.ENQUIRIES_READ,
+  [ROUTES.blog]: PERMISSIONS.BLOG_READ,
+  [ROUTES.blogAdd]: PERMISSIONS.BLOG_MANAGE,
+  [ROUTES.blogsDeleted]: PERMISSIONS.BLOG_READ,
+  "/blog/": PERMISSIONS.BLOG_READ,
+  [ROUTES.career]: PERMISSIONS.CAREER_READ,
+  [ROUTES.careerAdd]: PERMISSIONS.CAREER_MANAGE,
+  [ROUTES.careersDeleted]: PERMISSIONS.CAREER_READ,
+  "/career/": PERMISSIONS.CAREER_READ,
+  [ROUTES.jobs]: PERMISSIONS.JOB_APPLICATIONS_READ,
+  "/jobs/": PERMISSIONS.JOB_APPLICATIONS_READ,
+  [ROUTES.scheduleCalls]: PERMISSIONS.SCHEDULE_CALLS_READ,
+  [ROUTES.scheduleCallsDeleted]: PERMISSIONS.SCHEDULE_CALLS_READ,
+  "/schedule-calls/": PERMISSIONS.SCHEDULE_CALLS_READ,
   [ROUTES.settings]: PERMISSIONS.SETTINGS_READ,
   "/payment": PERMISSIONS.PAYMENTS_READ,
   "/create-payment": PERMISSIONS.PAYMENTS_CREATE,

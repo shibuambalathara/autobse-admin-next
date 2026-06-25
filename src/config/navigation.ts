@@ -6,7 +6,6 @@ import {
   CreditCard,
   MapPin,
   Bell,
-  Settings,
   MessageSquare,
   Bot,
   Building2,
@@ -21,6 +20,10 @@ import {
   FileSpreadsheet,
   Image,
   FileText,
+  BookOpen,
+  Briefcase,
+  ClipboardList,
+  Phone,
 } from "lucide-react";
 import { filterNavByPermission } from "@/auth/access-control";
 import type { AppRole } from "@/auth/roles";
@@ -308,12 +311,36 @@ export const NAVIGATION: NavItem[] = [
     permission: PERMISSIONS.ENQUIRIES_READ,
   },
   {
-    id: "settings",
-    label: "Settings",
-    href: ROUTES.settings,
-    icon: Settings,
+    id: "blog",
+    label: "Blog",
+    href: ROUTES.blog,
+    icon: BookOpen,
     module: NAV_MODULES.system.id,
-    permission: PERMISSIONS.SETTINGS_READ,
+    permission: PERMISSIONS.BLOG_READ,
+  },
+  {
+    id: "career",
+    label: "Career",
+    href: ROUTES.career,
+    icon: Briefcase,
+    module: NAV_MODULES.system.id,
+    permission: PERMISSIONS.CAREER_READ,
+  },
+  {
+    id: "job-applications",
+    label: "Job Application",
+    href: ROUTES.jobs,
+    icon: ClipboardList,
+    module: NAV_MODULES.system.id,
+    permission: PERMISSIONS.JOB_APPLICATIONS_READ,
+  },
+  {
+    id: "schedule-calls",
+    label: "Schedule Call",
+    href: ROUTES.scheduleCalls,
+    icon: Phone,
+    module: NAV_MODULES.system.id,
+    permission: PERMISSIONS.SCHEDULE_CALLS_READ,
   },
 ];
 

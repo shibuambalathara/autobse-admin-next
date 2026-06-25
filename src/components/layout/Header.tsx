@@ -67,6 +67,39 @@ export function Header({
             : pathname === ROUTES.eventsTypes ||
               pathname.startsWith(`${ROUTES.eventsTypes}/`)
               ? "Vehicle Category"
+            : pathname === ROUTES.enquiries ||
+              pathname.startsWith(`${ROUTES.enquiries}/`)
+              ? "Enquiries"
+            : pathname === ROUTES.blog ||
+              pathname.startsWith(`${ROUTES.blog}/`)
+              ? pathname.includes("/deleted")
+                ? "Deleted Blogs"
+                : pathname.includes("/add")
+                  ? "Add Blog"
+                  : pathname.includes("/edit")
+                    ? "Edit Blog"
+                    : "Blog"
+            : pathname === ROUTES.career ||
+              pathname.startsWith(`${ROUTES.career}/`)
+              ? pathname.includes("/deleted")
+                ? "Deleted Careers"
+                : pathname.includes("/add")
+                  ? "Add Career"
+                  : pathname.includes("/edit")
+                    ? "Edit Career"
+                    : pathname.includes("/applications")
+                      ? "Job Applications"
+                      : "Careers"
+            : pathname === ROUTES.jobs ||
+              pathname.startsWith(`${ROUTES.jobs}/`)
+              ? pathname === ROUTES.jobs
+                ? "Job Applications"
+                : "Application Details"
+            : pathname === ROUTES.scheduleCalls ||
+              pathname.startsWith(`${ROUTES.scheduleCalls}/`)
+              ? pathname.includes("/deleted")
+                ? "Deleted Scheduled Calls"
+                : "Scheduled Calls"
             : pathname === ROUTES.blockedDealers ||
               pathname.startsWith(`${ROUTES.blockedDealers}/`)
             ? "Blocked Dealers"
