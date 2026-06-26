@@ -133,6 +133,7 @@ export const ROUTES = {
   settings: "/settings",
   components: "/components",
   accountRecovery: "/account-recovery",
+  userResetPassword: "/user-reset-password",
 } as const;
 
 export type AppRoute = (typeof ROUTES)[keyof typeof ROUTES];

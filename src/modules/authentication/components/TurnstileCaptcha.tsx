@@ -5,15 +5,19 @@ import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
 import { env } from "@/config/env";
 
 interface TurnstileCaptchaProps {
+  action?: string;
   onSuccess: (token: string) => void;
   onExpire?: () => void;
-  onError?: () => void;
+  onError?: (errorCode?: string) => void;
 }
 
 export const TurnstileCaptcha = forwardRef<
   TurnstileInstance | undefined,
   TurnstileCaptchaProps
->(function TurnstileCaptcha({ onSuccess, onExpire, onError }, ref) {
+>(function TurnstileCaptcha(
+  { action = "auth", onSuccess, onExpire, onError },
+  ref
+) {
   if (!env.turnstileSiteKey) {
     if (env.isDev) {
       return (
@@ -28,14 +32,31 @@ export const TurnstileCaptcha = forwardRef<
   }
 
   return (
-    <div className="flex justify-center">
+    <div className="flex min-h-[65px] min-w-[300px] justify-center">
       <Turnstile
         ref={ref}
         siteKey={env.turnstileSiteKey}
         onSuccess={onSuccess}
         onExpire={onExpire}
-        onError={onError}
-        options={{ theme: "light", size: "flexible" }}
+        onError={(errorCode) => {
+          if (env.isDev) {
+            console.error("[Turnstile] challenge failed:", errorCode);
+          }
+          onError?.(errorCode);
+          return true;
+        }}
+        scriptOptions={{
+          appendTo: "body",
+          defer: true,
+          async: true,
+        }}
+        options={{
+          action,
+          theme: "light",
+          size: "normal",
+          appearance: "always",
+          retry: "auto",
+        }}
       />
     </div>
   );
