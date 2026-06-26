@@ -13,7 +13,7 @@ export const ADD_VEHICLE_FIELDS = [
   { name: "varient", label: "Varient", type: "text" },
   { name: "startPrice", label: "Start Price", type: "number" },
   { name: "inspectionLink", label: "Inspection Link", type: "text" },
-  { name: "image", label: "Image URL", type: "text" },
+  { name: "images", label: "Image URLs", type: "text" },
   { name: "repoDt", label: "Repo Date", type: "text" },
   { name: "reservePrice", label: "Reserve Price", type: "number" },
   { name: "kmReading", label: "KM Reading", type: "number" },

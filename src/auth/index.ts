@@ -55,6 +55,8 @@ export {
 export { useAccess } from "./use-access";
 export type { UseAccessReturn } from "./use-access";
 
+export { useAuthenticatedQuery } from "./use-authenticated-query";
+
 export { Can } from "./can";
 export type { CanProps } from "./can";
 

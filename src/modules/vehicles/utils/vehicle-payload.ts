@@ -2,24 +2,50 @@ import type { CreateVehicleInput } from "@/modules/vehicles/types";
 
 /** Strip empty string values before sending create payload (matches legacy behavior). */
 export function stripEmptyVehicleFields(
-  payload: Record<string, string | number | undefined>
+  payload: Record<string, string | number | string[] | undefined>
 ): CreateVehicleInput {
   const cleaned: CreateVehicleInput = {};
   Object.entries(payload).forEach(([key, value]) => {
-    if (value !== "" && value !== undefined && value !== null) {
-      cleaned[key] = value;
-    }
+    if (value === "" || value === undefined || value === null) return;
+    if (Array.isArray(value) && value.length === 0) return;
+    cleaned[key] = value;
   });
   return cleaned;
 }
 
-export function formatImageTextareaValue(text?: string | null): string {
-  if (!text) return "";
-  return text.replace(/,/g, ",\n");
+/** Flatten API image values that may be comma-separated inside array entries. */
+export function normalizeVehicleImages(
+  images?: string[] | string | null
+): string[] {
+  if (!images) return [];
+  const items = Array.isArray(images) ? images : [images];
+  return items
+    .filter(Boolean)
+    .flatMap((item) =>
+      item
+        .split(",")
+        .map((url) => url.trim())
+        .filter(Boolean)
+    );
 }
 
-export function normalizeImageTextareaValue(text?: string): string {
-  return text?.replace(/,\n/g, ",") ?? "";
+export function formatImageTextareaValue(
+  images?: string[] | string | null
+): string {
+  return normalizeVehicleImages(images).join(",\n");
+}
+
+export function normalizeImageTextareaValue(text?: string): string[] {
+  if (!text?.trim()) return [];
+  return text
+    .replace(/,\n/g, ",")
+    .split(",")
+    .map((url) => url.trim())
+    .filter(Boolean);
+}
+
+export function vehicleHasHttpsImages(images?: string[] | null): boolean {
+  return normalizeVehicleImages(images).some((url) => url.includes("https://"));
 }
 
 export function parseAdditionalData(

@@ -1,7 +1,10 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLazyQuery, useQuery } from "@apollo/client";
+import { useAuth } from "@/auth/use-auth";
+import { useAuthenticatedQuery } from "@/auth/use-authenticated-query";
+import { APP_ROLES } from "@/auth/roles";
 import {
   CRM_LIST_QUERY,
   POTENTIAL_CLIENT_BASIC_INFO_QUERY,
@@ -60,6 +63,9 @@ function buildWhereFromFilters(
 }
 
 export function useCrmList() {
+  const { user } = useAuth();
+  const { canFetch } = useAuthenticatedQuery();
+  const isStaff = user?.role?.toLowerCase() === APP_ROLES.STAFF;
   const [searchInput, setSearchInput] = useState("");
   const searchQuery = useDebouncedValue(searchInput.trim());
   const [filters, setFilters] = useState<CrmPageFilters>(emptyFilters);
@@ -81,6 +87,13 @@ export function useCrmList() {
 
   const filterOptions = useCrmFilterOptions(filters.stateId ?? "");
 
+  useEffect(() => {
+    if (!isStaff) return;
+    setFilters((prev) =>
+      prev.assignedStaffId ? { ...prev, assignedStaffId: undefined } : prev
+    );
+  }, [isStaff]);
+
   const where = useMemo(
     () => buildWhereFromFilters(filters),
     [filters]
@@ -100,6 +113,7 @@ export function useCrmList() {
 
   const { data, loading, refetch } = useQuery<CrmListResult>(CRM_LIST_QUERY, {
     variables: queryVariables,
+    skip: !canFetch,
     fetchPolicy: "network-only",
   });
 
@@ -233,5 +247,6 @@ export function useCrmList() {
     filterOptions,
     downloadExcel,
     excelLoading,
+    isStaff,
   };
 }

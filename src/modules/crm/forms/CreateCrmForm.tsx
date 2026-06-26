@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@apollo/client";
 import Swal from "sweetalert2";
+import { useAuth } from "@/auth/use-auth";
+import { APP_ROLES } from "@/auth/roles";
 import { Button, FormCard, Input, Select } from "@/components/ui";
 import { FormField, FormGrid, Textarea } from "@/components/forms";
 import { CREATE_POTENTIAL_CLIENT_MUTATION } from "@/graphql/documents/crm";
@@ -13,6 +15,8 @@ import { extractGraphqlError } from "@/lib/graphql-errors";
 import {
   BUYER_PREFERENCE_OPTIONS,
   IS_REGISTERED_BUYER_OPTIONS,
+  POTENTIAL_CLIENT_STATUS_OPTIONS,
+  PotentialClientStatus,
 } from "@/modules/crm/constants";
 import { useCrmFilterOptions } from "@/modules/crm/hooks/useCrmFilterOptions";
 import { formatStateDisplay } from "@/modules/users/utils";
@@ -25,6 +29,7 @@ interface CreateCrmFormValues {
   pancardNumber?: string;
   buyerPreference?: string;
   isRegisteredBuyer?: string;
+  status: string;
   stateId?: string;
   locationId?: string;
   vehicleCategoryId?: string;
@@ -34,6 +39,8 @@ interface CreateCrmFormValues {
 
 export function CreateCrmForm() {
   const router = useRouter();
+  const { user } = useAuth();
+  const isStaff = user?.role?.toLowerCase() === APP_ROLES.STAFF;
   const [createClient, { loading }] = useMutation(CREATE_POTENTIAL_CLIENT_MUTATION);
 
   const {
@@ -41,10 +48,12 @@ export function CreateCrmForm() {
     handleSubmit,
     watch,
     setValue,
+    clearErrors,
     formState: { errors },
   } = useForm<CreateCrmFormValues>({
     defaultValues: {
       isRegisteredBuyer: "",
+      status: "",
       stateId: "",
       assignedStaffId: "",
       vehicleCategoryId: "",
@@ -53,6 +62,8 @@ export function CreateCrmForm() {
   });
 
   const stateId = watch("stateId") ?? "";
+  const status = watch("status");
+  const isNotInterested = status === PotentialClientStatus.NotInterested;
   const prevStateIdRef = useRef<string | undefined>(undefined);
   const filterOptions = useCrmFilterOptions(stateId);
 
@@ -63,6 +74,18 @@ export function CreateCrmForm() {
     }
     prevStateIdRef.current = stateId;
   }, [stateId, setValue]);
+
+  useEffect(() => {
+    if (!isStaff) return;
+    setValue("assignedStaffId", "");
+  }, [isStaff, setValue]);
+
+  useEffect(() => {
+    if (!isNotInterested) return;
+    setValue("locationId", "");
+    setValue("vehicleCategoryId", "");
+    clearErrors(["locationId", "vehicleCategoryId"]);
+  }, [isNotInterested, setValue, clearErrors]);
 
   const stateFormOptions = useMemo(
     () =>
@@ -88,16 +111,23 @@ export function CreateCrmForm() {
             ? false
             : undefined,
       remarks: formData.remarks.trim(),
+      status: formData.status || undefined,
     };
 
     try {
       await createClient({
         variables: {
           createPotentialclientInput,
-          assignedStaffId: formData.assignedStaffId || undefined,
+          assignedStaffId: isStaff
+            ? undefined
+            : formData.assignedStaffId || undefined,
           stateId: formData.stateId || undefined,
-          vehicleCategoryId: formData.vehicleCategoryId || undefined,
-          locationId: formData.locationId || undefined,
+          vehicleCategoryId: isNotInterested
+            ? undefined
+            : formData.vehicleCategoryId || undefined,
+          locationId: isNotInterested
+            ? undefined
+            : formData.locationId || undefined,
         },
       });
 
@@ -122,7 +152,7 @@ export function CreateCrmForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <FormCard
-        title="Add Potential Buyer"
+        title="Add Buyer Lead"
         footer={
           <>
             <Button
@@ -175,6 +205,20 @@ export function CreateCrmForm() {
             <Input id="crm-pancard" {...register("pancardNumber")} />
           </FormField>
 
+          <FormField
+            label="Status"
+            htmlFor="crm-status"
+            required
+            error={errors.status?.message}
+          >
+            <Select
+              id="crm-status"
+              placeholder="Select status"
+              options={[...POTENTIAL_CLIENT_STATUS_OPTIONS]}
+              {...register("status", { required: "Status is required" })}
+            />
+          </FormField>
+
           <FormField label="Buyer Preference" htmlFor="crm-buyer-preference">
             <Select
               id="crm-buyer-preference"
@@ -202,33 +246,55 @@ export function CreateCrmForm() {
             />
           </FormField>
 
-          <FormField label="Location" htmlFor="crm-location">
-            <Select
-              id="crm-location"
-              placeholder={stateId ? "Select location" : "Select state first"}
-              options={filterOptions.locationOptions}
-              disabled={!stateId || filterOptions.locationsLoading}
-              {...register("locationId")}
-            />
-          </FormField>
+          {!isNotInterested ? (
+            <>
+              <FormField
+                label="Location"
+                htmlFor="crm-location"
+                required
+                error={errors.locationId?.message}
+              >
+                <Select
+                  id="crm-location"
+                  placeholder={stateId ? "Select location" : "Select state first"}
+                  options={filterOptions.locationOptions}
+                  disabled={!stateId || filterOptions.locationsLoading}
+                  {...register("locationId", {
+                    required: isNotInterested ? false : "Location is required",
+                  })}
+                />
+              </FormField>
 
-          <FormField label="Vehicle Category" htmlFor="crm-vehicle-category">
-            <Select
-              id="crm-vehicle-category"
-              placeholder="Select category"
-              options={filterOptions.vehicleCategoryOptions}
-              {...register("vehicleCategoryId")}
-            />
-          </FormField>
+              <FormField
+                label="Vehicle Category"
+                htmlFor="crm-vehicle-category"
+                required
+                error={errors.vehicleCategoryId?.message}
+              >
+                <Select
+                  id="crm-vehicle-category"
+                  placeholder="Select category"
+                  options={filterOptions.vehicleCategoryOptions}
+                  {...register("vehicleCategoryId", {
+                    required: isNotInterested
+                      ? false
+                      : "Vehicle category is required",
+                  })}
+                />
+              </FormField>
+            </>
+          ) : null}
 
-          <FormField label="Assigned Staff" htmlFor="crm-assigned-staff">
-            <Select
-              id="crm-assigned-staff"
-              placeholder="Select staff"
-              options={filterOptions.staffOptions}
-              {...register("assignedStaffId")}
-            />
-          </FormField>
+          {!isStaff ? (
+            <FormField label="Assigned Staff" htmlFor="crm-assigned-staff">
+              <Select
+                id="crm-assigned-staff"
+                placeholder="Select staff"
+                options={filterOptions.staffOptions}
+                {...register("assignedStaffId")}
+              />
+            </FormField>
+          ) : null}
 
           <div className="col-span-full">
             <FormField

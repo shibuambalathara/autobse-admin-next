@@ -30,7 +30,9 @@ export function Header({
   const mobileTitle =
     pathname === ROUTES.users || pathname === `${ROUTES.users}/`
       ? "Users"
-      : pathname === ROUTES.events || pathname === `${ROUTES.events}/`
+      : pathname === ROUTES.usersOtpUnverified
+        ? "OTP Unverified Users"
+        : pathname === ROUTES.events || pathname === `${ROUTES.events}/`
         ? "Events"
         : pathname === ROUTES.sellers || pathname.startsWith(`${ROUTES.sellers}/`)
           ? "Sellers"
@@ -100,6 +102,19 @@ export function Header({
               ? pathname.includes("/deleted")
                 ? "Deleted Scheduled Calls"
                 : "Scheduled Calls"
+            : pathname === ROUTES.auditLogs
+              ? "Audit Logs"
+              : pathname.startsWith("/user-audit-logs/")
+                ? "User Audit Logs"
+            : pathname === ROUTES.notifications ||
+              pathname.startsWith(`${ROUTES.notifications}/`)
+              ? pathname.includes("/deleted")
+                ? "Deleted Notifications"
+                : "Notifications"
+            : pathname.startsWith("/user-notifications/")
+              ? pathname.includes("/deleted")
+                ? "Deleted Notifications"
+                : "User Notifications"
             : pathname === ROUTES.blockedDealers ||
               pathname.startsWith(`${ROUTES.blockedDealers}/`)
             ? "Blocked Dealers"

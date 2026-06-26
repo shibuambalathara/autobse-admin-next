@@ -58,8 +58,8 @@ export function CrmUploadView() {
 
   return (
     <PageContainer
-      title="Upload Potential Buyers"
-      description="Import potential buyers from an Excel file."
+      title="Upload Buyer Leads"
+      description="Import buyer leads from an Excel file."
       actions={
         <Link
           href={ROUTES.crm}
@@ -72,7 +72,7 @@ export function CrmUploadView() {
       <div className="mx-auto w-full max-w-2xl">
         <form onSubmit={handleSubmit(onSubmit)}>
           <FormCard
-            title="Upload Potential Buyers Excel"
+            title="Upload Buyer Leads Excel"
             footer={
               <>
                 <Button
@@ -92,7 +92,7 @@ export function CrmUploadView() {
               <p className="text-sm text-brand-600">
                 The Excel file must contain mobile and firstName columns. Header
                 names must exactly match: mobile, firstName, lastName, state,
-                email.
+                email, remarks.
               </p>
 
               <FormField

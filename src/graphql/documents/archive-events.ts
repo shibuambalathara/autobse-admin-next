@@ -68,7 +68,7 @@ export const ARCHIVE_VEHICLES_QUERY = gql`
         bidStartTime
         bidTimeExpire
         totalBids
-        image
+        images
         currentBidAmount
         createdAt
         currentBidUser {

@@ -28,19 +28,21 @@ export function CrmListView() {
         stateNameById: list.filterOptions.stateNameById,
         onDelete: actions.deleteClient,
         onMoveToUser: actions.moveToUser,
+        showAssignedStaff: !list.isStaff,
       }),
     [
       actions.deleteClient,
       actions.moveToUser,
       list.filterOptions.stateNameById,
+      list.isStaff,
     ]
   );
 
   return (
     <div className="w-full min-w-0 max-w-full overflow-x-hidden">
       <PageContainer
-        title="Potential Buyers-CRM"
-        description="Manage potential buyers, follow-ups, and call logs."
+        title="Buyer Leads — CRM"
+        description="Manage buyer leads, follow-ups, and call logs."
         actions={
           <div className="hidden flex-wrap gap-2 lg:flex">
             {isAdmin && (
@@ -58,17 +60,17 @@ export function CrmListView() {
               className={buttonVariants({ size: "sm", variant: "outline" })}
             >
               <Upload className="h-4 w-4 shrink-0" />
-              Excel Upload
+              Excel Upload Buyer Leads
             </Link>
             <Link
               href={ROUTES.crmDeleted}
               className={buttonVariants({ size: "sm", variant: "outline" })}
             >
-              Deleted Potential Buyers
+              Deleted Buyer Leads
             </Link>
             <Link href={ROUTES.crmAdd} className={buttonVariants({ size: "sm" })}>
               <Plus className="h-4 w-4 shrink-0" />
-              Add Potential Buyer
+              Add Lead
             </Link>
           </div>
         }
@@ -81,11 +83,12 @@ export function CrmListView() {
           vehicleCategoryOptions={list.filterOptions.vehicleCategoryOptions}
           staffOptions={list.filterOptions.staffOptions}
           locationsLoading={list.filterOptions.locationsLoading}
+          showAssignedStaff={!list.isStaff}
           onClear={list.clearFilters}
         />
 
         {list.loading && list.clients.length === 0 ? (
-          <LoadingState label="Loading potential buyers…" />
+          <LoadingState label="Loading buyer leads…" />
         ) : (
           <DataTable
             columns={columns}
@@ -100,7 +103,7 @@ export function CrmListView() {
               total: list.total,
             }}
             onPageChange={list.setPage}
-            emptyTitle="No potential buyers"
+            emptyTitle="No buyer leads"
             emptyDescription="Try adjusting your search or filters."
           />
         )}

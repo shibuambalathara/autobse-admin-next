@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useQuery } from "@apollo/client";
+import { useAuthenticatedQuery } from "@/auth/use-authenticated-query";
 import { DELETED_CRM_LIST_QUERY } from "@/graphql/documents/crm";
 import { CRM_PAGE_SIZE } from "@/modules/crm/constants";
 import { useCrmFilterOptions } from "@/modules/crm/hooks/useCrmFilterOptions";
@@ -10,6 +11,7 @@ import type { DeletedCrmListResult } from "@/modules/crm/types";
 import { useDebouncedValue } from "@/modules/users/utils/useDebouncedValue";
 
 export function useDeletedCrmList() {
+  const { canFetch } = useAuthenticatedQuery();
   const [searchInput, setSearchInput] = useState("");
   const searchQuery = useDebouncedValue(searchInput.trim());
   const [page, setPage] = useState(1);
@@ -32,6 +34,7 @@ export function useDeletedCrmList() {
     DELETED_CRM_LIST_QUERY,
     {
       variables: queryVariables,
+      skip: !canFetch,
       fetchPolicy: "network-only",
     }
   );

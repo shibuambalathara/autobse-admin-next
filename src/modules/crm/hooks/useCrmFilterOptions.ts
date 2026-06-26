@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo } from "react";
 import { useQuery } from "@apollo/client";
+import { useAuthenticatedQuery } from "@/auth/use-authenticated-query";
 import { STATES_QUERY } from "@/graphql/documents/users";
 import { VEHICLE_CATEGORIES_QUERY } from "@/graphql/documents/events";
 import {
@@ -25,17 +26,21 @@ interface VehicleCategoriesResult {
 }
 
 export function useCrmFilterOptions(stateId: string) {
+  const { canFetch } = useAuthenticatedQuery();
+
   const { data: statesData } = useQuery<StatesQueryResult>(STATES_QUERY, {
+    skip: !canFetch,
     fetchPolicy: "cache-first",
   });
 
   const { data: vehicleCategoryData } = useQuery<VehicleCategoriesResult>(
     VEHICLE_CATEGORIES_QUERY,
-    { fetchPolicy: "network-only" }
+    { skip: !canFetch, fetchPolicy: "network-only" }
   );
 
   const { data: staffData } = useQuery<StaffUsersResult>(STAFF_USERS_QUERY, {
     variables: STAFF_USERS_QUERY_VARIABLES,
+    skip: !canFetch,
     fetchPolicy: "network-only",
   });
 
@@ -49,7 +54,7 @@ export function useCrmFilterOptions(stateId: string) {
       variables: selectedStateName
         ? { where: { state: selectedStateName } }
         : undefined,
-      skip: !selectedStateName,
+      skip: !canFetch || !selectedStateName,
       fetchPolicy: "network-only",
     });
 
