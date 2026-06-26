@@ -25,7 +25,9 @@ export const env = {
     process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ??
     process.env.REACT_APP_TURNSTILE_SITE_KEY ??
     ""
-  ).trim(),
+  )
+    .trim()
+    .replace(/^['"]|['"]$/g, ""),
   isDev: process.env.NODE_ENV === "development",
   isProd: process.env.NODE_ENV === "production",
 } as const;

@@ -44,3 +44,17 @@ export interface VerifyOtpInput {
   mobile: string;
   otp: string;
 }
+
+export interface ResetPasswordInput {
+  password: string;
+  confirmPassword: string;
+}
+
+export interface ResetPasswordMutationResult {
+  resetUserPassword: {
+    id: string;
+    status: string;
+    firstName: string;
+    username: string;
+  };
+}

@@ -36,3 +36,14 @@ export const VERIFY_OTP_MUTATION = gql`
     }
   }
 `;
+
+export const RESET_PASSWORD_MUTATION = gql`
+  mutation ResetPassword($data: ResetPasswordInput!) {
+    resetUserPassword(data: $data) {
+      id
+      status
+      firstName
+      username
+    }
+  }
+`;
