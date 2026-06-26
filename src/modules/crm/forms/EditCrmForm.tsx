@@ -18,6 +18,7 @@ import {
   BUYER_PREFERENCE_OPTIONS,
   IS_REGISTERED_BUYER_OPTIONS,
   POTENTIAL_CLIENT_STATUS_OPTIONS,
+  PotentialClientStatus,
 } from "@/modules/crm/constants";
 import { useCrmFilterOptions } from "@/modules/crm/hooks/useCrmFilterOptions";
 import type { IndividualCrmResult } from "@/modules/crm/types";
@@ -65,11 +66,14 @@ export function EditCrmForm({ clientId, isEditable, onToggleEdit }: EditCrmFormP
     reset,
     watch,
     setValue,
+    clearErrors,
     formState: { errors },
   } = useForm<EditCrmFormValues>();
 
   const client = data?.potentialClient;
   const stateId = watch("stateId") ?? "";
+  const status = watch("status");
+  const isNotInterested = status === PotentialClientStatus.NotInterested;
   const prevStateIdRef = useRef<string | undefined>(undefined);
   const filterOptions = useCrmFilterOptions(stateId);
 
@@ -80,6 +84,13 @@ export function EditCrmForm({ clientId, isEditable, onToggleEdit }: EditCrmFormP
     }
     prevStateIdRef.current = stateId;
   }, [stateId, setValue]);
+
+  useEffect(() => {
+    if (!isNotInterested) return;
+    setValue("locationId", "");
+    setValue("vehicleCategoryId", "");
+    clearErrors(["locationId", "vehicleCategoryId"]);
+  }, [isNotInterested, setValue, clearErrors]);
 
   const resetToClientValues = () => {
     if (!client) return;
@@ -172,8 +183,10 @@ export function EditCrmForm({ clientId, isEditable, onToggleEdit }: EditCrmFormP
       remarks: (formData.remarks ?? "").trim(),
       assignedStaffId: formData.assignedStaffId || undefined,
       stateId: formData.stateId || undefined,
-      vehicleCategoryId: formData.vehicleCategoryId || undefined,
-      locationId: formData.locationId || undefined,
+      vehicleCategoryId: isNotInterested
+        ? undefined
+        : formData.vehicleCategoryId || undefined,
+      locationId: isNotInterested ? undefined : formData.locationId || undefined,
       status: formData.status || undefined,
     };
 
@@ -213,7 +226,7 @@ export function EditCrmForm({ clientId, isEditable, onToggleEdit }: EditCrmFormP
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <FormCard
-        title="Edit Potential Buyer"
+        title="Edit Buyer Lead"
         description={`SL No: ${client.idNo}`}
         footer={
           isEditable ? (
@@ -315,24 +328,28 @@ export function EditCrmForm({ clientId, isEditable, onToggleEdit }: EditCrmFormP
               />
             </FormField>
 
-            <FormField label="Location" htmlFor="edit-crm-location">
-              <Select
-                id="edit-crm-location"
-                placeholder={stateId ? "Select location" : "Select state first"}
-                options={locationOptions}
-                disabled={!stateId || filterOptions.locationsLoading}
-                {...register("locationId")}
-              />
-            </FormField>
+            {!isNotInterested ? (
+              <>
+                <FormField label="Location" htmlFor="edit-crm-location">
+                  <Select
+                    id="edit-crm-location"
+                    placeholder={stateId ? "Select location" : "Select state first"}
+                    options={locationOptions}
+                    disabled={!stateId || filterOptions.locationsLoading}
+                    {...register("locationId")}
+                  />
+                </FormField>
 
-            <FormField label="Vehicle Category" htmlFor="edit-crm-vehicle-category">
-              <Select
-                id="edit-crm-vehicle-category"
-                placeholder="Select category"
-                options={filterOptions.vehicleCategoryOptions}
-                {...register("vehicleCategoryId")}
-              />
-            </FormField>
+                <FormField label="Vehicle Category" htmlFor="edit-crm-vehicle-category">
+                  <Select
+                    id="edit-crm-vehicle-category"
+                    placeholder="Select category"
+                    options={filterOptions.vehicleCategoryOptions}
+                    {...register("vehicleCategoryId")}
+                  />
+                </FormField>
+              </>
+            ) : null}
 
             <FormField label="Assigned Staff" htmlFor="edit-crm-assigned-staff">
               <Select

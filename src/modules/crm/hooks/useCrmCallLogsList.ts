@@ -1,7 +1,10 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery } from "@apollo/client";
+import { useAuth } from "@/auth/use-auth";
+import { useAuthenticatedQuery } from "@/auth/use-authenticated-query";
+import { APP_ROLES } from "@/auth/roles";
 import {
   CRM_CALL_LOG_LIST_QUERY,
   INDIVIDUAL_CRM_QUERY,
@@ -26,12 +29,22 @@ const emptyFilters: CallLogPageFilters = {
 };
 
 export function useCrmCallLogsList(clientId: string) {
+  const { user } = useAuth();
+  const { canFetch } = useAuthenticatedQuery();
+  const isStaff = user?.role?.toLowerCase() === APP_ROLES.STAFF;
   const [searchInput, setSearchInput] = useState("");
   const searchQuery = useDebouncedValue(searchInput.trim());
   const [filters, setFilters] = useState<CallLogPageFilters>(emptyFilters);
   const [page, setPage] = useState(1);
 
   const filterOptions = useCrmFilterOptions("");
+
+  useEffect(() => {
+    if (!isStaff) return;
+    setFilters((prev) =>
+      prev.staffId ? { ...prev, staffId: undefined } : prev
+    );
+  }, [isStaff]);
 
   useResetCrmPageOnFilterChange(
     [
@@ -48,10 +61,10 @@ export function useCrmCallLogsList(clientId: string) {
       potentialClientId: clientId,
     };
     if (filters.callStatus) active.callStatus = filters.callStatus;
-    if (filters.staffId) active.staffId = filters.staffId;
+    if (!isStaff && filters.staffId) active.staffId = filters.staffId;
     if (filters.nextFollowUpAt) active.nextFollowUpAt = filters.nextFollowUpAt;
     return active;
-  }, [clientId, filters]);
+  }, [clientId, filters, isStaff]);
 
   const queryVariables = useMemo(
     () => ({
@@ -68,7 +81,7 @@ export function useCrmCallLogsList(clientId: string) {
     INDIVIDUAL_CRM_QUERY,
     {
       variables: { where: { id: clientId } },
-      skip: !clientId,
+      skip: !canFetch || !clientId,
       fetchPolicy: "cache-first",
     }
   );
@@ -77,7 +90,7 @@ export function useCrmCallLogsList(clientId: string) {
     CRM_CALL_LOG_LIST_QUERY,
     {
       variables: queryVariables,
-      skip: !clientId,
+      skip: !canFetch || !clientId,
       fetchPolicy: "network-only",
     }
   );
@@ -119,5 +132,6 @@ export function useCrmCallLogsList(clientId: string) {
     clearFilters,
     filterOptions,
     clientLabel,
+    isStaff,
   };
 }

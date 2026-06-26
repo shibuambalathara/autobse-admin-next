@@ -1,38 +1,68 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo } from "react";
-import { PageContainer, Select } from "@/components/ui";
+import { ArrowLeft } from "lucide-react";
+import { PERMISSIONS } from "@/auth/permissions";
+import { AccessDenied } from "@/auth/access-denied";
+import { useAccess } from "@/auth/use-access";
+import { PageContainer, Select, Button, buttonVariants } from "@/components/ui";
 import { FormField } from "@/components/forms";
 import { DataTable } from "@/components/table";
-import { LoadingState } from "@/components/feedback";
+import { EmptyState, LoadingState } from "@/components/feedback";
+import { ROUTES } from "@/constants/routes";
+import { extractGraphqlError } from "@/lib/graphql-errors";
 import { INDIAN_STATES } from "@/modules/users/constants";
 import { pendingUsersTableColumns } from "@/modules/users/tables/pending-users-table-columns";
 import { usePendingUsersList } from "@/modules/users/hooks/usePendingUsersList";
 import { mapUsersForDisplay } from "@/modules/users/hooks/useUserRowActions";
-import { Button } from "@/components/ui";
 
 export function PendingUsersView() {
+  const { can } = useAccess();
+  const canView = can(PERMISSIONS.USERS_PENDING);
   const list = usePendingUsersList();
+
   const displayUsers = useMemo(
     () => mapUsersForDisplay(list.users),
     [list.users]
   );
 
+  const showInitialLoading = list.loading && displayUsers.length === 0;
+
+  if (!canView) {
+    return (
+      <AccessDenied
+        title="Pending users access restricted"
+        description="Only administrators can view pending user registrations."
+      />
+    );
+  }
+
   return (
     <PageContainer
       title="Pending Users"
       description="Users awaiting registration approval."
+      actions={
+        <Link
+          href={ROUTES.users}
+          className={buttonVariants({ size: "sm", variant: "outline" })}
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Users
+        </Link>
+      }
     >
+      <div className="mb-4 lg:hidden">
+        <Link
+          href={ROUTES.users}
+          className={buttonVariants({ size: "sm", variant: "outline" })}
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Users
+        </Link>
+      </div>
+
       <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-3">
-        <FormField label="Search" htmlFor="pending-search">
-          <input
-            id="pending-search"
-            className="h-9 w-full rounded-md border border-surface-border px-3 text-sm"
-            placeholder="Search by name, mobile, or PAN…"
-            value={list.searchInput}
-            onChange={(e) => list.setSearchInput(e.target.value)}
-          />
-        </FormField>
         <FormField label="State" htmlFor="pending-state">
           <Select
             id="pending-state"
@@ -43,18 +73,27 @@ export function PendingUsersView() {
           />
         </FormField>
         <div className="flex items-end">
-          <Button size="sm" variant="ghost" onClick={list.clearFilters}>
+          <Button size="sm" variant="outline" onClick={list.clearFilters}>
             Clear filters
           </Button>
         </div>
       </div>
 
-      {list.loading && displayUsers.length === 0 ? (
+      {showInitialLoading ? (
         <LoadingState label="Loading pending users…" />
+      ) : list.error ? (
+        <EmptyState
+          title="Failed to load pending users"
+          description={extractGraphqlError(list.error).message}
+        />
       ) : (
         <DataTable
           columns={pendingUsersTableColumns}
           data={displayUsers}
+          variant="users"
+          searchValue={list.searchInput}
+          onSearchChange={list.setSearchInput}
+          searchPlaceholder="Search by name, mobile, or PAN…"
           pagination={{
             page: list.page,
             pageSize: list.pageSize,

@@ -9,7 +9,7 @@ export const ROUTES = {
   users: "/users",
   usersAdd: "/users/add",
   usersDeleted: "/users/deleted",
-  usersPending: "/users/pending",
+  usersOtpUnverified: "/users/otp-unverified",
   userDetail: (id: string) => `/users/${id}` as const,
   events: "/events",
   eventsAdd: "/events/add",
@@ -109,6 +109,10 @@ export const ROUTES = {
       : (`/archive-events/${id}/terms` as const);
   },
   notifications: "/notifications",
+  notificationsDeleted: "/notifications/deleted",
+  userNotifications: (userId: string) => `/user-notifications/${userId}` as const,
+  userNotificationsDeleted: (userId: string) =>
+    `/user-notifications/${userId}/deleted` as const,
   enquiries: "/enquiries",
   blog: "/blog",
   blogAdd: "/blog/add",
@@ -124,6 +128,8 @@ export const ROUTES = {
   jobApplicationDetail: (id: string) => `/jobs/${id}` as const,
   scheduleCalls: "/schedule-calls",
   scheduleCallsDeleted: "/schedule-calls/deleted",
+  auditLogs: "/audit-logs",
+  userAuditLogs: (userId: string) => `/user-audit-logs/${userId}` as const,
   settings: "/settings",
   components: "/components",
   accountRecovery: "/account-recovery",

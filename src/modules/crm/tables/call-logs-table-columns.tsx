@@ -16,15 +16,21 @@ function actionLinkClass(tone: string) {
 export function createCallLogsTableColumns(options: {
   onDelete: (callLog: CrmCallLog) => void;
   canEdit: boolean;
+  showStaffColumn?: boolean;
 }): TableColumn<CrmCallLog>[] {
-  const { onDelete, canEdit } = options;
+  const { onDelete, canEdit, showStaffColumn = true } = options;
 
-  return [
-    {
+  const columns: TableColumn<CrmCallLog>[] = [];
+
+  if (showStaffColumn) {
+    columns.push({
       id: "staff",
       header: "Staff",
       cell: (row) => row.staff?.firstName ?? "—",
-    },
+    });
+  }
+
+  columns.push(
     {
       id: "callStatus",
       header: "Call Status",
@@ -110,6 +116,8 @@ export function createCallLogsTableColumns(options: {
           "—"
         );
       },
-    },
-  ];
+    }
+  );
+
+  return columns;
 }

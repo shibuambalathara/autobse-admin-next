@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useMutation, useQuery } from "@apollo/client";
@@ -7,6 +8,8 @@ import Swal from "sweetalert2";
 import { Button, FormCard, Input, Select } from "@/components/ui";
 import { FormField, FormGrid, Textarea } from "@/components/forms";
 import { LoadingState } from "@/components/feedback";
+import { useAuth } from "@/auth/use-auth";
+import { APP_ROLES } from "@/auth/roles";
 import {
   ADD_CRM_CALL_LOG_MUTATION,
   INDIVIDUAL_CRM_QUERY,
@@ -35,6 +38,8 @@ interface CreateCallLogFormProps {
 
 export function CreateCallLogForm({ clientId }: CreateCallLogFormProps) {
   const router = useRouter();
+  const { user } = useAuth();
+  const isStaff = user?.role?.toLowerCase() === APP_ROLES.STAFF;
   const filterOptions = useCrmFilterOptions("");
 
   const { data: clientData, loading: clientLoading } = useQuery<IndividualCrmResult>(
@@ -50,10 +55,16 @@ export function CreateCallLogForm({ clientId }: CreateCallLogFormProps) {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<CreateCallLogFormValues>({
     defaultValues: { staffId: "", callStatus: "" },
   });
+
+  useEffect(() => {
+    if (!isStaff) return;
+    setValue("staffId", "");
+  }, [isStaff, setValue]);
 
   const client = clientData?.potentialClient;
   const clientLabel = client
@@ -90,7 +101,7 @@ export function CreateCallLogForm({ clientId }: CreateCallLogFormProps) {
         variables: {
           createPotentialClientCallLogInput,
           potentialClientId: clientId,
-          staffId: formData.staffId || undefined,
+          staffId: isStaff ? undefined : formData.staffId || undefined,
         },
       });
 
@@ -132,14 +143,16 @@ export function CreateCallLogForm({ clientId }: CreateCallLogFormProps) {
         }
       >
         <FormGrid>
-          <FormField label="Assigned Staff" htmlFor="call-log-staff">
-            <Select
-              id="call-log-staff"
-              placeholder="Select staff"
-              options={filterOptions.staffOptions}
-              {...register("staffId")}
-            />
-          </FormField>
+          {!isStaff && (
+            <FormField label="Assigned Staff" htmlFor="call-log-staff">
+              <Select
+                id="call-log-staff"
+                placeholder="Select staff"
+                options={filterOptions.staffOptions}
+                {...register("staffId")}
+              />
+            </FormField>
+          )}
 
           <FormField
             label="Call Status"

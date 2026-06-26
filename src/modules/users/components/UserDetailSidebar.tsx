@@ -2,6 +2,7 @@
 
 import { Button, Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
 import { USER_LEGACY_ROUTES, USER_ROUTES } from "@/modules/users/constants/related-routes";
+import { ROUTES } from "@/constants/routes";
 import { formatDate } from "@/lib/date-format";
 import type { UserDetail } from "@/modules/users/types";
 
@@ -24,9 +25,9 @@ export function UserDetailSidebar({
     { label: "Active Bids", href: USER_ROUTES.bids(userId) },
     { label: "Payment Details", href: USER_ROUTES.payments(userId) },
     { label: "Create Payment", href: USER_ROUTES.createPayment(userId) },
-    { label: "Notifications", href: USER_LEGACY_ROUTES.notifications(userId) },
+    { label: "Notifications", href: USER_ROUTES.notifications(userId) },
     { label: "Blocked Sellers", href: USER_ROUTES.blockedSellers(userId) },
-    { label: "Audit Log", href: USER_LEGACY_ROUTES.auditLog(userId) },
+    { label: "Audit Log", href: ROUTES.userAuditLogs(userId) },
     { label: "Accepted Events", href: USER_LEGACY_ROUTES.termsCondition(userId) },
   ];
 

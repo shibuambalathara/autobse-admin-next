@@ -32,8 +32,8 @@ export function DeletedCrmListView() {
   return (
     <div className="w-full min-w-0 max-w-full overflow-x-hidden">
       <PageContainer
-        title="Deleted Potential Buyers"
-        description="Restore soft-deleted potential buyers."
+        title="Deleted Buyer Leads"
+        description="Restore soft-deleted buyer leads."
         actions={
           <Link
             href={ROUTES.crm}
@@ -45,7 +45,7 @@ export function DeletedCrmListView() {
         }
       >
         {list.loading && list.clients.length === 0 ? (
-          <LoadingState label="Loading deleted potential buyers…" />
+          <LoadingState label="Loading deleted buyer leads…" />
         ) : (
           <DataTable
             columns={columns}
@@ -60,7 +60,7 @@ export function DeletedCrmListView() {
               total: list.total,
             }}
             onPageChange={list.setPage}
-            emptyTitle="No deleted potential buyers"
+            emptyTitle="No deleted buyer leads"
             emptyDescription="Try adjusting your search."
           />
         )}

@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { useQuery } from "@apollo/client";
+import { useAuthenticatedQuery } from "@/auth/use-authenticated-query";
 import {
   DELETED_CRM_CALL_LOG_LIST_QUERY,
   INDIVIDUAL_CRM_QUERY,
@@ -26,6 +27,7 @@ const emptyFilters: CallLogPageFilters = {
 };
 
 export function useDeletedCrmCallLogsList(clientId: string) {
+  const { canFetch } = useAuthenticatedQuery();
   const [searchInput, setSearchInput] = useState("");
   const searchQuery = useDebouncedValue(searchInput.trim());
   const [filters, setFilters] = useState<CallLogPageFilters>(emptyFilters);
@@ -62,7 +64,7 @@ export function useDeletedCrmCallLogsList(clientId: string) {
     INDIVIDUAL_CRM_QUERY,
     {
       variables: { where: { id: clientId } },
-      skip: !clientId,
+      skip: !canFetch || !clientId,
       fetchPolicy: "network-only",
     }
   );
@@ -71,7 +73,7 @@ export function useDeletedCrmCallLogsList(clientId: string) {
     DELETED_CRM_CALL_LOG_LIST_QUERY,
     {
       variables: queryVariables,
-      skip: !clientId,
+      skip: !canFetch || !clientId,
       fetchPolicy: "network-only",
     }
   );

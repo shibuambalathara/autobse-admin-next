@@ -21,3 +21,4 @@ export * from "./documents/blogs";
 export * from "./documents/careers";
 export * from "./documents/job-applications";
 export * from "./documents/schedule-calls";
+export * from "./documents/audit-logs";

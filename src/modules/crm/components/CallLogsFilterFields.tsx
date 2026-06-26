@@ -12,6 +12,7 @@ export interface CallLogsFilterFieldsProps {
   staffOptions: CrmFilterOption[];
   layout?: "grid" | "stack";
   showNextFollowUp?: boolean;
+  showStaffFilter?: boolean;
 }
 
 export function CallLogsFilterFields({
@@ -20,6 +21,7 @@ export function CallLogsFilterFields({
   staffOptions,
   layout = "grid",
   showNextFollowUp = true,
+  showStaffFilter = true,
 }: CallLogsFilterFieldsProps) {
   const isStacked = layout === "stack";
 
@@ -35,15 +37,17 @@ export function CallLogsFilterFields({
         />
       </FormField>
 
-      <FormField label="Staff" htmlFor="call-log-filter-staff">
-        <Select
-          id="call-log-filter-staff"
-          placeholder="All staff"
-          options={staffOptions}
-          value={filters.staffId ?? ""}
-          onChange={(e) => setFilter("staffId", e.target.value)}
-        />
-      </FormField>
+      {showStaffFilter && (
+        <FormField label="Staff" htmlFor="call-log-filter-staff">
+          <Select
+            id="call-log-filter-staff"
+            placeholder="All staff"
+            options={staffOptions}
+            value={filters.staffId ?? ""}
+            onChange={(e) => setFilter("staffId", e.target.value)}
+          />
+        </FormField>
+      )}
 
       {showNextFollowUp && (
         <FormField label="Next Follow Up" htmlFor="call-log-filter-next-follow-up">

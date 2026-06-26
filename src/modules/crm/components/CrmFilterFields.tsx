@@ -17,6 +17,7 @@ export interface CrmFilterFieldsProps {
   vehicleCategoryOptions: CrmFilterOption[];
   staffOptions: CrmFilterOption[];
   locationsLoading?: boolean;
+  showAssignedStaff?: boolean;
   layout?: "grid" | "stack";
 }
 
@@ -28,6 +29,7 @@ export function CrmFilterFields({
   vehicleCategoryOptions,
   staffOptions,
   locationsLoading,
+  showAssignedStaff = true,
   layout = "grid",
 }: CrmFilterFieldsProps) {
   const isStacked = layout === "stack";
@@ -85,15 +87,17 @@ export function CrmFilterFields({
         />
       </FormField>
 
-      <FormField label="Assigned Staff" htmlFor="crm-filter-staff">
-        <Select
-          id="crm-filter-staff"
-          placeholder="All staff"
-          options={staffOptions}
-          value={filters.assignedStaffId ?? ""}
-          onChange={(e) => setFilter("assignedStaffId", e.target.value)}
-        />
-      </FormField>
+      {showAssignedStaff ? (
+        <FormField label="Assigned Staff" htmlFor="crm-filter-staff">
+          <Select
+            id="crm-filter-staff"
+            placeholder="All staff"
+            options={staffOptions}
+            value={filters.assignedStaffId ?? ""}
+            onChange={(e) => setFilter("assignedStaffId", e.target.value)}
+          />
+        </FormField>
+      ) : null}
 
       <FormField label="Next Follow Up" htmlFor="crm-filter-next-follow-up">
         <input

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Card, CardDescription, CardTitle } from "@/components/ui";
-import { DASHBOARD_QUICK_ACTIONS } from "@/modules/dashboard/constants/placeholder-data";
+import { DASHBOARD_QUICK_ACTIONS } from "@/modules/dashboard/constants/dashboard-config";
 
 export function DashboardQuickActions() {
   return (

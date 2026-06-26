@@ -32,15 +32,16 @@ export function CallLogsListView({ clientId }: CallLogsListViewProps) {
       createCallLogsTableColumns({
         onDelete: actions.deleteCrmCallLog,
         canEdit,
+        showStaffColumn: !list.isStaff,
       }),
-    [actions.deleteCrmCallLog, canEdit]
+    [actions.deleteCrmCallLog, canEdit, list.isStaff]
   );
 
   return (
     <div className="w-full min-w-0 max-w-full overflow-x-hidden">
       <PageContainer
         title={`Call Logs — ${list.clientLabel}`}
-        description="Track call history and follow-ups for this potential buyer."
+        description="Track call history and follow-ups for this buyer lead."
         actions={
           <div className="hidden flex-wrap gap-2 lg:flex">
             <Link
@@ -70,6 +71,7 @@ export function CallLogsListView({ clientId }: CallLogsListViewProps) {
           filters={list.filters}
           setFilter={list.setFilter}
           staffOptions={list.filterOptions.staffOptions}
+          showStaffFilter={!list.isStaff}
           onClear={list.clearFilters}
           addHref={ROUTES.crmCallLogAdd(clientId)}
           deletedHref={ROUTES.crmCallLogsDeleted(clientId)}

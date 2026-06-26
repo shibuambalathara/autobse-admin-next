@@ -61,7 +61,8 @@ const ERROR_MESSAGES: Record<number, string> = {
   26002: "Schedule call id is required.",
   26003: "Schedule call remove failed.",
   26004: "Schedule call restore failed.",
-  26005: "Schedule call update failed.",
+  16000: "Buyer Leads creation failed.",
+  16001: "Buyer Leads not found.",
 };
 
 export function getGraphqlErrorMessage(

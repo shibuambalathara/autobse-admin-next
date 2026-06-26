@@ -3,9 +3,12 @@
 import { formatDate } from "@/lib/date-format";
 import type { PendingUserItem } from "@/modules/users/types";
 import type { TableColumn } from "@/types";
-import { formatStateDisplay } from "@/modules/users/utils";
-
 export const pendingUsersTableColumns: TableColumn<PendingUserItem>[] = [
+  {
+    id: "idNo",
+    header: "ID No",
+    cell: (row) => row.idNo ?? "—",
+  },
   {
     id: "firstName",
     header: "First Name",
@@ -17,11 +20,7 @@ export const pendingUsersTableColumns: TableColumn<PendingUserItem>[] = [
   { id: "lastName", header: "Last Name", accessor: "lastName" },
   { id: "mobile", header: "Mobile", accessor: "mobile" },
   { id: "pancardNo", header: "PAN Card No", accessor: "pancardNo" },
-  {
-    id: "state",
-    header: "State",
-    cell: (row) => formatStateDisplay(row.state),
-  },
+  { id: "state", header: "State", accessor: "state" },
   {
     id: "createdAt",
     header: "Created At",

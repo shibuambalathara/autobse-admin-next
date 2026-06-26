@@ -5,6 +5,7 @@ import { Download, FilePenLine, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui";
 import { ROUTES } from "@/constants/routes";
 import { formatDate } from "@/lib/date-format";
+import { vehicleHasHttpsImages } from "@/modules/vehicles/utils/vehicle-payload";
 import type { ArchivedEvent } from "@/modules/archive-events/types";
 import type { EventFilterOption } from "@/modules/events/types";
 import type { TableColumn } from "@/types";
@@ -234,7 +235,7 @@ export function createArchiveVehiclesTableColumns(): TableColumn<
     {
       id: "hasImage",
       header: "Have Image",
-      cell: (row) => (row.image?.includes("https://") ? "Yes" : "No"),
+      cell: (row) => (vehicleHasHttpsImages(row.images) ? "Yes" : "No"),
     },
     {
       id: "currentBidAmount",

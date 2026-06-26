@@ -14,6 +14,7 @@ import {
 
 export type EventsPageToolbarProps = EventsFilterFieldsProps & {
   onClear: () => void;
+  showAddEvent?: boolean;
 };
 
 function countActiveFilters(props: EventsFilterFieldsProps) {
@@ -32,6 +33,7 @@ const mobileActionButtonClass =
 
 export function EventsPageToolbar({
   onClear,
+  showAddEvent = true,
   ...fieldProps
 }: EventsPageToolbarProps) {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
@@ -78,16 +80,18 @@ export function EventsPageToolbar({
         </div>
 
         <div className="grid w-full min-w-0 grid-cols-1 gap-2">
-          <Link
-            href={ROUTES.eventsAdd}
-            className={cn(
-              mobileActionButtonClass,
-              "justify-center border-neutral-900 bg-neutral-900 text-white hover:bg-neutral-800"
-            )}
-          >
-            <Plus className="h-4 w-4 shrink-0" />
-            <span className="truncate">Add event</span>
-          </Link>
+          {showAddEvent && (
+            <Link
+              href={ROUTES.eventsAdd}
+              className={cn(
+                mobileActionButtonClass,
+                "justify-center border-neutral-900 bg-neutral-900 text-white hover:bg-neutral-800"
+              )}
+            >
+              <Plus className="h-4 w-4 shrink-0" />
+              <span className="truncate">Add event</span>
+            </Link>
+          )}
         </div>
 
         <div>{filterStatus}</div>

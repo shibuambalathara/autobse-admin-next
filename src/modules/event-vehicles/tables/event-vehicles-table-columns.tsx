@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Trash2 } from "lucide-react";
 import { formatDate } from "@/lib/date-format";
 import { VEHICLE_ROUTES } from "@/modules/event-vehicles/constants";
+import { vehicleHasHttpsImages } from "@/modules/vehicles/utils/vehicle-payload";
 import type { EventVehicleListItem } from "@/modules/event-vehicles/types";
 import type { BidTimeUpdateState } from "@/modules/event-vehicles/hooks/useEventVehicleRowActions";
 import type { TableColumn } from "@/types";
@@ -176,7 +177,7 @@ export function createEventVehiclesTableColumns(
     {
       id: "hasImage",
       header: "Have Image",
-      cell: (row) => (row.image?.includes("https://") ? "Yes" : "No"),
+      cell: (row) => (vehicleHasHttpsImages(row.images) ? "Yes" : "No"),
     },
   ];
 

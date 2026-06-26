@@ -19,7 +19,7 @@ import type {
   UserStatusType,
   UserWhereInput,
 } from "@/modules/users/types";
-import { formatDateOnly } from "@/lib/date-format";
+import { formatDateOnly, monthInputToIsoStart } from "@/lib/date-format";
 import { exportRowsToExcel } from "@/lib/excel-export";
 import { extractGraphqlError } from "@/lib/graphql-errors";
 import { useDebouncedValue } from "@/modules/users/utils/useDebouncedValue";
@@ -40,9 +40,8 @@ export function useUsersList() {
     if (role) where.role = role;
     if (status) where.status = status;
     if (registrationExpiryDate) {
-      where.registrationExpiryDate = new Date(
-        registrationExpiryDate
-      ).toISOString();
+      const expiryFilter = monthInputToIsoStart(registrationExpiryDate);
+      if (expiryFilter) where.registrationExpiryDate = expiryFilter;
     }
     return Object.keys(where).length > 0 ? where : undefined;
   }, [state, role, status, registrationExpiryDate]);
