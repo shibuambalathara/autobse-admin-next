@@ -11,7 +11,10 @@ import { ROUTES } from "@/constants/routes";
 import { extractGraphqlError } from "@/lib/graphql-errors";
 import { ADD_VEHICLE_FIELDS } from "@/modules/vehicles/constants";
 import { addVehicleValidation } from "@/modules/vehicles/forms/validation";
-import { stripEmptyVehicleFields } from "@/modules/vehicles/utils/vehicle-payload";
+import {
+  stripEmptyVehicleFields,
+  normalizeImageTextareaValue,
+} from "@/modules/vehicles/utils/vehicle-payload";
 
 interface AddVehicleFormValues {
   registrationNumber: string;
@@ -21,7 +24,7 @@ interface AddVehicleFormValues {
   varient?: string;
   startPrice?: string;
   inspectionLink?: string;
-  image?: string;
+  images?: string;
   repoDt?: string;
   reservePrice?: string;
   kmReading?: string;
@@ -45,14 +48,14 @@ export function AddVehicleForm({ eventId }: AddVehicleFormProps) {
   } = useForm<AddVehicleFormValues>();
 
   const onSubmit = async (formData: AddVehicleFormValues) => {
-    const payload: Record<string, string | number | undefined> = {
+    const payload: Record<string, string | number | string[] | undefined> = {
       registrationNumber: formData.registrationNumber,
       loanAgreementNo: formData.loanAgreementNo,
       make: formData.make,
       model: formData.model,
       varient: formData.varient,
       inspectionLink: formData.inspectionLink,
-      image: formData.image,
+      images: normalizeImageTextareaValue(formData.images),
       repoDt: formData.repoDt,
       rcStatus: formData.rcStatus,
     };

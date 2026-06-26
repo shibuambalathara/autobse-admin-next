@@ -19,10 +19,14 @@ import { EmdExcelModal } from "@/modules/users/components/modals/EmdExcelModal";
 import { DeleteUsersByDateModal } from "@/modules/users/components/modals/DeleteUsersByDateModal";
 import { UsersPageToolbar } from "@/modules/users/components/UsersPageToolbar";
 import { useAuth } from "@/auth/use-auth";
+import { useAccess } from "@/auth/use-access";
+import { PERMISSIONS } from "@/auth/permissions";
 
 export function UsersListView() {
   const { user } = useAuth();
+  const { can } = useAccess();
   const isAdmin = user?.role?.toLowerCase() === APP_ROLES.ADMIN;
+  const canViewPending = can(PERMISSIONS.USERS_PENDING);
 
   const list = useUsersList();
   const rowActions = useUserRowActions(() => list.refetch());
@@ -88,6 +92,14 @@ export function UsersListView() {
           >
             Deleted Users
           </Link>
+          {canViewPending ? (
+            <Link
+              href={ROUTES.usersOtpUnverified}
+              className={buttonVariants({ size: "sm", variant: "outline" })}
+            >
+              Pending Users
+            </Link>
+          ) : null}
           <Link href={ROUTES.usersAdd} className={buttonVariants({ size: "sm" })}>
             <Plus className="h-4 w-4 shrink-0" />
             Add User
@@ -97,6 +109,7 @@ export function UsersListView() {
     >
       <UsersPageToolbar
         isAdmin={isAdmin}
+        canViewPending={canViewPending}
         registrationExpiryDate={list.registrationExpiryDate}
         setRegistrationExpiryDate={list.setRegistrationExpiryDate}
         state={list.state}

@@ -23,7 +23,7 @@ export interface EventVehicleListItem {
   bidStartTime?: string | null;
   bidTimeExpire?: string | null;
   totalBids?: number | null;
-  image?: string | null;
+  images?: string[] | null;
   currentBidAmount?: number | null;
   startPrice?: number | null;
   quoteIncreament?: number | null;

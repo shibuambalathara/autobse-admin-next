@@ -35,6 +35,7 @@ export interface UserListItem {
 
 export interface PendingUserItem {
   id: string;
+  idNo?: number | null;
   firstName: string;
   lastName: string;
   mobile: string;

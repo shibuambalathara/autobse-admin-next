@@ -13,8 +13,8 @@ export function EditCrmView({ clientId }: EditCrmViewProps) {
 
   return (
     <PageContainer
-      title="Edit Potential Buyer"
-      description="View or update potential buyer details."
+      title="Edit Buyer Lead"
+      description="View or update buyer lead details."
       actions={
         <Button
           type="button"

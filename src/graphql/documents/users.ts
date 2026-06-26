@@ -76,7 +76,7 @@ export const PENDING_USERS_QUERY = gql`
       pendingUsers {
         id
         otp
-        IdNo
+        idNo: IdNo
         firstName
         lastName
         pancardNo

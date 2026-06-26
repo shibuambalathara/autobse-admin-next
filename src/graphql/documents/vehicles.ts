@@ -45,7 +45,7 @@ export const VEHICLES_LIST_QUERY = gql`
         bidStartTime
         bidTimeExpire
         totalBids
-        image
+        images
         currentBidAmount
         startPrice
         quoteIncreament
@@ -145,7 +145,7 @@ export const VEHICLE_QUERY = gql`
       permit
       engineNo
       chassisNo
-      image
+      images
       inspectionLink
       autobseContact
       autobse_contact_person

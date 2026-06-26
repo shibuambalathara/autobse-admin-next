@@ -11,6 +11,7 @@ import {
   Building2,
   UserX,
   Plus,
+  Clock,
   BookUser,
   ShieldBan,
   Car,
@@ -24,6 +25,7 @@ import {
   Briefcase,
   ClipboardList,
   Phone,
+  ScrollText,
 } from "lucide-react";
 import { filterNavByPermission } from "@/auth/access-control";
 import type { AppRole } from "@/auth/roles";
@@ -80,6 +82,14 @@ export const NAVIGATION: NavItem[] = [
         module: NAV_MODULES.users.id,
         permission: PERMISSIONS.USERS_READ,
       },
+         {
+        id: "users-add",
+        label: "Add User",
+        href: ROUTES.usersAdd,
+        icon: Plus,
+        module: NAV_MODULES.users.id,
+        permission: PERMISSIONS.USERS_CREATE,
+      },
       {
         id: "users-deleted",
         label: "Deleted Users",
@@ -89,13 +99,14 @@ export const NAVIGATION: NavItem[] = [
         permission: PERMISSIONS.USERS_DELETE,
       },
       {
-        id: "users-add",
-        label: "Add User",
-        href: ROUTES.usersAdd,
-        icon: Plus,
+        id: "users-otp-unverified",
+        label: "OTP Unverified Users",
+        href: ROUTES.usersOtpUnverified,
+        icon: Clock,
         module: NAV_MODULES.users.id,
-        permission: PERMISSIONS.USERS_CREATE,
+        permission: PERMISSIONS.USERS_PENDING,
       },
+   
     ],
   },
   {
@@ -171,7 +182,7 @@ export const NAVIGATION: NavItem[] = [
     children: [
       {
         id: "crm-list",
-        label: "All Potential Buyers",
+        label: "All Buyer Leads",
         href: ROUTES.crm,
         icon: BookUser,
         module: NAV_MODULES.crm.id,
@@ -179,7 +190,7 @@ export const NAVIGATION: NavItem[] = [
       },
       {
         id: "crm-add",
-        label: "Add Potential Buyer",
+        label: "Add Lead",
         href: ROUTES.crmAdd,
         icon: Plus,
         module: NAV_MODULES.crm.id,
@@ -221,14 +232,25 @@ export const NAVIGATION: NavItem[] = [
     icon: Building2,
     module: NAV_MODULES.inventory.id,
     permission: PERMISSIONS.SELLERS_READ,
-  },
-  {
-    id: "blocked-dealers",
-    label: "Blocked Dealers",
-    href: ROUTES.blockedDealers,
-    icon: ShieldBan,
-    module: NAV_MODULES.inventory.id,
-    permission: PERMISSIONS.SELLERS_MANAGE,
+    hideInBreadcrumb: true,
+    children: [
+      {
+        id: "sellers-list",
+        label: "All Sellers",
+        href: ROUTES.sellers,
+        icon: Building2,
+        module: NAV_MODULES.inventory.id,
+        permission: PERMISSIONS.SELLERS_READ,
+      },
+      {
+        id: "blocked-dealers",
+        label: "Blocked Dealers",
+        href: ROUTES.blockedDealers,
+        icon: ShieldBan,
+        module: NAV_MODULES.inventory.id,
+        permission: PERMISSIONS.SELLERS_MANAGE,
+      },
+    ],
   },
   {
     id: "locations",
@@ -341,6 +363,14 @@ export const NAVIGATION: NavItem[] = [
     icon: Phone,
     module: NAV_MODULES.system.id,
     permission: PERMISSIONS.SCHEDULE_CALLS_READ,
+  },
+  {
+    id: "audit-logs",
+    label: "Audit Logs",
+    href: ROUTES.auditLogs,
+    icon: ScrollText,
+    module: NAV_MODULES.system.id,
+    permission: PERMISSIONS.AUDIT_LOGS_READ,
   },
 ];
 

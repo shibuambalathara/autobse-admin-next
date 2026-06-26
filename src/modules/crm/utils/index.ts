@@ -5,7 +5,7 @@ import type {
 } from "@/modules/crm/constants";
 import {
   BUYER_PREFERENCE_OPTIONS,
-  CALL_STATUS_OPTIONS,
+  CALL_STATUS_LABEL_MAP,
   POTENTIAL_CLIENT_STATUS_OPTIONS,
 } from "@/modules/crm/constants";
 
@@ -27,10 +27,7 @@ export function getBuyerPreferenceLabel(value?: string | null): string {
 
 export function getCallStatusLabel(status?: string | null): string {
   if (!status) return "—";
-  return (
-    CALL_STATUS_OPTIONS.find((option) => option.value === status)?.label ??
-    status
-  );
+  return CALL_STATUS_LABEL_MAP[status] ?? status;
 }
 
 export function formatCallDuration(seconds?: number | null): string {

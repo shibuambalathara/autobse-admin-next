@@ -5,9 +5,8 @@ export interface DashboardStat {
   id: string;
   label: string;
   value: string;
-  change: string;
-  trend: "up" | "down" | "neutral";
   icon: LucideIcon;
+  href?: string;
 }
 
 export interface DashboardQuickAction {

@@ -29,6 +29,7 @@ import {
 import {
   formatImageTextareaValue,
   normalizeImageTextareaValue,
+  normalizeVehicleImages,
   parseAdditionalData,
 } from "@/modules/vehicles/utils/vehicle-payload";
 
@@ -76,10 +77,10 @@ export function EditVehicleForm({ vehicleId }: EditVehicleFormProps) {
     [vehicle?.additionalData]
   );
 
-  const imageList = useMemo(() => {
-    if (!vehicle?.image) return [];
-    return vehicle.image.split(",").map((url) => url.trim()).filter(Boolean);
-  }, [vehicle?.image]);
+  const imageList = useMemo(
+    () => normalizeVehicleImages(vehicle?.images),
+    [vehicle?.images]
+  );
 
   useEffect(() => {
     if (!vehicle) return;
@@ -100,7 +101,7 @@ export function EditVehicleForm({ vehicleId }: EditVehicleFormProps) {
       reservePrice: vehicle.reservePrice != null ? String(vehicle.reservePrice) : "",
       repoDate: vehicle.repoDt ?? "",
       inspectionLink: vehicle.inspectionLink ?? "",
-      images: formatImageTextareaValue(vehicle.image),
+      images: formatImageTextareaValue(vehicle.images),
       ...additionalDefaults,
     });
     setAdditionalState(createEmptyAdditionalDataState());
@@ -139,7 +140,7 @@ export function EditVehicleForm({ vehicleId }: EditVehicleFormProps) {
       reservePrice: formData.reservePrice ? Number(formData.reservePrice) : 0,
       repoDt: formData.repoDate || null,
       inspectionLink: formData.inspectionLink || null,
-      image: normalizeImageTextareaValue(formData.images),
+      images: normalizeImageTextareaValue(formData.images),
     };
 
     if (Object.keys(mergedAdditional).length > 0) {

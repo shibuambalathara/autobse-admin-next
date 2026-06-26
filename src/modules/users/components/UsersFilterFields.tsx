@@ -46,7 +46,7 @@ export function UsersFilterFields({
       <FormField label="Registration Expiry" htmlFor="users-expiry">
         <input
           id="users-expiry"
-          type="date"
+          type="month"
           className="h-10 w-full rounded-md border border-surface-border px-3 text-sm"
           value={registrationExpiryDate}
           onChange={(e) => setRegistrationExpiryDate(e.target.value)}

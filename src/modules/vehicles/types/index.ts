@@ -16,7 +16,7 @@ export interface VehicleDetail {
   reservePrice?: number | null;
   repoDt?: string | null;
   inspectionLink?: string | null;
-  image?: string | null;
+  images?: string[] | null;
   bidStatus?: string | null;
   autobseContact?: string | null;
   autobse_contact_person?: string | null;
@@ -54,7 +54,7 @@ export interface CreateVehicleInput {
   varient?: string;
   startPrice?: number;
   inspectionLink?: string;
-  image?: string;
+  images?: string[];
   repoDt?: string;
   reservePrice?: number;
   kmReading?: number;
@@ -62,7 +62,7 @@ export interface CreateVehicleInput {
   YOM?: number;
   rcStatus?: string;
   quoteIncreament?: number;
-  [key: string]: string | number | undefined;
+  [key: string]: string | number | string[] | undefined;
 }
 
 export interface DeletedVehicleListItem {

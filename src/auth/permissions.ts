@@ -80,6 +80,8 @@ export const PERMISSIONS = {
   SCHEDULE_CALLS_READ: "schedule-calls:read",
   SCHEDULE_CALLS_MANAGE: "schedule-calls:manage",
 
+  AUDIT_LOGS_READ: "audit-logs:read",
+
   SETTINGS_READ: "settings:read",
   SETTINGS_MANAGE: "settings:manage",
 
@@ -174,7 +176,7 @@ export const ROUTE_PERMISSIONS: Record<string, Permission> = {
   [ROUTES.users]: PERMISSIONS.USERS_READ,
   [ROUTES.usersAdd]: PERMISSIONS.USERS_CREATE,
   [ROUTES.usersDeleted]: PERMISSIONS.USERS_DELETE,
-  [ROUTES.usersPending]: PERMISSIONS.USERS_PENDING,
+  [ROUTES.usersOtpUnverified]: PERMISSIONS.USERS_PENDING,
   [ROUTES.events]: PERMISSIONS.EVENTS_READ,
   [ROUTES.eventsAdd]: PERMISSIONS.EVENTS_READ,
   "/view-vehicls": PERMISSIONS.EVENTS_READ,
@@ -217,6 +219,9 @@ export const ROUTE_PERMISSIONS: Record<string, Permission> = {
   [ROUTES.archiveEvents]: PERMISSIONS.ARCHIVE_EVENTS_READ,
   "/archive-events/": PERMISSIONS.ARCHIVE_EVENTS_READ,
   [ROUTES.notifications]: PERMISSIONS.NOTIFICATIONS_READ,
+  [ROUTES.notificationsDeleted]: PERMISSIONS.NOTIFICATIONS_READ,
+  "/notifications/": PERMISSIONS.NOTIFICATIONS_READ,
+  "/user-notifications/": PERMISSIONS.NOTIFICATIONS_READ,
   [ROUTES.enquiries]: PERMISSIONS.ENQUIRIES_READ,
   [ROUTES.blog]: PERMISSIONS.BLOG_READ,
   [ROUTES.blogAdd]: PERMISSIONS.BLOG_MANAGE,
@@ -231,6 +236,8 @@ export const ROUTE_PERMISSIONS: Record<string, Permission> = {
   [ROUTES.scheduleCalls]: PERMISSIONS.SCHEDULE_CALLS_READ,
   [ROUTES.scheduleCallsDeleted]: PERMISSIONS.SCHEDULE_CALLS_READ,
   "/schedule-calls/": PERMISSIONS.SCHEDULE_CALLS_READ,
+  [ROUTES.auditLogs]: PERMISSIONS.AUDIT_LOGS_READ,
+  "/user-audit-logs/": PERMISSIONS.AUDIT_LOGS_READ,
   [ROUTES.settings]: PERMISSIONS.SETTINGS_READ,
   "/payment": PERMISSIONS.PAYMENTS_READ,
   "/create-payment": PERMISSIONS.PAYMENTS_CREATE,

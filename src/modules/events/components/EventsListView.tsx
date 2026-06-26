@@ -6,6 +6,8 @@ import { Archive, Plus } from "lucide-react";
 import { PageContainer, buttonVariants } from "@/components/ui";
 import { DataTable } from "@/components/table";
 import { LoadingState } from "@/components/feedback";
+import { useAuth } from "@/auth/use-auth";
+import { APP_ROLES, isRole } from "@/auth/roles";
 import { ROUTES } from "@/constants/routes";
 import { LocationModal } from "@/modules/events/components/modals/LocationModal";
 import { PptDownloadModal } from "@/modules/events/components/modals/PptDownloadModal";
@@ -19,6 +21,8 @@ import { getEventPptUrl } from "@/modules/events/utils/event-ppt";
 import Swal from "sweetalert2";
 
 export function EventsListView() {
+  const { user } = useAuth();
+  const isHr = isRole(user?.role ?? null, APP_ROLES.HR);
   const list = useEventsList();
   const filterOptions = useEventFilterOptions();
   const rowActions = useEventRowActions(() => list.refetch());
@@ -122,13 +126,15 @@ export function EventsListView() {
               <Archive className="h-4 w-4 shrink-0" />
               Archived events
             </Link>
-            <Link
-              href={ROUTES.eventsAdd}
-              className={buttonVariants({ size: "sm" })}
-            >
-              <Plus className="h-4 w-4 shrink-0" />
-              Add Event
-            </Link>
+            {!isHr && (
+              <Link
+                href={ROUTES.eventsAdd}
+                className={buttonVariants({ size: "sm" })}
+              >
+                <Plus className="h-4 w-4 shrink-0" />
+                Add Event
+              </Link>
+            )}
           </div>
         }
       >
@@ -148,6 +154,7 @@ export function EventsListView() {
           locationOptions={filterOptions.locationOptions}
           sellerOptions={filterOptions.sellerOptions}
           vehicleCategoryOptions={filterOptions.vehicleCategoryOptions}
+          showAddEvent={!isHr}
           onClear={list.clearFilters}
         />
 

@@ -18,10 +18,14 @@ export type CallLogsPageToolbarProps = CallLogsFilterFieldsProps & {
   deletedHref: string;
 };
 
-function countActiveFilters(filters: CallLogPageFilters, showNextFollowUp: boolean) {
+function countActiveFilters(
+  filters: CallLogPageFilters,
+  showNextFollowUp: boolean,
+  showStaffFilter: boolean
+) {
   let count = 0;
   if (filters.callStatus) count += 1;
-  if (filters.staffId) count += 1;
+  if (showStaffFilter && filters.staffId) count += 1;
   if (showNextFollowUp && filters.nextFollowUpAt) count += 1;
   return count;
 }
@@ -35,12 +39,13 @@ export function CallLogsPageToolbar({
   deletedHref,
   filters,
   showNextFollowUp = true,
+  showStaffFilter = true,
   ...fieldProps
 }: CallLogsPageToolbarProps) {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const activeCount = useMemo(
-    () => countActiveFilters(filters, showNextFollowUp),
-    [filters, showNextFollowUp]
+    () => countActiveFilters(filters, showNextFollowUp, showStaffFilter),
+    [filters, showNextFollowUp, showStaffFilter]
   );
 
   const filterStatus =
@@ -125,6 +130,7 @@ export function CallLogsPageToolbar({
           filters={filters}
           layout="stack"
           showNextFollowUp={showNextFollowUp}
+          showStaffFilter={showStaffFilter}
           {...fieldProps}
         />
       </FilterSlideOver>

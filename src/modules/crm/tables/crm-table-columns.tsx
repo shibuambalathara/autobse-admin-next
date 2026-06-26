@@ -27,10 +27,12 @@ export function createCrmTableColumns(options: {
   stateNameById: Record<string, string>;
   onDelete: (client: CrmClient) => void;
   onMoveToUser: (client: CrmClient) => void;
+  showAssignedStaff?: boolean;
 }): TableColumn<CrmClient>[] {
-  const { stateNameById, onDelete, onMoveToUser } = options;
+  const { stateNameById, onDelete, onMoveToUser, showAssignedStaff = true } =
+    options;
 
-  return [
+  const columns: TableColumn<CrmClient>[] = [
     { id: "idNo", header: "SL No", accessor: "idNo" },
     { id: "firstName", header: "First Name", accessor: "firstName" },
     { id: "lastName", header: "Last Name", accessor: "lastName" },
@@ -73,7 +75,10 @@ export function createCrmTableColumns(options: {
         </span>
       ),
     },
-    {
+  ];
+
+  if (showAssignedStaff) {
+    columns.push({
       id: "assignedStaff",
       header: "Assigned Staff",
       cell: (row) => {
@@ -91,7 +96,10 @@ export function createCrmTableColumns(options: {
           </Link>
         );
       },
-    },
+    });
+  }
+
+  columns.push(
     {
       id: "createdAt",
       header: "Created At",
@@ -109,7 +117,7 @@ export function createCrmTableColumns(options: {
       cell: (row) => (
         <Link
           href={ROUTES.crmEdit(row.id)}
-          title="Edit potential buyer"
+          title="Edit buyer lead"
           className={actionLinkClass("bg-cyan-500 hover:bg-cyan-600")}
         >
           <UserPen className="h-4 w-4" />
@@ -176,11 +184,13 @@ export function createCrmTableColumns(options: {
           variant="danger"
           className="h-8 w-8"
           onClick={() => onDelete(row)}
-          title="Delete potential buyer"
+          title="Delete buyer lead"
         >
           <Trash2 className="h-4 w-4" />
         </Button>
       ),
-    },
-  ];
+    }
+  );
+
+  return columns;
 }

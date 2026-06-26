@@ -19,14 +19,14 @@ export type CrmPageToolbarProps = CrmFilterFieldsProps & {
   showListActions?: boolean;
 };
 
-function countActiveFilters(filters: CrmPageFilters) {
+function countActiveFilters(filters: CrmPageFilters, showAssignedStaff = true) {
   let count = 0;
   if (filters.stateId) count += 1;
   if (filters.locationId) count += 1;
   if (filters.status) count += 1;
   if (filters.buyerPreference) count += 1;
   if (filters.vehicleCategoryId) count += 1;
-  if (filters.assignedStaffId) count += 1;
+  if (showAssignedStaff && filters.assignedStaffId) count += 1;
   if (filters.nextFollowUpAt) count += 1;
   return count;
 }
@@ -39,10 +39,14 @@ export function CrmPageToolbar({
   deletedHref = ROUTES.crmDeleted,
   showListActions = true,
   filters,
+  showAssignedStaff = true,
   ...fieldProps
 }: CrmPageToolbarProps) {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
-  const activeCount = useMemo(() => countActiveFilters(filters), [filters]);
+  const activeCount = useMemo(
+    () => countActiveFilters(filters, showAssignedStaff),
+    [filters, showAssignedStaff]
+  );
 
   const filterStatus =
     activeCount > 0 ? (
@@ -89,7 +93,7 @@ export function CrmPageToolbar({
               )}
             >
               <Plus className="h-4 w-4 shrink-0" />
-              <span className="truncate">Add Buyer</span>
+              <span className="truncate">Add Lead</span>
             </Link>
           )}
         </div>
@@ -98,7 +102,7 @@ export function CrmPageToolbar({
           <div className="flex w-full min-w-0 flex-col gap-2">
             <Link href={deletedHref} className={mobileActionButtonClass}>
               <Archive className="h-4 w-4 shrink-0 text-neutral-500" />
-              <span className="truncate">Deleted Potential Buyers</span>
+              <span className="truncate">Deleted Buyer Leads</span>
             </Link>
           </div>
         )}
