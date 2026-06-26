@@ -224,6 +224,7 @@ export function OtpLoginForm() {
       {showCaptcha && (
         <TurnstileCaptcha
           ref={turnstileRef}
+          action="otp-login"
           onSuccess={(token) => {
             const mobileNumber = pendingMobileRef.current;
             if (!mobileNumber) {
@@ -234,7 +235,12 @@ export function OtpLoginForm() {
             void sendOtpWithCaptcha(token, mobileNumber);
           }}
           onExpire={resetCaptchaFlow}
-          onError={resetCaptchaFlow}
+          onError={() => {
+            setFormError(
+              "Security check failed. Refresh the page and try again, or disable ad blockers."
+            );
+            resetCaptchaFlow();
+          }}
         />
       )}
 

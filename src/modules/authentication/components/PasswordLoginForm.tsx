@@ -162,9 +162,15 @@ export function PasswordLoginForm() {
       {showCaptcha && (
         <TurnstileCaptcha
           ref={turnstileRef}
+          action="password-login"
           onSuccess={handleCaptchaSuccess}
           onExpire={resetCaptchaFlow}
-          onError={resetCaptchaFlow}
+          onError={() => {
+            setFormError(
+              "Security check failed. Refresh the page and try again, or disable ad blockers."
+            );
+            resetCaptchaFlow();
+          }}
         />
       )}
 
