@@ -4,16 +4,23 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/auth/use-auth";
 import { getPostLoginRoute } from "@/auth/default-route";
+import { ROUTES } from "@/constants/routes";
+import { LoadingState } from "@/components/feedback";
 
-export function useAuthRedirect() {
+export function HomeRedirect() {
   const router = useRouter();
   const { isAuthenticated, isInitializing, user } = useAuth();
 
   useEffect(() => {
-    if (!isInitializing && isAuthenticated) {
-      router.replace(getPostLoginRoute(user?.role));
+    if (isInitializing) return;
+
+    if (!isAuthenticated) {
+      router.replace(ROUTES.login);
+      return;
     }
+
+    router.replace(getPostLoginRoute(user?.role));
   }, [isAuthenticated, isInitializing, router, user?.role]);
 
-  return { isInitializing, isAuthenticated };
+  return <LoadingState label="Redirecting…" fullPage />;
 }

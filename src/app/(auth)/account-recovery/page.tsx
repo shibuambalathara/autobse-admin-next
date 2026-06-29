@@ -3,7 +3,7 @@ import { AccountRecoveryView } from "@/modules/authentication";
 
 export const metadata: Metadata = {
   title: "Account recovery",
-  description: "Recover your AutoBSE admin account",
+  description: "Recover your AutoBSE account",
 };
 
 export default function AccountRecoveryPage() {

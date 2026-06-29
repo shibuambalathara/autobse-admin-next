@@ -10,6 +10,8 @@ import { LoadingState } from "@/components/feedback";
 import { ACTIVE_BIDS_PER_USER_QUERY } from "@/graphql/documents/bids";
 import { CREATE_VEHICLE_STATUS_MUTATION } from "@/graphql/documents/vehicles";
 import { ROUTES } from "@/constants/routes";
+import { useAccess } from "@/auth/use-access";
+import { PERMISSIONS } from "@/auth/permissions";
 import { formatDate } from "@/lib/date-format";
 import { extractGraphqlError } from "@/lib/graphql-errors";
 import { VEHICLE_BID_STATUS } from "@/modules/bids/constants";
@@ -21,6 +23,8 @@ interface ActiveBidsPerUserViewProps {
 }
 
 export function ActiveBidsPerUserView({ userId }: ActiveBidsPerUserViewProps) {
+  const { can } = useAccess();
+  const canManageBids = can(PERMISSIONS.BIDS_MANAGE);
   const { data, loading, refetch } = useQuery<{
     user: {
       firstName?: string | null;
@@ -121,19 +125,23 @@ export function ActiveBidsPerUserView({ userId }: ActiveBidsPerUserViewProps) {
         cell: (row) => (row.bidTimeExpire ? formatDate(row.bidTimeExpire) : "—"),
       },
       { id: "bidStatus", header: "Bid Status", accessor: "bidStatus" },
-      {
-        id: "decline",
-        header: "Decline",
-        cell: (row) => (
-          <button
-            type="button"
-            onClick={() => handleDecline(row)}
-            className="inline-flex h-8 items-center rounded-md bg-red-600 px-2 text-sm text-white hover:bg-red-700"
-          >
-            Decline
-          </button>
-        ),
-      },
+      ...(canManageBids
+        ? [
+            {
+              id: "decline",
+              header: "Decline",
+              cell: (row: ActiveBidVehicle) => (
+                <button
+                  type="button"
+                  onClick={() => handleDecline(row)}
+                  className="inline-flex h-8 items-center rounded-md bg-red-600 px-2 text-sm text-white hover:bg-red-700"
+                >
+                  Decline
+                </button>
+              ),
+            } satisfies TableColumn<ActiveBidVehicle>,
+          ]
+        : []),
       {
         id: "vehicle",
         header: "Vehicle Details",
@@ -161,24 +169,28 @@ export function ActiveBidsPerUserView({ userId }: ActiveBidsPerUserViewProps) {
             "—"
           ),
       },
-      {
-        id: "fulfill",
-        header: "Winning Letter",
-        cell: (row) =>
-          row.bidStatus === VEHICLE_BID_STATUS.FULL_FILLED ? (
-            <span className="text-sm text-muted-foreground">Fulfilled</span>
-          ) : (
-            <button
-              type="button"
-              onClick={() => handleFulfill(row)}
-              className="inline-flex h-8 items-center rounded-md bg-slate-800 px-2 text-sm text-white hover:bg-slate-900"
-            >
-              Click to Fulfill
-            </button>
-          ),
-      },
+      ...(canManageBids
+        ? [
+            {
+              id: "fulfill",
+              header: "Winning Letter",
+              cell: (row: ActiveBidVehicle) =>
+                row.bidStatus === VEHICLE_BID_STATUS.FULL_FILLED ? (
+                  <span className="text-sm text-muted-foreground">Fulfilled</span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => handleFulfill(row)}
+                    className="inline-flex h-8 items-center rounded-md bg-slate-800 px-2 text-sm text-white hover:bg-slate-900"
+                  >
+                    Click to Fulfill
+                  </button>
+                ),
+            } satisfies TableColumn<ActiveBidVehicle>,
+          ]
+        : []),
     ],
-    [handleDecline, handleFulfill]
+    [canManageBids, handleDecline, handleFulfill]
   );
 
   return (

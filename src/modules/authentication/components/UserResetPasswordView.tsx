@@ -6,11 +6,12 @@ import { useMutation } from "@apollo/client";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { RESET_PASSWORD_MUTATION } from "@/graphql/documents/auth";
-import { ROUTES } from "@/constants/routes";
+import { useAuth } from "@/auth/use-auth";
+import { getPostLoginRoute } from "@/auth/default-route";
 import { env } from "@/config/env";
 import { Button, Card, CardContent, Input } from "@/components/ui";
 import { FormField } from "@/components/forms";
-import { extractGraphqlError } from "@/lib/graphql-errors";
+import { extractGraphqlError, getGraphqlResultErrorMessage } from "@/lib/graphql-errors";
 import {
   AUTH_COPY,
   confirmPasswordValidation,
@@ -26,6 +27,7 @@ import type {
 
 export function UserResetPasswordView() {
   const router = useRouter();
+  const { user } = useAuth();
   const [resetPassword, { loading }] =
     useMutation<ResetPasswordMutationResult>(RESET_PASSWORD_MUTATION);
 
@@ -56,12 +58,18 @@ export function UserResetPasswordView() {
         },
       });
 
+      const graphqlError = getGraphqlResultErrorMessage(result);
+      if (graphqlError) {
+        setFormError(graphqlError);
+        return;
+      }
+
       if (!result.data?.resetUserPassword?.id) {
         setFormError("Password reset failed. Please try again.");
         return;
       }
 
-      router.replace(ROUTES.dashboard);
+      router.replace(getPostLoginRoute(user?.role));
     } catch (error: unknown) {
       setFormError(extractGraphqlError(error).message);
     } finally {

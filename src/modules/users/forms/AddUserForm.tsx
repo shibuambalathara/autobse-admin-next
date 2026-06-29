@@ -76,7 +76,7 @@ export function AddUserForm() {
     <form onSubmit={handleSubmit(onSubmit)}>
       <FormCard
         title="Add User"
-        description="Create a new dealer or admin user account."
+        description="Create a new dealer user account."
         footer={
           <>
             <Button

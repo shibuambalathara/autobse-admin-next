@@ -34,7 +34,7 @@ export function LoginView() {
                 Welcome back
               </h2>
               <p className="text-sm text-brand-500">
-                Sign in to access the admin dashboard
+                Sign in to access the auction management portal
               </p>
             </div>
 

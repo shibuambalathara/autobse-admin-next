@@ -25,6 +25,18 @@ const AUTH_ERROR_MESSAGES = [
   "JWT",
 ];
 
+/** Unauthenticated mutations where GraphQL errors are shown in the form UI. */
+const QUIET_GRAPHQL_OPERATIONS = new Set([
+  "Login",
+  "SendOtp",
+  "VerifyOtp",
+  "ResetPassword",
+]);
+
+function shouldLogGraphqlError(operationName?: string): boolean {
+  return !operationName || !QUIET_GRAPHQL_OPERATIONS.has(operationName);
+}
+
 export function isAuthenticationError(
   graphQLErrors?: readonly { message?: string; extensions?: { code?: string } }[],
   networkError?: NetworkErrorWithStatus | Error | null
@@ -53,8 +65,9 @@ export function logApolloError({
   if (process.env.NODE_ENV === "production") return;
 
   const label = operationName ?? "anonymous";
+  const logGraphqlErrors = shouldLogGraphqlError(operationName);
 
-  if (graphQLErrors?.length) {
+  if (graphQLErrors?.length && logGraphqlErrors) {
     graphQLErrors.forEach((error) => {
       console.error(`[Apollo:${label}]`, error.message, error.extensions);
     });

@@ -1,8 +1,11 @@
 "use client";
 
-import { useMemo } from "react";
 import Link from "next/link";
+import { useMemo } from "react";
 import { ArrowLeft } from "lucide-react";
+import { APP_ROLES, isRole } from "@/auth/roles";
+import { AccessDenied } from "@/auth/access-denied";
+import { useAuth } from "@/auth/use-auth";
 import { PageContainer, Select, Button, buttonVariants } from "@/components/ui";
 import { FormField } from "@/components/forms";
 import { DataTable } from "@/components/table";
@@ -14,6 +17,8 @@ import { useDeletedUsersList } from "@/modules/users/hooks/useDeletedUsersList";
 import { mapUsersForDisplay } from "@/modules/users/hooks/useUserRowActions";
 
 export function DeletedUsersView() {
+  const { user } = useAuth();
+  const isAdmin = isRole(user?.role ?? null, APP_ROLES.ADMIN);
   const list = useDeletedUsersList();
   const displayUsers = useMemo(
     () => mapUsersForDisplay(list.users),
@@ -27,6 +32,15 @@ export function DeletedUsersView() {
       ),
     [list]
   );
+
+  if (!isAdmin) {
+    return (
+      <AccessDenied
+        title="Deleted users access restricted"
+        description="Only administrators can view deleted users."
+      />
+    );
+  }
 
   return (
     <PageContainer

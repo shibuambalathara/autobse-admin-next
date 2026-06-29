@@ -3,7 +3,7 @@ import { UserResetPasswordView } from "@/modules/authentication";
 
 export const metadata: Metadata = {
   title: "Reset password",
-  description: "Set a new password for your AutoBSE admin account",
+  description: "Set a new password for your AutoBSE account",
 };
 
 export default function UserResetPasswordPage() {

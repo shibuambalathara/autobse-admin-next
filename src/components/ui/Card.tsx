@@ -139,6 +139,7 @@ export function StatsCard({
 export interface FormCardProps extends HTMLAttributes<HTMLDivElement> {
   title: string;
   description?: string;
+  actions?: ReactNode;
   footer?: ReactNode;
   children: ReactNode;
 }
@@ -146,6 +147,7 @@ export interface FormCardProps extends HTMLAttributes<HTMLDivElement> {
 export function FormCard({
   title,
   description,
+  actions,
   footer,
   children,
   className,
@@ -153,11 +155,14 @@ export function FormCard({
 }: FormCardProps) {
   return (
     <Card padding="none" className={cn("overflow-hidden", className)} {...props}>
-      <div className="border-b border-surface-border px-5 py-4">
-        <h3 className="text-base font-semibold text-brand-900">{title}</h3>
-        {description && (
-          <p className="mt-0.5 text-sm text-brand-500">{description}</p>
-        )}
+      <div className="flex items-start justify-between gap-4 border-b border-surface-border px-5 py-4">
+        <div>
+          <h3 className="text-base font-semibold text-brand-900">{title}</h3>
+          {description && (
+            <p className="mt-0.5 text-sm text-brand-500">{description}</p>
+          )}
+        </div>
+        {actions}
       </div>
       <div className="px-5 py-5">{children}</div>
       {footer && (

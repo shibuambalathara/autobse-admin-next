@@ -76,29 +76,79 @@ export async function uploadUserProfileFiles(
   return true;
 }
 
-export async function downloadIdentityImage(
-  userId: string,
-  imageKey: string
-): Promise<void> {
-  const token = getAccessToken();
-  const response = await fetch(
-    `${env.apiBaseUrl}/fileupload/users/${userId}/images/${imageKey}`,
-    {
-      headers: token ? { authorization: `Bearer ${token}` } : {},
-    }
-  );
-
-  if (!response.ok) {
-    throw new Error("Failed to download image");
-  }
-
-  const blob = await response.blob();
+function saveBlobAsFile(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `${imageKey}.jpg`;
+  link.download = filename;
+  document.body.appendChild(link);
   link.click();
+  document.body.removeChild(link);
   URL.revokeObjectURL(url);
+}
+
+function triggerBrowserDownload(url: string, filename: string): void {
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.rel = "noopener noreferrer";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+async function parseApiErrorMessage(response: Response): Promise<string> {
+  try {
+    const payload = (await response.json()) as { message?: string };
+    if (payload?.message) return payload.message;
+  } catch {
+    // ignore JSON parse errors
+  }
+
+  return "Failed to download image.";
+}
+
+export function previewIdentityImage(previewUrl?: string | null): void {
+  if (!previewUrl) {
+    throw new Error("No document available to preview.");
+  }
+
+  window.open(previewUrl, "_blank", "noopener,noreferrer");
+}
+
+export async function downloadIdentityImage(
+  userId: string,
+  imageKey: string,
+  previewUrl?: string | null
+): Promise<void> {
+  if (previewUrl?.startsWith("blob:") || previewUrl?.startsWith("data:")) {
+    saveBlobAsFile(await (await fetch(previewUrl)).blob(), `${imageKey}.jpg`);
+    return;
+  }
+
+  if (!env.apiBaseUrl) {
+    throw new Error("NEXT_PUBLIC_API_BASE_URL is not set.");
+  }
+
+  const apiUrl = `${env.apiBaseUrl}/fileupload/users/${userId}/images/${imageKey}`;
+  const token = getAccessToken();
+
+  // Probe the API first so we can show backend errors (404, invalid type, etc.).
+  const probe = await fetch(apiUrl, {
+    method: "GET",
+    redirect: "manual",
+    credentials: "include",
+    headers: token ? { authorization: `Bearer ${token}` } : {},
+  });
+
+  if (probe.status >= 400) {
+    throw new Error(await parseApiErrorMessage(probe));
+  }
+
+  // Backend responds with 302 to a signed S3 URL (attachment). Browser navigation
+  // avoids CORS issues that break fetch()-based downloads after redirect.
+  const signedUrl = probe.headers.get("Location");
+  triggerBrowserDownload(signedUrl ?? apiUrl, imageKey);
 }
 
 export async function sendRegistrationExpiryWhatsapp(

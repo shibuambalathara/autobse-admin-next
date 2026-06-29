@@ -38,7 +38,7 @@ export const otpValidation = {
 
 export const AUTH_COPY = {
   brandName: "AutoBSE",
-  tagline: "Vehicle auction platform admin",
+  tagline: "Vehicle auction management portal",
   passwordTitle: "Sign in with password",
   passwordDescription: "Use your registered mobile number and password.",
   otpTitle: "Sign in with OTP",

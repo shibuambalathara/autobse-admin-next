@@ -15,8 +15,9 @@ import { ROUTES } from "@/constants/routes";
 import { env } from "@/config/env";
 import { Button, Input } from "@/components/ui";
 import { FormField } from "@/components/forms";
-import { extractGraphqlError } from "@/lib/graphql-errors";
+import { extractGraphqlError, getGraphqlResultErrorMessage } from "@/lib/graphql-errors";
 import { mapLoginUserToAuthUser } from "@/modules/authentication/utils/map-auth-user";
+import { getPostLoginRoute } from "@/auth/default-route";
 import {
   AUTH_COPY,
   mobileValidation,
@@ -59,7 +60,7 @@ export function OtpLoginForm() {
 
   const sendOtpWithCaptcha = async (token: string, mobileNumber: string) => {
     try {
-      await sendOtp({
+      const result = await sendOtp({
         variables: {
           sendOtpDto: {
             mobile: mobileNumber,
@@ -68,6 +69,13 @@ export function OtpLoginForm() {
           },
         },
       });
+
+      const graphqlError = getGraphqlResultErrorMessage(result);
+      if (graphqlError) {
+        setFormError(graphqlError);
+        return;
+      }
+
       setMobile(mobileNumber);
       setStep("verify");
       setFormError(null);
@@ -113,6 +121,12 @@ export function OtpLoginForm() {
         },
       });
 
+      const graphqlError = getGraphqlResultErrorMessage(result);
+      if (graphqlError) {
+        setFormError(graphqlError);
+        return;
+      }
+
       const accessToken = result.data?.verifyOtp?.access_token;
       const user = mapLoginUserToAuthUser(
         result.data?.verifyOtp?.user ?? null
@@ -129,7 +143,7 @@ export function OtpLoginForm() {
       }
 
       setSession({ token: accessToken, user });
-      router.replace(ROUTES.dashboard);
+      router.replace(getPostLoginRoute(user.role));
     } catch (error: unknown) {
       setFormError(extractGraphqlError(error).message);
     }

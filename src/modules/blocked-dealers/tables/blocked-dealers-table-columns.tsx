@@ -10,10 +10,16 @@ import type { TableColumn } from "@/types";
 
 export function createBlockedDealersTableColumns(options: {
   showSellerName?: boolean;
+  canManage?: boolean;
   onUnblock: (payload: { pan: string; sellerId?: string }) => void;
   unblocking?: boolean;
 }): TableColumn<BlockedDealer>[] {
-  const { showSellerName = false, onUnblock, unblocking = false } = options;
+  const {
+    showSellerName = false,
+    canManage = false,
+    onUnblock,
+    unblocking = false,
+  } = options;
 
   const columns: TableColumn<BlockedDealer>[] = [
     {
@@ -44,27 +50,31 @@ export function createBlockedDealersTableColumns(options: {
       header: "Created At",
       cell: (row) => formatDate(row.createdAt),
     },
-    {
-      id: "unblock",
-      header: "Action",
-      mobileFooter: true,
-      cell: (row) => (
-        <Button
-          type="button"
-          size="sm"
-          className="bg-emerald-600 hover:bg-emerald-700"
-          disabled={unblocking}
-          onClick={() =>
-            onUnblock({
-              pan: row.panCardNo,
-              sellerId: row.seller?.id ?? undefined,
-            })
-          }
-        >
-          Unblock
-        </Button>
-      ),
-    }
+    ...(canManage
+      ? [
+          {
+            id: "unblock",
+            header: "Action",
+            mobileFooter: true,
+            cell: (row: BlockedDealer) => (
+              <Button
+                type="button"
+                size="sm"
+                className="bg-emerald-600 hover:bg-emerald-700"
+                disabled={unblocking}
+                onClick={() =>
+                  onUnblock({
+                    pan: row.panCardNo,
+                    sellerId: row.seller?.id ?? undefined,
+                  })
+                }
+              >
+                Unblock
+              </Button>
+            ),
+          } satisfies TableColumn<BlockedDealer>,
+        ]
+      : [])
   );
 
   return columns;

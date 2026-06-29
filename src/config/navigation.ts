@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { filterNavByPermission } from "@/auth/access-control";
 import type { AppRole } from "@/auth/roles";
+import { APP_ROLES } from "@/auth/roles";
 import { PERMISSIONS } from "@/auth/permissions";
 import { ROUTES } from "@/constants/routes";
 import type { BreadcrumbItem, NavItem, NavModule } from "@/types/navigation";
@@ -97,6 +98,7 @@ export const NAVIGATION: NavItem[] = [
         icon: UserX,
         module: NAV_MODULES.users.id,
         permission: PERMISSIONS.USERS_DELETE,
+        roles: [APP_ROLES.ADMIN],
       },
       {
         id: "users-otp-unverified",
@@ -105,6 +107,7 @@ export const NAVIGATION: NavItem[] = [
         icon: Clock,
         module: NAV_MODULES.users.id,
         permission: PERMISSIONS.USERS_PENDING,
+        roles: [APP_ROLES.ADMIN],
       },
    
     ],

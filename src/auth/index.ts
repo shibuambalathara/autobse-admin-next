@@ -35,6 +35,8 @@ export type {
 export { APP_ROLES, KNOWN_ROLES, normalizeRole, isKnownRole, isRole } from "./roles";
 export type { AppRole } from "./roles";
 
+export { getDefaultHomeLabel, getPostLoginRoute } from "./default-route";
+
 export {
   PERMISSIONS,
   ROUTE_PERMISSIONS,

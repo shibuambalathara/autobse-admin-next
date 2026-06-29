@@ -44,6 +44,7 @@ export function BlockedDealersBySellerView({
   const columns = useMemo(
     () =>
       createBlockedDealersTableColumns({
+        canManage: true,
         onUnblock: ({ pan }) => {
           setUnblockPan(pan);
           setUnblockModalOpen(true);
