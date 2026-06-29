@@ -20,7 +20,6 @@ import { UsersFilterSlideOver } from "@/modules/users/components/UsersFilterSlid
 
 export type UsersPageToolbarProps = UsersFilterFieldsProps & {
   isAdmin: boolean;
-  canViewPending?: boolean;
   onClear: () => void;
   onDownloadExcel: () => void;
   onEmdExcel: () => void;
@@ -41,7 +40,6 @@ const mobileActionButtonClass =
 
 export function UsersPageToolbar({
   isAdmin,
-  canViewPending = false,
   onClear,
   onDownloadExcel,
   onEmdExcel,
@@ -114,26 +112,24 @@ export function UsersPageToolbar({
                 <FileSpreadsheet className="h-4 w-4 shrink-0 text-neutral-500" />
                 <span className="truncate">EMD approved Excel</span>
               </button>
+              <button
+                type="button"
+                className={mobileActionButtonClass}
+                onClick={onDeleteByDate}
+              >
+                <Trash2 className="h-4 w-4 shrink-0 text-neutral-500" />
+                <span className="truncate">Delete by date</span>
+              </button>
+              <Link href={ROUTES.usersDeleted} className={mobileActionButtonClass}>
+                <Users className="h-4 w-4 shrink-0 text-neutral-500" />
+                <span className="truncate">Deleted users</span>
+              </Link>
+              <Link href={ROUTES.usersOtpUnverified} className={mobileActionButtonClass}>
+                <Users className="h-4 w-4 shrink-0 text-neutral-500" />
+                <span className="truncate">Pending users</span>
+              </Link>
             </>
           )}
-          <button
-            type="button"
-            className={mobileActionButtonClass}
-            onClick={onDeleteByDate}
-          >
-            <Trash2 className="h-4 w-4 shrink-0 text-neutral-500" />
-            <span className="truncate">Delete by date</span>
-          </button>
-          <Link href={ROUTES.usersDeleted} className={mobileActionButtonClass}>
-            <Users className="h-4 w-4 shrink-0 text-neutral-500" />
-            <span className="truncate">Deleted users</span>
-          </Link>
-          {canViewPending ? (
-            <Link href={ROUTES.usersOtpUnverified} className={mobileActionButtonClass}>
-              <Users className="h-4 w-4 shrink-0 text-neutral-500" />
-              <span className="truncate">Pending users</span>
-            </Link>
-          ) : null}
         </div>
 
         <div>{filterStatus}</div>

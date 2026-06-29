@@ -16,7 +16,7 @@ import { ROUTES } from "@/constants/routes";
 import { env } from "@/config/env";
 import { Button, Card, CardContent, Input } from "@/components/ui";
 import { FormField } from "@/components/forms";
-import { extractGraphqlError } from "@/lib/graphql-errors";
+import { extractGraphqlError, getGraphqlResultErrorMessage } from "@/lib/graphql-errors";
 import { mapLoginUserToAuthUser } from "@/modules/authentication/utils/map-auth-user";
 import {
   AUTH_COPY,
@@ -71,6 +71,12 @@ export function AccountRecoveryView() {
         },
       });
 
+      const graphqlError = getGraphqlResultErrorMessage(result);
+      if (graphqlError) {
+        setFormError(graphqlError);
+        return;
+      }
+
       if (result.data?.sendOtp?.code !== "011") {
         setFormError(
           result.data?.sendOtp?.description ??
@@ -123,6 +129,12 @@ export function AccountRecoveryView() {
           },
         },
       });
+
+      const graphqlError = getGraphqlResultErrorMessage(result);
+      if (graphqlError) {
+        setFormError(graphqlError);
+        return;
+      }
 
       const accessToken = result.data?.verifyOtp?.access_token;
       const user = mapLoginUserToAuthUser(

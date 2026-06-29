@@ -78,23 +78,56 @@ export function getGraphqlErrorMessage(
   return fallback ?? "Something went wrong. Please try again.";
 }
 
+type GraphQLErrorLike = {
+  message?: string;
+  errorCode?: number | string;
+  extensions?: {
+    errorCode?: number | string;
+    [key: string]: unknown;
+  };
+};
+
+function parseGraphQLErrorLike(
+  gqlError?: GraphQLErrorLike | null
+): { message: string; errorCode?: number | string } | null {
+  if (!gqlError) return null;
+
+  const errorCode = gqlError.errorCode ?? gqlError.extensions?.errorCode;
+
+  return {
+    message: getGraphqlErrorMessage(errorCode, gqlError.message),
+    errorCode,
+  };
+}
+
+export function getGraphqlResultErrorMessage(
+  result: { errors?: ReadonlyArray<GraphQLErrorLike> } | null | undefined
+): string | null {
+  if (!result?.errors?.length) return null;
+  return extractGraphqlError(result).message;
+}
+
 export function extractGraphqlError(error: unknown): {
   message: string;
   errorCode?: number | string;
 } {
-  if (error && typeof error === "object" && "graphQLErrors" in error) {
-    const gqlError = (
-      error as { graphQLErrors?: Array<{ message?: string; errorCode?: number }> }
-    ).graphQLErrors?.[0];
-    if (gqlError) {
-      return {
-        message: getGraphqlErrorMessage(gqlError.errorCode, gqlError.message),
-        errorCode: gqlError.errorCode,
-      };
-    }
+  if (error && typeof error === "object" && "errors" in error) {
+    const parsed = parseGraphQLErrorLike(
+      (error as { errors?: GraphQLErrorLike[] }).errors?.[0]
+    );
+    if (parsed) return parsed;
   }
+
+  if (error && typeof error === "object" && "graphQLErrors" in error) {
+    const parsed = parseGraphQLErrorLike(
+      (error as { graphQLErrors?: GraphQLErrorLike[] }).graphQLErrors?.[0]
+    );
+    if (parsed) return parsed;
+  }
+
   if (error instanceof Error) {
     return { message: error.message };
   }
+
   return { message: "Something went wrong. Please try again." };
 }

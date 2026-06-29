@@ -7,6 +7,8 @@ import { useMutation, useQuery } from "@apollo/client";
 import { Pencil } from "lucide-react";
 import Swal from "sweetalert2";
 import { Button, FormCard, Input, Select } from "@/components/ui";
+import { useAccess } from "@/auth/use-access";
+import { PERMISSIONS } from "@/auth/permissions";
 import { FormField, FormGrid, Textarea } from "@/components/forms";
 import { LoadingState } from "@/components/feedback";
 import {
@@ -32,6 +34,7 @@ import {
   normalizeVehicleImages,
   parseAdditionalData,
 } from "@/modules/vehicles/utils/vehicle-payload";
+import { updateVehicleImageUrls } from "@/modules/vehicles/utils/vehicle-api";
 
 interface EditVehicleFormValues {
   bidStatus?: string;
@@ -59,6 +62,8 @@ interface EditVehicleFormProps {
 
 export function EditVehicleForm({ vehicleId }: EditVehicleFormProps) {
   const router = useRouter();
+  const { can } = useAccess();
+  const canManageVehicles = can(PERMISSIONS.VEHICLES_MANAGE);
   const [isEditable, setIsEditable] = useState(false);
   const [additionalState, setAdditionalState] = useState(createEmptyAdditionalDataState);
 
@@ -140,8 +145,13 @@ export function EditVehicleForm({ vehicleId }: EditVehicleFormProps) {
       reservePrice: formData.reservePrice ? Number(formData.reservePrice) : 0,
       repoDt: formData.repoDate || null,
       inspectionLink: formData.inspectionLink || null,
-      images: normalizeImageTextareaValue(formData.images),
     };
+
+    const newImageUrls = normalizeImageTextareaValue(formData.images);
+    const imagesChanged =
+      newImageUrls.join("|") !== imageList.join("|");
+    const loanNo = formData.loanANum?.trim();
+    const regNo = formData.regNo?.trim();
 
     if (Object.keys(mergedAdditional).length > 0) {
       payload.additionalData = mergedAdditional;
@@ -155,6 +165,11 @@ export function EditVehicleForm({ vehicleId }: EditVehicleFormProps) {
       await updateVehicle({
         variables: { where: { id: vehicleId }, updateVehicleInput: payload },
       });
+
+      if (imagesChanged && loanNo && regNo) {
+        await updateVehicleImageUrls(loanNo, regNo, newImageUrls);
+      }
+
       await refetch();
       setIsEditable(false);
       await Swal.fire({
@@ -193,7 +208,7 @@ export function EditVehicleForm({ vehicleId }: EditVehicleFormProps) {
           }
           footer={
             <div className="flex flex-wrap items-center gap-2">
-              {!isEditable && (
+              {canManageVehicles && !isEditable && (
                 <Button
                   type="button"
                   size="sm"
@@ -204,7 +219,7 @@ export function EditVehicleForm({ vehicleId }: EditVehicleFormProps) {
                   Edit
                 </Button>
               )}
-              {isEditable ? (
+              {canManageVehicles && isEditable ? (
                 <>
                   <Button type="submit" disabled={saving}>
                     {saving ? "Saving…" : "Update"}
@@ -277,7 +292,7 @@ export function EditVehicleForm({ vehicleId }: EditVehicleFormProps) {
 
             <AdditionalDataSection
               additionalData={parsedAdditionalData}
-              isEditable={isEditable}
+              isEditable={canManageVehicles && isEditable}
               state={additionalState}
               onStateChange={setAdditionalState}
             />
@@ -301,7 +316,7 @@ export function EditVehicleForm({ vehicleId }: EditVehicleFormProps) {
 
             {vehicle.loanAgreementNo && vehicle.registrationNumber && (
               <VehicleImageUpload
-                isEditable={isEditable}
+                isEditable={canManageVehicles && isEditable}
                 loanAgreementNo={vehicle.loanAgreementNo}
                 registrationNumber={vehicle.registrationNumber}
               />

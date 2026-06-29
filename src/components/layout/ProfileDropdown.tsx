@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronDown, LogOut, Settings, User } from "lucide-react";
+import { ChevronDown, LogOut, User } from "lucide-react";
 import { ROUTES } from "@/constants";
 import { useAuth } from "@/auth/use-auth";
 import { cn } from "@/lib/utils";
@@ -25,6 +25,12 @@ export function ProfileDropdown() {
 
   const displayName = user?.firstName ?? "User";
   const role = user?.role ?? "—";
+
+  const goToProfile = () => {
+    setOpen(false);
+    if (!user?.id) return;
+    router.push(ROUTES.userDetail(user.id));
+  };
 
   return (
     <div ref={ref} className="relative">
@@ -62,26 +68,12 @@ export function ProfileDropdown() {
           <button
             type="button"
             role="menuitem"
-            className="flex w-full items-center gap-2 px-3 py-2 text-sm text-brand-700 hover:bg-brand-50"
-            onClick={() => {
-              setOpen(false);
-              router.push(ROUTES.settings);
-            }}
+            disabled={!user?.id}
+            className="flex w-full items-center gap-2 px-3 py-2 text-sm text-brand-700 hover:bg-brand-50 disabled:cursor-not-allowed disabled:opacity-50"
+            onClick={goToProfile}
           >
             <User className="h-4 w-4" />
             Profile
-          </button>
-          <button
-            type="button"
-            role="menuitem"
-            className="flex w-full items-center gap-2 px-3 py-2 text-sm text-brand-700 hover:bg-brand-50"
-            onClick={() => {
-              setOpen(false);
-              router.push(ROUTES.settings);
-            }}
-          >
-            <Settings className="h-4 w-4" />
-            Settings
           </button>
           <hr className="my-1 border-surface-border" />
           <button

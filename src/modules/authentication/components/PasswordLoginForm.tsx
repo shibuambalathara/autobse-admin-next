@@ -12,8 +12,9 @@ import { ROUTES } from "@/constants/routes";
 import { env } from "@/config/env";
 import { Button, Input } from "@/components/ui";
 import { FormField } from "@/components/forms";
-import { extractGraphqlError } from "@/lib/graphql-errors";
+import { extractGraphqlError, getGraphqlResultErrorMessage } from "@/lib/graphql-errors";
 import { mapLoginUserToAuthUser } from "@/modules/authentication/utils/map-auth-user";
+import { getPostLoginRoute } from "@/auth/default-route";
 import {
   mobileValidation,
   passwordValidation,
@@ -63,6 +64,12 @@ export function PasswordLoginForm() {
         },
       });
 
+      const graphqlError = getGraphqlResultErrorMessage(result);
+      if (graphqlError) {
+        setFormError(graphqlError);
+        return;
+      }
+
       const accessToken = result.data?.login?.access_token;
       const user = mapLoginUserToAuthUser(result.data?.login?.user ?? null);
 
@@ -77,7 +84,7 @@ export function PasswordLoginForm() {
       }
 
       setSession({ token: accessToken, user });
-      router.replace(ROUTES.dashboard);
+      router.replace(getPostLoginRoute(user.role));
     } catch (error: unknown) {
       setFormError(extractGraphqlError(error).message);
     } finally {

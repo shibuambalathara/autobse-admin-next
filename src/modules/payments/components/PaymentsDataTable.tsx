@@ -7,6 +7,7 @@ import { User } from "lucide-react";
 import Swal from "sweetalert2";
 import { formatDate } from "@/lib/date-format";
 import { Can } from "@/auth/can";
+import { useAccess } from "@/auth/use-access";
 import { PERMISSIONS } from "@/auth/permissions";
 import { DataTable } from "@/components/table";
 import { ROUTES } from "@/constants/routes";
@@ -43,6 +44,8 @@ export function PaymentsDataTable({
   toolbarActions,
 }: PaymentsDataTableProps) {
   const router = useRouter();
+  const { can } = useAccess();
+  const canManagePayments = can(PERMISSIONS.PAYMENTS_MANAGE);
   const [statusModalOpen, setStatusModalOpen] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState<PaymentListItem | null>(null);
 
@@ -101,22 +104,26 @@ export function PaymentsDataTable({
         cell: (row) =>
           row.registrationExpire ? formatDate(row.registrationExpire) : "—",
       },
-      {
-        id: "changeStatus",
-        header: "Change Status",
-        cell: (row) =>
-          row.status === "pending" ? (
-            <button
-              type="button"
-              className={`${actionBtn} bg-emerald-600 hover:bg-emerald-700`}
-              onClick={() => openStatusModal(row)}
-            >
-              Change Status
-            </button>
-          ) : (
-            <span className="text-muted-foreground">—</span>
-          ),
-      },
+      ...(canManagePayments
+        ? [
+            {
+              id: "changeStatus",
+              header: "Change Status",
+              cell: (row: PaymentListItem) =>
+                row.status === "pending" ? (
+                  <button
+                    type="button"
+                    className={`${actionBtn} bg-emerald-600 hover:bg-emerald-700`}
+                    onClick={() => openStatusModal(row)}
+                  >
+                    Change Status
+                  </button>
+                ) : (
+                  <span className="text-muted-foreground">—</span>
+                ),
+            } satisfies TableColumn<PaymentListItem>,
+          ]
+        : []),
       {
         id: "history",
         header: "Payment History",
@@ -190,69 +197,71 @@ export function PaymentsDataTable({
           );
         },
       },
-      {
-        id: "buyingLimit",
-        header: "Update Buying Limit",
-        cell: (row) => {
-          if (row.paymentFor === "emd" && row.status === "approved") {
-            return (
-              <Can permission={PERMISSIONS.PAYMENTS_MANAGE}>
-                <button
-                  type="button"
-                  className={`${actionBtn} bg-red-600 hover:bg-red-700`}
-                  onClick={() => router.push(ROUTES.addEmd(row.id))}
-                >
-                  Update
-                </button>
-              </Can>
-            );
-          }
-          if (row.paymentFor === "registrations") {
-            return <span className="text-xs">Registration</span>;
-          }
-          return <span className="text-muted-foreground">—</span>;
-        },
-      },
-      {
-        id: "message",
-        header: "Payment Message",
-        cell: (row) =>
-          row.status === "approved" ? (
-            <button
-              type="button"
-              className={`${actionBtn} bg-teal-600 hover:bg-teal-700`}
-              onClick={() => handleMessage(row)}
-            >
-              Message
-            </button>
-          ) : (
-            <span className="text-xs">{row.status ?? "—"}</span>
-          ),
-      },
-      {
-        id: "download",
-        header: "Download",
-        cell: (row) =>
-          row.status === "approved" ? (
-            <button
-              type="button"
-              className={`${actionBtn} bg-blue-600 hover:bg-blue-700`}
-              onClick={() =>
-                void Swal.fire({
-                  icon: "info",
-                  title: "PDF export",
-                  text: "Payment PDF download is not yet migrated to the new admin panel.",
-                })
-              }
-            >
-              PDF
-            </button>
-          ) : (
-            <span className="text-xs">{row.status ?? "—"}</span>
-          ),
-      },
+      ...(canManagePayments
+        ? [
+            {
+              id: "buyingLimit",
+              header: "Update Buying Limit",
+              cell: (row: PaymentListItem) => {
+                if (row.paymentFor === "emd" && row.status === "approved") {
+                  return (
+                    <button
+                      type="button"
+                      className={`${actionBtn} bg-red-600 hover:bg-red-700`}
+                      onClick={() => router.push(ROUTES.addEmd(row.id))}
+                    >
+                      Update
+                    </button>
+                  );
+                }
+                if (row.paymentFor === "registrations") {
+                  return <span className="text-xs">Registration</span>;
+                }
+                return <span className="text-muted-foreground">—</span>;
+              },
+            } satisfies TableColumn<PaymentListItem>,
+            {
+              id: "message",
+              header: "Payment Message",
+              cell: (row: PaymentListItem) =>
+                row.status === "approved" ? (
+                  <button
+                    type="button"
+                    className={`${actionBtn} bg-teal-600 hover:bg-teal-700`}
+                    onClick={() => handleMessage(row)}
+                  >
+                    Message
+                  </button>
+                ) : (
+                  <span className="text-xs">{row.status ?? "—"}</span>
+                ),
+            } satisfies TableColumn<PaymentListItem>,
+            {
+              id: "download",
+              header: "Download",
+              cell: (row: PaymentListItem) =>
+                row.status === "approved" ? (
+                  <button
+                    type="button"
+                    className={`${actionBtn} bg-blue-600 hover:bg-blue-700`}
+                    onClick={() =>
+                      void Swal.fire({
+                        icon: "info",
+                        title: "PDF export",
+                        text: "Payment PDF download is not yet migrated to the new admin panel.",
+                      })
+                    }
+                  >
+                    PDF
+                  </button>
+                ) : (
+                  <span className="text-xs">{row.status ?? "—"}</span>
+                ),
+            } satisfies TableColumn<PaymentListItem>,
+          ]
+        : []),
     ],
-    [router]
+    [canManagePayments, router]
   );
 
   return (

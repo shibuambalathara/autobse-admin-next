@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useQuery } from "@apollo/client";
 import Swal from "sweetalert2";
 import { Button, PageContainer } from "@/components/ui";
+import { useAccess } from "@/auth/use-access";
+import { PERMISSIONS } from "@/auth/permissions";
 import { DataTable } from "@/components/table";
 import { EmptyState, LoadingState } from "@/components/feedback";
 import { SELLERS_QUERY } from "@/graphql/documents/sellers";
@@ -27,6 +29,8 @@ interface BlockedSellersByUserViewProps {
 
 export function BlockedSellersByUserView({ userId }: BlockedSellersByUserViewProps) {
   const router = useRouter();
+  const { can } = useAccess();
+  const canManageSellers = can(PERMISSIONS.SELLERS_MANAGE);
 
   const { data: userData, loading: userLoading } = useQuery<ViewUserQueryResult>(
     VIEW_USER_QUERY,
@@ -75,6 +79,7 @@ export function BlockedSellersByUserView({ userId }: BlockedSellersByUserViewPro
     () =>
       createBlockedDealersTableColumns({
         showSellerName: true,
+        canManage: canManageSellers,
         onUnblock: ({ pan, sellerId }) => {
           setUnblockPan(pan);
           setUnblockSellerId(sellerId);
@@ -82,7 +87,7 @@ export function BlockedSellersByUserView({ userId }: BlockedSellersByUserViewPro
         },
         unblocking: actions.unblocking,
       }),
-    [actions.unblocking]
+    [actions.unblocking, canManageSellers]
   );
 
   const userLabel = user
@@ -99,18 +104,22 @@ export function BlockedSellersByUserView({ userId }: BlockedSellersByUserViewPro
         title={`Blocked Sellers — ${userLabel}`}
         description={`Sellers blocked for PAN ${pancardNo || "—"}.`}
         actions={
-          <div className="hidden lg:flex">
-            <Button size="sm" onClick={() => setBlockModalOpen(true)}>
+          canManageSellers ? (
+            <div className="hidden lg:flex">
+              <Button size="sm" onClick={() => setBlockModalOpen(true)}>
+                + Block Seller
+              </Button>
+            </div>
+          ) : undefined
+        }
+      >
+        {canManageSellers && (
+          <div className="mb-4 lg:hidden">
+            <Button className="w-full" onClick={() => setBlockModalOpen(true)}>
               + Block Seller
             </Button>
           </div>
-        }
-      >
-        <div className="mb-4 lg:hidden">
-          <Button className="w-full" onClick={() => setBlockModalOpen(true)}>
-            + Block Seller
-          </Button>
-        </div>
+        )}
 
         {list.loading && list.dealers.length === 0 ? (
           <LoadingState label="Loading blocked sellers…" />
@@ -150,28 +159,32 @@ export function BlockedSellersByUserView({ userId }: BlockedSellersByUserViewPro
         )}
       </PageContainer>
 
-      <BlockSellerModal
-        open={blockModalOpen}
-        loading={actions.blocking}
-        sellerOptions={sellerOptions}
-        onClose={() => setBlockModalOpen(false)}
-        onSubmit={({ sellerId, reason }) =>
-          actions.blockSellerForUser(pancardNo, sellerId, reason)
-        }
-      />
+      {canManageSellers && (
+        <>
+          <BlockSellerModal
+            open={blockModalOpen}
+            loading={actions.blocking}
+            sellerOptions={sellerOptions}
+            onClose={() => setBlockModalOpen(false)}
+            onSubmit={({ sellerId, reason }) =>
+              actions.blockSellerForUser(pancardNo, sellerId, reason)
+            }
+          />
 
-      <UnblockDealerModal
-        open={unblockModalOpen}
-        panCardNo={unblockPan}
-        loading={actions.unblocking}
-        onClose={() => setUnblockModalOpen(false)}
-        onSubmit={(reason) =>
-          actions.unblockDealer(
-            { sellerId: unblockSellerId },
-            { panCardNo: unblockPan, reason }
-          )
-        }
-      />
+          <UnblockDealerModal
+            open={unblockModalOpen}
+            panCardNo={unblockPan}
+            loading={actions.unblocking}
+            onClose={() => setUnblockModalOpen(false)}
+            onSubmit={(reason) =>
+              actions.unblockDealer(
+                { sellerId: unblockSellerId },
+                { panCardNo: unblockPan, reason }
+              )
+            }
+          />
+        </>
+      )}
     </div>
   );
 }

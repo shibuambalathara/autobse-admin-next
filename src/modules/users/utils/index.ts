@@ -86,6 +86,7 @@ Thank you for choosing our services.`;
 export { useDebouncedValue, USERS_SEARCH_DEBOUNCE_MS } from "./useDebouncedValue";
 export {
   downloadIdentityImage,
+  previewIdentityImage,
   sendRegistrationExpiryWhatsapp,
   uploadUserDocuments,
   uploadUserProfileFiles,

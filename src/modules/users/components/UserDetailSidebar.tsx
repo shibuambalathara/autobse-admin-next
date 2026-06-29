@@ -1,6 +1,8 @@
 "use client";
 
 import { Button, Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
+import { APP_ROLES, isRole } from "@/auth/roles";
+import { useAuth } from "@/auth/use-auth";
 import { USER_LEGACY_ROUTES, USER_ROUTES } from "@/modules/users/constants/related-routes";
 import { ROUTES } from "@/constants/routes";
 import { formatDate } from "@/lib/date-format";
@@ -9,40 +11,31 @@ import type { UserDetail } from "@/modules/users/types";
 interface UserDetailSidebarProps {
   user: UserDetail;
   userId: string;
-  isEditable: boolean;
-  onToggleEdit: () => void;
   onResetPassword: () => void;
 }
 
 export function UserDetailSidebar({
   user,
   userId,
-  isEditable,
-  onToggleEdit,
   onResetPassword,
 }: UserDetailSidebarProps) {
+  const { user: currentUser } = useAuth();
+  const isAdmin = isRole(currentUser?.role ?? null, APP_ROLES.ADMIN);
+
   const quickLinks = [
     { label: "Active Bids", href: USER_ROUTES.bids(userId) },
     { label: "Payment Details", href: USER_ROUTES.payments(userId) },
     { label: "Create Payment", href: USER_ROUTES.createPayment(userId) },
-    { label: "Notifications", href: USER_ROUTES.notifications(userId) },
-    { label: "Blocked Sellers", href: USER_ROUTES.blockedSellers(userId) },
-    { label: "Audit Log", href: ROUTES.userAuditLogs(userId) },
+    { label: "Notifications", href: USER_ROUTES.notifications(userId), adminOnly: true },
+    { label: "Blocked Sellers", href: USER_ROUTES.blockedSellers(userId), adminOnly: true },
+    { label: "Audit Log", href: ROUTES.userAuditLogs(userId), adminOnly: true },
     { label: "Accepted Events", href: USER_LEGACY_ROUTES.termsCondition(userId) },
-  ];
+  ].filter((link) => !link.adminOnly || isAdmin);
 
   return (
     <Card className="h-full">
-      <CardHeader className="flex-row items-center justify-between">
+      <CardHeader>
         <CardTitle>Profile</CardTitle>
-        <Button
-          type="button"
-          size="sm"
-          variant={isEditable ? "secondary" : "outline"}
-          onClick={onToggleEdit}
-        >
-          {isEditable ? "Cancel Edit" : "Edit"}
-        </Button>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex justify-center">
@@ -89,7 +82,7 @@ export function UserDetailSidebar({
               {link.label}
             </a>
           ))}
-          {user.role !== "dealer" && (
+          {isAdmin && user.role !== "dealer" && (
             <a
               href={USER_LEGACY_ROUTES.staffCreatedUsers(userId)}
               target="_blank"
@@ -99,14 +92,16 @@ export function UserDetailSidebar({
               View {user.firstName} created users
             </a>
           )}
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full"
-            onClick={onResetPassword}
-          >
-            Reset Password
-          </Button>
+          {isAdmin && (
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={onResetPassword}
+            >
+              Reset Password
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>

@@ -1,5 +1,5 @@
 import type { NavItem } from "@/types/navigation";
-import { normalizeRole, type AppRole } from "@/auth/roles";
+import { normalizeRole, isRole, type AppRole } from "@/auth/roles";
 import {
   getPermissionsForRole,
   ROUTE_PERMISSIONS,
@@ -57,6 +57,9 @@ export function getRequiredPermission(pathname: string): Permission | null {
 }
 
 function isNavItemAllowed(item: NavItem, role: AppRole): boolean {
+  if (item.roles?.length && !item.roles.some((allowed) => isRole(role, allowed))) {
+    return false;
+  }
   if (item.permission) return canAccess(role, item.permission);
   if (item.permissions?.length) return canAccessAny(role, item.permissions);
   return true;

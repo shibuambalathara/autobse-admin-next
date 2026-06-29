@@ -59,13 +59,24 @@ export function UserDetailView({ userId }: UserDetailViewProps) {
           <UserDetailSidebar
             user={detail.user}
             userId={userId}
-            isEditable={detail.isEditable}
-            onToggleEdit={() => detail.setIsEditable((v) => !v)}
             onResetPassword={() => detail.setShowPasswordModal(true)}
           />
         </div>
         <div className="space-y-6 lg:col-span-2">
-          <FormCard title="User Details" description="Edit profile information.">
+          <FormCard
+            title="User Details"
+            description="Edit profile information."
+            actions={
+              <Button
+                type="button"
+                size="sm"
+                variant={detail.isEditable ? "secondary" : "outline"}
+                onClick={() => detail.setIsEditable((v) => !v)}
+              >
+                {detail.isEditable ? "Cancel Edit" : "Edit"}
+              </Button>
+            }
+          >
             <EditUserProfileForm
               defaultValues={detail.defaultFormValues()}
               isEditable={detail.isEditable}

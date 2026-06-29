@@ -34,7 +34,7 @@ export function createUsersTableColumns(
     onMoveToCrm,
     onSendExpiryWhatsapp,
     loadingUserId,
-    canDelete = true,
+    canDelete = false,
     canMoveToCrm = true,
   } = options;
 
@@ -254,24 +254,25 @@ export function createUsersTableColumns(
           "—"
         ),
     },
-    {
-      id: "actions",
-      header: "Action",
-      mobileFooter: true,
-      cell: (row) =>
-        canDelete ? (
-          <Button
-            type="button"
-            size="icon"
-            variant="danger"
-            className="h-8 w-8"
-            onClick={() => onDelete(row)}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        ) : (
-          "—"
-        ),
-    },
+    ...(canDelete
+      ? [
+          {
+            id: "actions",
+            header: "Action",
+            mobileFooter: true,
+            cell: (row: UserListItem) => (
+              <Button
+                type="button"
+                size="icon"
+                variant="danger"
+                className="h-8 w-8"
+                onClick={() => onDelete(row)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            ),
+          } satisfies TableColumn<UserListItem>,
+        ]
+      : []),
   ];
 }

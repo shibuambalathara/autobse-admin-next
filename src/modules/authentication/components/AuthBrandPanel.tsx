@@ -19,7 +19,7 @@ const features = [
   {
     icon: ShieldCheck,
     title: "Role-based access",
-    description: "Secure admin access with enterprise permissions.",
+    description: "Secure access with role-based permissions across teams.",
   },
 ];
 
@@ -34,7 +34,7 @@ export function AuthBrandPanel({ className }: AuthBrandPanelProps) {
       <div className="relative flex flex-1 flex-col justify-between p-10 xl:p-14">
         <div>
           <p className="text-sm font-medium uppercase tracking-widest text-brand-300">
-            Admin Portal
+            Management Portal
           </p>
           <h1 className="mt-4 text-4xl font-bold tracking-tight text-white xl:text-5xl">
             AUTO<span className="text-orange-400">BSE</span>

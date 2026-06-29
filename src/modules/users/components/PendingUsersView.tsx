@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { useMemo } from "react";
 import { ArrowLeft } from "lucide-react";
-import { PERMISSIONS } from "@/auth/permissions";
+import { APP_ROLES, isRole } from "@/auth/roles";
 import { AccessDenied } from "@/auth/access-denied";
-import { useAccess } from "@/auth/use-access";
+import { useAuth } from "@/auth/use-auth";
 import { PageContainer, Select, Button, buttonVariants } from "@/components/ui";
 import { FormField } from "@/components/forms";
 import { DataTable } from "@/components/table";
@@ -18,8 +18,8 @@ import { usePendingUsersList } from "@/modules/users/hooks/usePendingUsersList";
 import { mapUsersForDisplay } from "@/modules/users/hooks/useUserRowActions";
 
 export function PendingUsersView() {
-  const { can } = useAccess();
-  const canView = can(PERMISSIONS.USERS_PENDING);
+  const { user } = useAuth();
+  const isAdmin = isRole(user?.role ?? null, APP_ROLES.ADMIN);
   const list = usePendingUsersList();
 
   const displayUsers = useMemo(
@@ -29,7 +29,7 @@ export function PendingUsersView() {
 
   const showInitialLoading = list.loading && displayUsers.length === 0;
 
-  if (!canView) {
+  if (!isAdmin) {
     return (
       <AccessDenied
         title="Pending users access restricted"

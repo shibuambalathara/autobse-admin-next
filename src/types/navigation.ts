@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import type { Permission } from "@/auth/permissions";
+import type { AppRole } from "@/auth/roles";
 
 export interface NavItem {
   id: string;
@@ -12,6 +13,8 @@ export interface NavItem {
   permission?: Permission;
   /** Any of these permissions grants visibility. */
   permissions?: Permission[];
+  /** When set, only these roles can see this nav item. */
+  roles?: AppRole[];
   /** Omit from breadcrumb trail (e.g. duplicate parent href). */
   hideInBreadcrumb?: boolean;
   children?: NavItem[];
