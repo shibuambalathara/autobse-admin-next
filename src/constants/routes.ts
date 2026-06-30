@@ -11,9 +11,13 @@ export const ROUTES = {
   usersDeleted: "/users/deleted",
   usersOtpUnverified: "/users/otp-unverified",
   userDetail: (id: string) => `/users/${id}` as const,
+  userTermsCondition: (userId: string) => `/user-terms-condition/${userId}` as const,
+  userArchivedTermsCondition: (userId: string) =>
+    `/user-archived-terms-condition/${userId}` as const,
   events: "/events",
   eventsAdd: "/events/add",
   eventEdit: (id: string) => `/events/${id}/edit` as const,
+  eventTermsUsers: (eventId: string) => `/event-terms-users/${eventId}` as const,
   eventUploadExcel: (
     eventId: string,
     type: "upload" | "update" | "images" | "zip" | "eventbot",
@@ -44,6 +48,7 @@ export const ROUTES = {
       ? (`/update-payment/${paymentId}?userId=${userId}` as const)
       : (`/update-payment/${paymentId}` as const),
   addEmd: (paymentId: string) => `/add-emd/${paymentId}` as const,
+  buyingLimit: (userId: string) => `/buying-limit/${userId}` as const,
   emdDetails: (paymentId: string) => `/emdDetails/${paymentId}` as const,
   paymentHistory: (paymentId: string) => `/payment-history/${paymentId}` as const,
   eventBots: "/event-bots",

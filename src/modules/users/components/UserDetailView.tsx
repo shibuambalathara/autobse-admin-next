@@ -13,6 +13,8 @@ import {
 import { FormField } from "@/components/forms";
 import { EmptyState, LoadingState } from "@/components/feedback";
 import { ROUTES } from "@/constants/routes";
+import { PERMISSIONS } from "@/auth/permissions";
+import { useAccess } from "@/auth/use-access";
 import { useUserDetail } from "@/modules/users/hooks/useUserDetail";
 import { UserDetailSidebar } from "@/modules/users/components/UserDetailSidebar";
 import { EditUserProfileForm } from "@/modules/users/forms/EditUserProfileForm";
@@ -23,9 +25,11 @@ interface UserDetailViewProps {
 }
 
 export function UserDetailView({ userId }: UserDetailViewProps) {
+  const { can } = useAccess();
+  const canUpdateUser = can(PERMISSIONS.USERS_UPDATE);
   const detail = useUserDetail(userId);
 
-  if (detail.loading) {
+  if (!detail.canFetch || detail.loading) {
     return <LoadingState label="Loading user details…" />;
   }
 
@@ -67,19 +71,22 @@ export function UserDetailView({ userId }: UserDetailViewProps) {
             title="User Details"
             description="Edit profile information."
             actions={
-              <Button
-                type="button"
-                size="sm"
-                variant={detail.isEditable ? "secondary" : "outline"}
-                onClick={() => detail.setIsEditable((v) => !v)}
-              >
-                {detail.isEditable ? "Cancel Edit" : "Edit"}
-              </Button>
+              canUpdateUser ? (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={detail.isEditable ? "secondary" : "outline"}
+                  onClick={() => detail.setIsEditable((v) => !v)}
+                >
+                  {detail.isEditable ? "Cancel Edit" : "Edit"}
+                </Button>
+              ) : undefined
             }
           >
             <EditUserProfileForm
               defaultValues={detail.defaultFormValues()}
-              isEditable={detail.isEditable}
+              isEditable={detail.isEditable && canUpdateUser}
+              canEditSensitiveFields={detail.isAdmin}
               selectedStateCode={detail.selectedStateCode}
               stateOptions={detail.stateOptions}
               sellerOptions={detail.sellerOptions}

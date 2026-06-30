@@ -16,6 +16,7 @@ import type { EditUserFormValues, SelectOption } from "@/modules/users/types";
 interface EditUserProfileFormProps {
   defaultValues?: EditUserFormValues;
   isEditable: boolean;
+  canEditSensitiveFields?: boolean;
   selectedStateCode: string;
   stateOptions: SelectOption[];
   sellerOptions: SelectOption[];
@@ -27,6 +28,7 @@ interface EditUserProfileFormProps {
 export function EditUserProfileForm({
   defaultValues,
   isEditable,
+  canEditSensitiveFields = false,
   selectedStateCode,
   stateOptions,
   sellerOptions,
@@ -84,14 +86,14 @@ export function EditUserProfileForm({
         <FormField label="Mobile" htmlFor="mobile" error={errors.mobile?.message}>
           <Input
             id="mobile"
-            disabled={!isEditable}
+            disabled={!isEditable || !canEditSensitiveFields}
             {...register("mobile", editUserValidation.mobile)}
           />
         </FormField>
         <FormField label="Role" htmlFor="role">
           <NativeSelect
             id="role"
-            disabled={!isEditable}
+            disabled={!isEditable || !canEditSensitiveFields}
             options={[...USER_ROLE_OPTIONS]}
             {...register("role")}
           />

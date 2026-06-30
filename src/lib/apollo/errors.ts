@@ -23,6 +23,7 @@ const AUTH_ERROR_MESSAGES = [
   "Authentication",
   "Token",
   "JWT",
+  "Forbidden resource",
 ];
 
 /** Unauthenticated mutations where GraphQL errors are shown in the form UI. */

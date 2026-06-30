@@ -12,6 +12,7 @@ export const EVENT_ROUTES = {
     ROUTES.eventUploadExcel(eventId, "images"),
   uploadZip: (eventId: string) => ROUTES.eventUploadExcel(eventId, "zip"),
   createdByUser: (userId: string) => ROUTES.userDetail(userId),
+  eventTermsUsers: (eventId: string) => ROUTES.eventTermsUsers(eventId),
 } as const;
 
 /** Drill-down routes for event pages not yet migrated to Next.js. */
@@ -20,5 +21,4 @@ export const EVENT_LEGACY_ROUTES = {
   editEvent: (eventId: string) => `/events/${eventId}/edit`,
   viewVehicles: (eventId: string, category: string) =>
     `/view-vehicls/${eventId}?category=${category}`,
-  eventTermsUsers: (eventId: string) => `/event-terms-users/${eventId}`,
 } as const;

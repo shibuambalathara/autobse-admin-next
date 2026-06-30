@@ -26,6 +26,9 @@ import type {
   UserDetail,
   ViewUserQueryResult,
 } from "@/modules/users/types";
+import { APP_ROLES, isRole } from "@/auth/roles";
+import { useAuthenticatedQuery } from "@/auth/use-authenticated-query";
+import { useAuth } from "@/auth/use-auth";
 import { extractGraphqlError } from "@/lib/graphql-errors";
 import imageCompression from "browser-image-compression";
 import Swal from "sweetalert2";
@@ -44,6 +47,10 @@ const EMPTY_FILE_DATA: UserFileData = {
 };
 
 export function useUserDetail(userId: string) {
+  const { user: currentUser } = useAuth();
+  const { canFetch } = useAuthenticatedQuery();
+  const isAdmin = isRole(currentUser?.role ?? null, APP_ROLES.ADMIN);
+
   const [isEditable, setIsEditable] = useState(false);
   const [selectedStateCode, setSelectedStateCode] = useState("");
   const [fileData, setFileData] = useState<UserFileData>(EMPTY_FILE_DATA);
@@ -53,11 +60,15 @@ export function useUserDetail(userId: string) {
 
   const { data, loading, error, refetch } = useQuery<ViewUserQueryResult>(
     VIEW_USER_QUERY,
-    { variables: { where: { id: userId } }, fetchPolicy: "network-only" }
+    {
+      variables: { where: { id: userId } },
+      fetchPolicy: "network-only",
+      skip: !canFetch,
+    }
   );
 
-  const { data: allStatesData } = useQuery(STATES_QUERY);
-  const { data: allSellersData } = useQuery(SELLERS_QUERY);
+  const { data: allStatesData } = useQuery(STATES_QUERY, { skip: !canFetch });
+  const { data: allSellersData } = useQuery(SELLERS_QUERY, { skip: !canFetch });
   const [updateUser, { loading: updating }] = useMutation(UPDATE_USER_MUTATION);
   const [resetPassword, { loading: resettingPassword }] = useMutation(
     ADMIN_RESET_USER_PASSWORD_MUTATION
@@ -137,6 +148,15 @@ export function useUserDetail(userId: string) {
   const submitProfile = async (formValues: EditUserFormValues) => {
     if (!user) return;
 
+    if (!canFetch) {
+      await Swal.fire({
+        icon: "error",
+        title: "Update Failed",
+        text: "Your session is still loading. Please wait a moment and try again.",
+      });
+      return;
+    }
+
     const openToken = buildOpenToken(
       selectedStateCode,
       formValues.openTokenNumber,
@@ -172,6 +192,12 @@ export function useUserDetail(userId: string) {
     };
 
     const payload = getUpdatedFields(originalData, formData);
+
+    // Backend only allows admin to change role or mobile.
+    if (!isAdmin) {
+      delete payload.role;
+      delete payload.mobile;
+    }
 
     if (
       "role" in payload &&
@@ -336,5 +362,7 @@ export function useUserDetail(userId: string) {
     setConfirmPassword,
     confirmPasswordReset,
     resettingPassword,
+    canFetch,
+    isAdmin,
   };
 }

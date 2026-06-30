@@ -4,9 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FormProvider, useForm } from "react-hook-form";
 import { useMutation, useQuery } from "@apollo/client";
-import { Pencil } from "lucide-react";
+import { ArrowLeft, Pencil } from "lucide-react";
 import Swal from "sweetalert2";
-import { Button, FormCard, Input, Select } from "@/components/ui";
+import { Button, FormCard, Input, PageContainer, Select } from "@/components/ui";
 import { useAccess } from "@/auth/use-access";
 import { PERMISSIONS } from "@/auth/permissions";
 import { FormField, FormGrid, Textarea } from "@/components/forms";
@@ -196,58 +196,60 @@ export function EditVehicleForm({ vehicleId }: EditVehicleFormProps) {
 
   const eventId = vehicle.event?.id;
 
+  const toggleEditMode = () => setIsEditable((value) => !value);
+
+  const goBackToVehicles = () => {
+    if (eventId) {
+      router.push(ROUTES.eventVehicles(eventId));
+      return;
+    }
+    router.back();
+  };
+
+  const renderEditToggleButton = () =>
+    canManageVehicles ? (
+      <Button
+        type="button"
+        size="sm"
+        variant={isEditable ? "secondary" : "outline"}
+        onClick={toggleEditMode}
+      >
+        <Pencil className="h-4 w-4" />
+        {isEditable ? "Cancel Edit" : "Edit"}
+      </Button>
+    ) : null;
+
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <FormCard
-          title="Vehicle Details"
-          description={
-            vehicle.event?.seller?.name
-              ? `Seller: ${vehicle.event.seller.name}`
-              : undefined
-          }
-          footer={
-            <div className="flex flex-wrap items-center gap-2">
-              {canManageVehicles && !isEditable && (
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setIsEditable(true)}
-                >
-                  <Pencil className="h-4 w-4" />
-                  Edit
+    <PageContainer
+      title="Edit Vehicle"
+      description="View and update vehicle details."
+      actions={
+        !isEditable ? (
+          <Button type="button" size="sm" variant="outline" onClick={goBackToVehicles}>
+            <ArrowLeft className="h-4 w-4" />
+            Back to Vehicles
+          </Button>
+        ) : undefined
+      }
+    >
+      <FormProvider {...methods}>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <FormCard
+            title="Vehicle Details"
+            description={
+              vehicle.event?.seller?.name
+                ? `Seller: ${vehicle.event.seller.name}`
+                : undefined
+            }
+            actions={renderEditToggleButton()}
+            footer={
+              canManageVehicles && isEditable ? (
+                <Button type="submit" disabled={saving}>
+                  {saving ? "Saving…" : "Update"}
                 </Button>
-              )}
-              {canManageVehicles && isEditable ? (
-                <>
-                  <Button type="submit" disabled={saving}>
-                    {saving ? "Saving…" : "Update"}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setIsEditable(false)}
-                  >
-                    Cancel Edit
-                  </Button>
-                </>
-              ) : (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() =>
-                    eventId
-                      ? router.push(ROUTES.eventVehicles(eventId))
-                      : router.back()
-                  }
-                >
-                  Back to Vehicles
-                </Button>
-              )}
-            </div>
-          }
-        >
+              ) : undefined
+            }
+          >
           <FormGrid columns={3}>
             <FormField label="Bid Status" htmlFor="bidStatus">
               <Select
@@ -323,7 +325,8 @@ export function EditVehicleForm({ vehicleId }: EditVehicleFormProps) {
             )}
           </FormGrid>
         </FormCard>
-      </form>
-    </FormProvider>
+        </form>
+      </FormProvider>
+    </PageContainer>
   );
 }

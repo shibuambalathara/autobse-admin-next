@@ -45,8 +45,9 @@ export interface EmdUpdateRow {
   emdNo?: number | null;
   vehicleBuyingLimitIncrement?: number | null;
   createdAt?: string | null;
+  createdById?: string | null;
   createdBy?: { id?: string; firstName?: string | null } | null;
-  payment?: { amount?: number | null } | null;
+  payment?: { id?: string; amount?: number | null } | null;
 }
 
 export interface PaymentDetail {

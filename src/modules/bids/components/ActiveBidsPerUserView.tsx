@@ -25,6 +25,7 @@ interface ActiveBidsPerUserViewProps {
 export function ActiveBidsPerUserView({ userId }: ActiveBidsPerUserViewProps) {
   const { can } = useAccess();
   const canManageBids = can(PERMISSIONS.BIDS_MANAGE);
+  const canViewEvents = can(PERMISSIONS.EVENTS_READ);
   const { data, loading, refetch } = useQuery<{
     user: {
       firstName?: string | null;
@@ -154,21 +155,25 @@ export function ActiveBidsPerUserView({ userId }: ActiveBidsPerUserViewProps) {
           </Link>
         ),
       },
-      {
-        id: "event",
-        header: "View Event",
-        cell: (row) =>
-          row.event?.id ? (
-            <Link
-              href={ROUTES.eventEdit(row.event.id)}
-              className={buttonVariants({ size: "sm", variant: "outline" })}
-            >
-              View Event
-            </Link>
-          ) : (
-            "—"
-          ),
-      },
+      ...(canViewEvents
+        ? [
+            {
+              id: "event",
+              header: "View Event",
+              cell: (row: ActiveBidVehicle) =>
+                row.event?.id ? (
+                  <Link
+                    href={ROUTES.eventEdit(row.event.id)}
+                    className={buttonVariants({ size: "sm", variant: "outline" })}
+                  >
+                    View Event
+                  </Link>
+                ) : (
+                  "—"
+                ),
+            } satisfies TableColumn<ActiveBidVehicle>,
+          ]
+        : []),
       ...(canManageBids
         ? [
             {
@@ -190,7 +195,7 @@ export function ActiveBidsPerUserView({ userId }: ActiveBidsPerUserViewProps) {
           ]
         : []),
     ],
-    [canManageBids, handleDecline, handleFulfill]
+    [canManageBids, canViewEvents, handleDecline, handleFulfill]
   );
 
   return (

@@ -1,6 +1,7 @@
 const ERROR_MESSAGES: Record<number, string> = {
   1001: "No such user found. Please check the details and try again.",
   1002: "Failed to update user. Please try again later.",
+  1015: "Only administrators can update mobile or role fields.",
   1007: "Failed to set user OTP.",
   2002: "Invalid username and password.",
   2003: "Auction ended.",
@@ -27,6 +28,9 @@ const ERROR_MESSAGES: Record<number, string> = {
   11003: "Bid status cannot be changed.",
   11006: "Bid is already fulfilled.",
   61001: "Failed to remove existing pending users",
+  6001: "Event not found.",
+  6006: "Event cannot be archived at this time.",
+  6007: "Archiving event failed.",
   9002: "No enquiries found.",
   19000: "Enquiry creation failed.",
   21000: "Blog creation failed.",

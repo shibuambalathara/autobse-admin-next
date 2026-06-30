@@ -63,10 +63,19 @@ export interface EventDetail {
   autobseContact?: string | null;
   vehiclesCount?: number | null;
   metaEventId?: number | null;
+  seller?: { id: string; name?: string | null } | null;
+  location?: { id: string; name?: string | null } | null;
+  vehicleCategory?: { id: string; name?: string | null } | null;
 }
 
 export interface SingleEventResult {
   event: EventDetail;
+}
+
+export interface EventByIdResult {
+  eventsData: {
+    events: EventDetail[];
+  };
 }
 
 export interface UpdateEventInput {
