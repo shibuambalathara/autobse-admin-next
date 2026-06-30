@@ -108,6 +108,68 @@ export const SINGLE_EVENT_QUERY = gql`
       autobseContact
       vehiclesCount
       metaEventId
+      seller {
+        id
+        name
+      }
+      location {
+        id
+        name
+      }
+      vehicleCategory {
+        id
+        name
+      }
+    }
+  }
+`;
+
+/** Accountant/HR-safe: uses eventsData (already allows read roles on all API versions). */
+export const EVENT_BY_ID_QUERY = gql`
+  query EventById($where: EventWhereUniqueInput!, $take: Int) {
+    eventsData(where: $where, take: $take) {
+      events {
+        id
+        metaEventType
+        eventNo
+        eventCategory
+        startDate
+        endDate
+        firstVehicleEndDate
+        pauseDate
+        pausedTotalTime
+        sellerId
+        vehicleCategoryId
+        locationId
+        noOfBids
+        downloadableFile_filename
+        termsAndConditions
+        createdAt
+        updatedAt
+        createdById
+        extraTimeTrigerIn
+        extraTime
+        vehicleLiveTimeIn
+        gapInBetweenVehicles
+        status
+        bidLock
+        autobseContactPerson
+        autobseContact
+        vehiclesCount
+        metaEventId
+        seller {
+          id
+          name
+        }
+        location {
+          id
+          name
+        }
+        vehicleCategory {
+          id
+          name
+        }
+      }
     }
   }
 `;

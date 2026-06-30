@@ -7,12 +7,16 @@ import {
   ARCHIVE_EVENT_MUTATION,
   EVENT_FOR_ACR_QUERY,
 } from "@/graphql/documents/events";
-import type { EventListItem } from "@/modules/events/types";
+import {
+  extractGraphqlError,
+  getGraphqlResultErrorMessage,
+} from "@/lib/graphql-errors";
 import {
   buildAcrFileName,
   exportAcrReport,
 } from "@/modules/events/utils/event-acr";
 import { sendEventWhatsAppNotification } from "@/modules/events/utils/event-api";
+import type { EventListItem } from "@/modules/events/types";
 
 interface EventForAcrResult {
   event: {
@@ -42,16 +46,34 @@ export function useEventRowActions(onArchived: () => void) {
       if (!result.isConfirmed) return;
 
       try {
-        await archiveEvent({ variables: { eventId: event.id } });
+        const response = await archiveEvent({
+          variables: { eventId: event.id },
+        });
+
+        const gqlErrorMessage = getGraphqlResultErrorMessage(response);
+        if (gqlErrorMessage) {
+          await Swal.fire({ icon: "error", title: "Failed", text: gqlErrorMessage });
+          return;
+        }
+
+        const archivedEventNo = response.data?.archiveEvent;
+        if (archivedEventNo == null) {
+          await Swal.fire({
+            icon: "error",
+            title: "Failed",
+            text: "Failed to archive event.",
+          });
+          return;
+        }
+
         await Swal.fire({
           icon: "success",
           title: "Event Archived",
-          text: `Event No: ${event.eventNo} archived`,
+          text: `Event No: ${archivedEventNo} archived`,
         });
         onArchived();
       } catch (error: unknown) {
-        const message =
-          error instanceof Error ? error.message : "Failed to archive event";
+        const { message } = extractGraphqlError(error);
         await Swal.fire({ icon: "error", title: "Failed", text: message });
       }
     },

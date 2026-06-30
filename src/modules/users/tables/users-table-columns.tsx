@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { Button, StatusBadge } from "@/components/ui";
 import { ROUTES } from "@/constants/routes";
-import { USER_LEGACY_ROUTES, USER_ROUTES } from "@/modules/users/constants/related-routes";
+import { USER_ROUTES } from "@/modules/users/constants/related-routes";
 import { formatDate, formatDateOnly } from "@/lib/date-format";
 import type { UserListItem } from "@/modules/users/types";
 import type { TableColumn } from "@/types";
@@ -154,14 +154,12 @@ export function createUsersTableColumns(
           );
         }
         return (
-          <a
-            href={USER_LEGACY_ROUTES.buyingLimit(row.id)}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href={USER_ROUTES.buyingLimit(row.id)}
             className="inline-flex h-8 min-w-8 items-center justify-center rounded-md bg-emerald-50 px-2 text-sm font-medium text-emerald-700 hover:bg-emerald-100"
           >
             {limit}
-          </a>
+          </Link>
         );
       },
     },

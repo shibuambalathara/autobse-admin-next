@@ -20,7 +20,7 @@ export function LoginView() {
       <AuthLayout>
         <div className="mb-8 lg:hidden">
           <h1 className="text-center text-3xl font-bold text-brand-900">
-            AUTO<span className="text-orange-500">BSE</span>
+            AUTO<span className="text-orange-500">BSe</span>
           </h1>
           <p className="mt-2 text-center text-sm text-brand-500">
             {AUTH_COPY.tagline}
@@ -64,7 +64,7 @@ export function LoginView() {
         </Card>
 
         <p className="mt-6 text-center text-xs text-brand-400 lg:hidden">
-          &copy; {new Date().getFullYear()} AutoBSE. All rights reserved.
+          &copy; {new Date().getFullYear()} AUTOBSe. All rights reserved.
         </p>
       </AuthLayout>
     </AuthRedirectGuard>

@@ -13,12 +13,12 @@ import {
   Link2,
   Loader2,
   MessageCircle,
-  Pencil,
   Presentation,
+  UserPen,
 } from "lucide-react";
 import { Button, StatusBadge } from "@/components/ui";
 import { ROUTES } from "@/constants/routes";
-import { EVENT_LEGACY_ROUTES, EVENT_ROUTES } from "@/modules/events/constants/related-routes";
+import { EVENT_ROUTES } from "@/modules/events/constants/related-routes";
 import { formatDate } from "@/lib/date-format";
 import type { EventListItem } from "@/modules/events/types";
 import type { TableColumn } from "@/types";
@@ -43,6 +43,8 @@ export interface EventsTableColumnOptions {
   onViewLocation: (location: string) => void;
   acrLoadingEventId?: string | null;
   whatsappLoading?: boolean;
+  canManageEvents?: boolean;
+  canManageVehicles?: boolean;
 }
 
 export function createEventsTableColumns(
@@ -57,7 +59,152 @@ export function createEventsTableColumns(
     onViewLocation,
     acrLoadingEventId,
     whatsappLoading,
+    canManageEvents = false,
+    canManageVehicles = false,
   } = options;
+
+  const vehicleManageColumns: TableColumn<EventListItem>[] = canManageVehicles
+    ? [
+        {
+          id: "addVehicle",
+          header: "Add Vehicle",
+          mobileFooter: true,
+          cell: (row) =>
+            isEventActive(row.endDate) ? (
+              <Link
+                href={EVENT_ROUTES.addVehicle(row.id)}
+                className={legacyActionClass("bg-emerald-50 text-emerald-700 hover:bg-emerald-100")}
+                title="Add vehicle"
+              >
+                <Car className="h-4 w-4" />
+              </Link>
+            ) : (
+              "—"
+            ),
+        },
+        {
+          id: "deletedVehicles",
+          header: "Deleted Vehicles",
+          mobileFooter: true,
+          cell: (row) => {
+            const count = row.deletedVehiclesCount ?? 0;
+            if (count === 0) {
+              return (
+                <span className={legacyActionClass("bg-slate-100 text-slate-500")}>
+                  0
+                </span>
+              );
+            }
+            return (
+              <Link
+                href={EVENT_ROUTES.deletedVehicles(row.id)}
+                className={legacyActionClass("bg-red-50 text-red-700 hover:bg-red-100")}
+              >
+                {count}
+              </Link>
+            );
+          },
+        },
+        {
+          id: "uploadVehicles",
+          header: "Upload Vehicles",
+          mobileFooter: true,
+          cell: (row) => (
+            <Link
+              href={EVENT_ROUTES.uploadVehicles(row.id, row.eventCategory ?? undefined)}
+              className={legacyActionClass("bg-emerald-50 text-emerald-700 hover:bg-emerald-100")}
+              title="Upload vehicles excel"
+            >
+              <FileUp className="h-4 w-4" />
+            </Link>
+          ),
+        },
+        {
+          id: "editVehicles",
+          header: "Edit Vehicles",
+          mobileFooter: true,
+          cell: (row) => (
+            <Link
+              href={EVENT_ROUTES.updateVehicles(row.id)}
+              className={legacyActionClass("bg-emerald-100 text-emerald-800 hover:bg-emerald-200")}
+              title="Update vehicles excel"
+            >
+              <FilePenLine className="h-4 w-4" />
+            </Link>
+          ),
+        },
+        {
+          id: "uploadImages",
+          header: "Upload Image",
+          mobileFooter: true,
+          cell: (row) => (
+            <Link
+              href={EVENT_ROUTES.uploadImages(row.id)}
+              className={legacyActionClass("bg-blue-50 text-blue-700 hover:bg-blue-100")}
+              title="Upload vehicle images"
+            >
+              <ImageIcon className="h-4 w-4" aria-hidden />
+            </Link>
+          ),
+        },
+        {
+          id: "uploadZip",
+          header: "Upload RAR/ZIP",
+          mobileFooter: true,
+          cell: (row) => (
+            <Link
+              href={EVENT_ROUTES.uploadZip(row.id)}
+              className={legacyActionClass("bg-emerald-200 text-emerald-900 hover:bg-emerald-300")}
+              title="Upload RAR/ZIP"
+            >
+              <FileArchive className="h-4 w-4" />
+            </Link>
+          ),
+        },
+      ]
+    : [];
+
+  const eventManageColumns: TableColumn<EventListItem>[] = canManageEvents
+    ? [
+        {
+          id: "whatsapp",
+          header: "WhatsApp",
+          mobileFooter: true,
+          cell: (row) => (
+            <button
+              type="button"
+              onClick={() => onWhatsApp(row)}
+              disabled={whatsappLoading}
+              className={legacyActionClass("bg-green-50 text-green-700 hover:bg-green-100 disabled:opacity-60")}
+              title="Send WhatsApp notification"
+            >
+              {whatsappLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <MessageCircle className="h-4 w-4" />
+              )}
+            </button>
+          ),
+        },
+        {
+          id: "archive",
+          header: "Archive",
+          mobileFooter: true,
+          cell: (row) => (
+            <Button
+              type="button"
+              size="icon"
+              variant="danger"
+              className="h-8 w-8"
+              title="Archive event"
+              onClick={() => onArchive(row)}
+            >
+              <Archive className="h-4 w-4" />
+            </Button>
+          ),
+        },
+      ]
+    : [];
 
   return [
     {
@@ -170,23 +317,7 @@ export function createEventsTableColumns(
       header: "Created At",
       cell: (row) => formatDate(row.createdAt),
     },
-    {
-      id: "addVehicle",
-      header: "Add Vehicle",
-      mobileFooter: true,
-      cell: (row) =>
-        isEventActive(row.endDate) ? (
-          <Link
-            href={EVENT_ROUTES.addVehicle(row.id)}
-            className={legacyActionClass("bg-emerald-50 text-emerald-700 hover:bg-emerald-100")}
-            title="Add vehicle"
-          >
-            <Car className="h-4 w-4" />
-          </Link>
-        ) : (
-          "—"
-        ),
-    },
+    ...vehicleManageColumns,
     {
       id: "viewVehicles",
       header: "View Vehicles",
@@ -209,85 +340,6 @@ export function createEventsTableColumns(
           </Link>
         );
       },
-    },
-    {
-      id: "deletedVehicles",
-      header: "Deleted Vehicles",
-      mobileFooter: true,
-      cell: (row) => {
-        const count = row.deletedVehiclesCount ?? 0;
-        if (count === 0) {
-          return (
-            <span className={legacyActionClass("bg-slate-100 text-slate-500")}>
-              0
-            </span>
-          );
-        }
-        return (
-          <Link
-            href={EVENT_ROUTES.deletedVehicles(row.id)}
-            className={legacyActionClass("bg-red-50 text-red-700 hover:bg-red-100")}
-          >
-            {count}
-          </Link>
-        );
-      },
-    },
-    {
-      id: "uploadVehicles",
-      header: "Upload Vehicles",
-      mobileFooter: true,
-      cell: (row) => (
-        <Link
-          href={EVENT_ROUTES.uploadVehicles(row.id, row.eventCategory ?? undefined)}
-          className={legacyActionClass("bg-emerald-50 text-emerald-700 hover:bg-emerald-100")}
-          title="Upload vehicles excel"
-        >
-          <FileUp className="h-4 w-4" />
-        </Link>
-      ),
-    },
-    {
-      id: "editVehicles",
-      header: "Edit Vehicles",
-      mobileFooter: true,
-      cell: (row) => (
-        <Link
-          href={EVENT_ROUTES.updateVehicles(row.id)}
-          className={legacyActionClass("bg-emerald-100 text-emerald-800 hover:bg-emerald-200")}
-          title="Update vehicles excel"
-        >
-          <FilePenLine className="h-4 w-4" />
-        </Link>
-      ),
-    },
-    {
-      id: "uploadImages",
-      header: "Upload Image",
-      mobileFooter: true,
-      cell: (row) => (
-        <Link
-          href={EVENT_ROUTES.uploadImages(row.id)}
-          className={legacyActionClass("bg-blue-50 text-blue-700 hover:bg-blue-100")}
-          title="Upload vehicle images"
-        >
-          <ImageIcon className="h-4 w-4" aria-hidden />
-        </Link>
-      ),
-    },
-    {
-      id: "uploadZip",
-      header: "Upload RAR/ZIP",
-      mobileFooter: true,
-      cell: (row) => (
-        <Link
-          href={EVENT_ROUTES.uploadZip(row.id)}
-          className={legacyActionClass("bg-emerald-200 text-emerald-900 hover:bg-emerald-300")}
-          title="Upload RAR/ZIP"
-        >
-          <FileArchive className="h-4 w-4" />
-        </Link>
-      ),
     },
     {
       id: "editEvent",
@@ -364,62 +416,24 @@ export function createEventsTableColumns(
             className={legacyActionClass("bg-brand-50 text-brand-700 hover:bg-brand-100")}
             title="View creator"
           >
-            <Pencil className="h-4 w-4" />
+            <UserPen className="h-4 w-4" />
           </Link>
         ) : (
           "—"
         ),
     },
-    {
-      id: "whatsapp",
-      header: "WhatsApp",
-      mobileFooter: true,
-      cell: (row) => (
-        <button
-          type="button"
-          onClick={() => onWhatsApp(row)}
-          disabled={whatsappLoading}
-          className={legacyActionClass("bg-green-50 text-green-700 hover:bg-green-100 disabled:opacity-60")}
-          title="Send WhatsApp notification"
-        >
-          {whatsappLoading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <MessageCircle className="h-4 w-4" />
-          )}
-        </button>
-      ),
-    },
+    ...eventManageColumns,
     {
       id: "terms",
       header: "T&C",
       mobileFooter: true,
       cell: (row) => (
-        <a
-          href={EVENT_LEGACY_ROUTES.eventTermsUsers(row.id)}
-          target="_blank"
-          rel="noopener noreferrer"
+        <Link
+          href={EVENT_ROUTES.eventTermsUsers(row.id)}
           className={legacyActionClass("bg-blue-50 text-blue-700 hover:bg-blue-100")}
         >
           Accepted Users
-        </a>
-      ),
-    },
-    {
-      id: "archive",
-      header: "Archive",
-      mobileFooter: true,
-      cell: (row) => (
-        <Button
-          type="button"
-          size="icon"
-          variant="danger"
-          className="h-8 w-8"
-          title="Archive event"
-          onClick={() => onArchive(row)}
-        >
-          <Archive className="h-4 w-4" />
-        </Button>
+        </Link>
       ),
     },
   ];

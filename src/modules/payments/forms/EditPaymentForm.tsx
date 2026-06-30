@@ -5,12 +5,20 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation, useQuery } from "@apollo/client";
-import { Download } from "lucide-react";
+import { ArrowLeft, Download } from "lucide-react";
 import Swal from "sweetalert2";
 import { Can } from "@/auth/can";
 import { PERMISSIONS } from "@/auth/permissions";
-import { Button, FormCard, Input, Select, buttonVariants } from "@/components/ui";
-import { FormField } from "@/components/forms";
+import { useAuthenticatedQuery } from "@/auth/use-authenticated-query";
+import {
+  Button,
+  FormCard,
+  Input,
+  PageContainer,
+  Select,
+  buttonVariants,
+} from "@/components/ui";
+import { FormField, FormGrid, FormSection } from "@/components/forms";
 import {
   PAYMENT_QUERY,
   UPDATE_PAYMENT_MUTATION,
@@ -20,16 +28,14 @@ import { extractGraphqlError } from "@/lib/graphql-errors";
 import { convertUtcToDateTimeLocal } from "@/lib/date-format";
 import { PAYMENTS_FOR_OPTIONS } from "@/modules/users/constants";
 import { ChangePaymentStatusModal } from "@/modules/payments/components/ChangePaymentStatusModal";
-import {
-  MAX_PAYMENT_IMAGE_BYTES,
-} from "@/modules/payments/constants";
+import { MAX_PAYMENT_IMAGE_BYTES } from "@/modules/payments/constants";
 import {
   downloadPaymentProofImage,
   resolvePaymentImageUrl,
   sanitizePaymentAmountInput,
   uploadPaymentImage,
 } from "@/modules/payments/utils/payment-api";
-import { LoadingState } from "@/components/feedback";
+import { EmptyState, LoadingState } from "@/components/feedback";
 
 interface EditPaymentFormProps {
   paymentId: string;
@@ -43,18 +49,28 @@ interface EditPaymentFormValues {
   imgForPaymentProof?: FileList;
 }
 
+const fileInputClassName =
+  "block w-full text-sm text-brand-700 file:mr-4 file:rounded-md file:border-0 file:bg-brand-800 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-brand-900";
+
+function formatPaymentStatus(status?: string | null): string {
+  if (!status) return "—";
+  return status.charAt(0).toUpperCase() + status.slice(1);
+}
+
 export function EditPaymentForm({ paymentId }: EditPaymentFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const returnUserId = searchParams.get("userId");
+  const { canFetch } = useAuthenticatedQuery();
 
   const [statusModalOpen, setStatusModalOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
-  const { data, loading, refetch } = useQuery(PAYMENT_QUERY, {
+  const { data, loading, error, refetch } = useQuery(PAYMENT_QUERY, {
     variables: { where: { id: paymentId } },
     fetchPolicy: "network-only",
+    skip: !canFetch,
   });
 
   const [updatePayment, { loading: saving }] = useMutation(UPDATE_PAYMENT_MUTATION);
@@ -69,6 +85,7 @@ export function EditPaymentForm({ paymentId }: EditPaymentFormProps) {
 
   const payment = data?.payment;
   const paymentFor = watch("paymentFor");
+  const isPending = payment?.status === "pending";
 
   useEffect(() => {
     if (!payment) return;
@@ -120,8 +137,8 @@ export function EditPaymentForm({ paymentId }: EditPaymentFormProps) {
       } else {
         router.push(ROUTES.payments);
       }
-    } catch (error: unknown) {
-      const { message } = extractGraphqlError(error);
+    } catch (submitError: unknown) {
+      const { message } = extractGraphqlError(submitError);
       await Swal.fire({ icon: "error", title: "Failed", text: message });
     }
   };
@@ -155,169 +172,286 @@ export function EditPaymentForm({ paymentId }: EditPaymentFormProps) {
         timer: 2000,
         showConfirmButton: false,
       });
-    } catch (error: unknown) {
-      const { message } = extractGraphqlError(error);
+    } catch (uploadError: unknown) {
+      const { message } = extractGraphqlError(uploadError);
       await Swal.fire({ icon: "error", title: "Upload failed", text: message });
     } finally {
       setUploading(false);
     }
   };
 
-  if (loading && !payment) {
-    return <LoadingState label="Loading payment…" />;
-  }
-
-  const userName = payment?.user
-    ? `${payment.user.firstName ?? ""}`.trim()
-    : "";
-
   const backHref = returnUserId
     ? ROUTES.paymentUser(returnUserId)
     : ROUTES.payments;
 
-  return (
-    <>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <FormCard
-          title={`Update Payment${userName ? ` of ${userName}` : ""}`}
-          footer={
-            <div className="flex flex-wrap gap-2">
-              <Link href={backHref} className={buttonVariants({ variant: "outline" })}>
-                Cancel
-              </Link>
-              <Can permission={PERMISSIONS.PAYMENTS_MANAGE}>
-                <Button type="submit" disabled={saving}>
-                  {saving ? "Saving…" : "Save Changes"}
-                </Button>
-              </Can>
-            </div>
+  const backLabel = returnUserId ? "Back to User Payments" : "Back to Payments";
+
+  if (!canFetch || (loading && !payment)) {
+    return <LoadingState label="Loading payment…" />;
+  }
+
+  if (error || !payment) {
+    return (
+      <PageContainer title="Update Payment">
+        <EmptyState
+          title="Payment not found"
+          description={
+            error
+              ? extractGraphqlError(error).message
+              : "The requested payment could not be loaded."
           }
+          action={
+            <Link href={backHref} className={buttonVariants({ variant: "outline" })}>
+              {backLabel}
+            </Link>
+          }
+        />
+      </PageContainer>
+    );
+  }
+
+  const userName = payment.user
+    ? `${payment.user.firstName ?? ""} ${payment.user.lastName ?? ""}`.trim()
+    : "";
+
+  return (
+    <PageContainer
+      title="Update Payment"
+      description={
+        userName
+          ? `Edit payment details for ${userName}.`
+          : "Edit payment amount, description, and proof image."
+      }
+      actions={
+        <Link
+          href={backHref}
+          className={buttonVariants({ size: "sm", variant: "outline" })}
         >
-          <div className="grid gap-4 md:grid-cols-2">
-            <FormField label="First Name" htmlFor="edit-first-name">
-              <Input id="edit-first-name" value={payment?.user?.firstName ?? ""} disabled readOnly />
-            </FormField>
-            <FormField label="User Name" htmlFor="edit-username">
-              <Input id="edit-username" value={payment?.user?.username ?? ""} disabled readOnly />
-            </FormField>
-
-            <FormField label="Amount" htmlFor="edit-amount" error={errors.amount?.message}>
-              <Input
-                id="edit-amount"
-                type="number"
-                {...register("amount", {
-                  required: "Amount is required",
-                  onChange: (e) => {
-                    e.target.value = sanitizePaymentAmountInput(e.target.value);
-                  },
-                })}
-              />
-            </FormField>
-
-            <FormField label="Payment For" htmlFor="edit-payment-for">
-              <Select
-                id="edit-payment-for"
-                options={PAYMENTS_FOR_OPTIONS}
-                disabled
-                {...register("paymentFor")}
-              />
-            </FormField>
-
-            <FormField label="Description" htmlFor="edit-description" className="md:col-span-2">
-              <Input
-                id="edit-description"
-                disabled={payment?.status !== "pending"}
-                {...register("description")}
-              />
-            </FormField>
-
-            {paymentFor === "registrations" && (
-              <FormField label="Registration Expire" htmlFor="edit-registration-expire">
-                <Input
-                  id="edit-registration-expire"
-                  type="datetime-local"
-                  {...register("registrationExpire")}
-                />
-              </FormField>
-            )}
-
-            <div className="md:col-span-2 flex flex-wrap items-end gap-3">
-              <FormField label="Payment Status" htmlFor="edit-payment-status" className="flex-1 min-w-[200px]">
-                <Input id="edit-payment-status" value={payment?.status ?? ""} disabled readOnly />
-              </FormField>
-              {payment?.status === "pending" && (
+          <ArrowLeft className="h-4 w-4" />
+          {backLabel}
+        </Link>
+      }
+    >
+      <div className="mx-auto w-full max-w-3xl">
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <FormCard
+            title="Payment Details"
+            description={
+              isPending
+                ? "Pending payments can be edited, approved, or rejected."
+                : "This payment has been processed. Only some fields may be editable."
+            }
+            footer={
+              <div className="flex flex-wrap gap-2">
+                <Link href={backHref} className={buttonVariants({ variant: "outline" })}>
+                  Cancel
+                </Link>
                 <Can permission={PERMISSIONS.PAYMENTS_MANAGE}>
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={() => setStatusModalOpen(true)}
-                  >
-                    Change Status
+                  <Button type="submit" isLoading={saving}>
+                    Save Changes
                   </Button>
                 </Can>
-              )}
-            </div>
-
-            {imageUrl && (
-              <div className="md:col-span-2 space-y-2">
-                <p className="text-sm font-medium">Payment Proof Image</p>
-                <div className="relative max-w-md">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={imageUrl}
-                    alt="Payment proof"
-                    className="h-40 w-full rounded-md border object-contain"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => void downloadPaymentProofImage(paymentId)}
-                    className="absolute right-2 top-2 rounded-full bg-black/60 p-2 text-white hover:bg-black/80"
-                    title="Download image"
-                  >
-                    <Download className="h-4 w-4" />
-                  </button>
-                </div>
               </div>
+            }
+          >
+            {payment.user && (
+              <FormSection
+                title="User"
+                description="Payment is linked to this account."
+                className="mb-6"
+              >
+                <FormGrid columns={2}>
+                  <FormField label="First Name" htmlFor="edit-first-name">
+                    <Input
+                      id="edit-first-name"
+                      value={payment.user.firstName ?? ""}
+                      disabled
+                      readOnly
+                    />
+                  </FormField>
+                  <FormField label="Last Name" htmlFor="edit-last-name">
+                    <Input
+                      id="edit-last-name"
+                      value={payment.user.lastName ?? ""}
+                      disabled
+                      readOnly
+                    />
+                  </FormField>
+                  <FormField label="Username" htmlFor="edit-username">
+                    <Input
+                      id="edit-username"
+                      value={payment.user.username ?? ""}
+                      disabled
+                      readOnly
+                    />
+                  </FormField>
+                  <FormField label="Mobile" htmlFor="edit-mobile">
+                    <Input
+                      id="edit-mobile"
+                      value={payment.user.mobile ?? ""}
+                      disabled
+                      readOnly
+                    />
+                  </FormField>
+                </FormGrid>
+              </FormSection>
             )}
 
-            <FormField
-              label="Upload New Payment Proof Image (max 1MB)"
-              htmlFor="edit-payment-proof"
-              className="md:col-span-2"
-              error={errors.imgForPaymentProof?.message as string | undefined}
-            >
-              <Input
-                id="edit-payment-proof"
-                type="file"
-                accept="image/*"
-                {...register("imgForPaymentProof", {
-                  validate: (files: FileList | undefined) => {
-                    const selected = files?.[0];
-                    if (!selected) return true;
-                    return (
-                      selected.size <= MAX_PAYMENT_IMAGE_BYTES ||
-                      "File size must be less than 1MB"
-                    );
-                  },
-                })}
-              />
-            </FormField>
-
-            {payment?.status === "pending" && (
-              <div className="md:col-span-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={uploading}
-                  onClick={() => void handleUploadOnly()}
+            <FormSection title="Payment">
+              <FormGrid columns={2}>
+                <FormField
+                  label="Amount"
+                  htmlFor="edit-amount"
+                  required
+                  error={errors.amount?.message}
                 >
-                  {uploading ? "Uploading…" : "Upload Image"}
-                </Button>
-              </div>
-            )}
-          </div>
-        </FormCard>
-      </form>
+                  <Input
+                    id="edit-amount"
+                    type="number"
+                    inputMode="numeric"
+                    error={Boolean(errors.amount)}
+                    {...register("amount", {
+                      required: "Amount is required",
+                      onChange: (e) => {
+                        e.target.value = sanitizePaymentAmountInput(e.target.value);
+                      },
+                    })}
+                  />
+                </FormField>
+
+                <FormField label="Payment For" htmlFor="edit-payment-for">
+                  <Select
+                    id="edit-payment-for"
+                    options={PAYMENTS_FOR_OPTIONS}
+                    disabled
+                    {...register("paymentFor")}
+                  />
+                </FormField>
+
+                <FormField
+                  label="Description"
+                  htmlFor="edit-description"
+                  className="md:col-span-2"
+                  hint={!isPending ? "Description can only be edited while payment is pending." : undefined}
+                >
+                  <Input
+                    id="edit-description"
+                    disabled={!isPending}
+                    placeholder="Add a short description"
+                    {...register("description")}
+                  />
+                </FormField>
+
+                {paymentFor === "registrations" && (
+                  <FormField
+                    label="Registration Expire"
+                    htmlFor="edit-registration-expire"
+                    className="md:col-span-2"
+                  >
+                    <Input
+                      id="edit-registration-expire"
+                      type="datetime-local"
+                      {...register("registrationExpire")}
+                    />
+                  </FormField>
+                )}
+
+                <div className="md:col-span-2 flex flex-wrap items-end gap-3">
+                  <FormField
+                    label="Payment Status"
+                    htmlFor="edit-payment-status"
+                    className="min-w-[200px] flex-1"
+                  >
+                    <Input
+                      id="edit-payment-status"
+                      value={formatPaymentStatus(payment.status)}
+                      disabled
+                      readOnly
+                    />
+                  </FormField>
+                  {isPending && (
+                    <Can permission={PERMISSIONS.PAYMENTS_MANAGE}>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => setStatusModalOpen(true)}
+                      >
+                        Change Status
+                      </Button>
+                    </Can>
+                  )}
+                </div>
+              </FormGrid>
+            </FormSection>
+
+            <FormSection
+              title="Payment Proof"
+              description="View or replace the uploaded proof image."
+              className="mt-6"
+            >
+              {imageUrl && (
+                <div className="mb-4 space-y-2">
+                  <p className="text-sm font-medium text-brand-800">Current image</p>
+                  <div className="relative max-w-md">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={imageUrl}
+                      alt="Payment proof"
+                      className="h-44 w-full rounded-md border border-surface-border bg-surface-muted object-contain"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => void downloadPaymentProofImage(paymentId)}
+                      className="absolute right-2 top-2 rounded-full bg-black/60 p-2 text-white transition-colors hover:bg-black/80"
+                      title="Download image"
+                    >
+                      <Download className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <FormField
+                label="Upload New Payment Proof"
+                htmlFor="edit-payment-proof"
+                hint="Optional. Maximum file size is 1MB."
+                error={errors.imgForPaymentProof?.message as string | undefined}
+              >
+                <Input
+                  id="edit-payment-proof"
+                  type="file"
+                  accept="image/*"
+                  className={fileInputClassName}
+                  error={Boolean(errors.imgForPaymentProof)}
+                  {...register("imgForPaymentProof", {
+                    validate: (files: FileList | undefined) => {
+                      const selected = files?.[0];
+                      if (!selected) return true;
+                      return (
+                        selected.size <= MAX_PAYMENT_IMAGE_BYTES ||
+                        "File size must be less than 1MB"
+                      );
+                    },
+                  })}
+                />
+              </FormField>
+
+              {isPending && (
+                <div className="mt-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={uploading}
+                    onClick={() => void handleUploadOnly()}
+                  >
+                    {uploading ? "Uploading…" : "Upload Image Only"}
+                  </Button>
+                </div>
+              )}
+            </FormSection>
+          </FormCard>
+        </form>
+      </div>
 
       <ChangePaymentStatusModal
         open={statusModalOpen}
@@ -327,6 +461,6 @@ export function EditPaymentForm({ paymentId }: EditPaymentFormProps) {
         onClose={() => setStatusModalOpen(false)}
         onSuccess={() => void refetch()}
       />
-    </>
+    </PageContainer>
   );
 }

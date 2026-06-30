@@ -91,6 +91,7 @@ export const PAYMENT_QUERY = gql`
         firstName
         lastName
         username
+        mobile
         vehicleBuyingLimit
       }
       refNo
@@ -206,6 +207,31 @@ export const CREATE_EMD_UPDATE_MUTATION = gql`
     ) {
       id
       vehicleBuyingLimitIncrement
+    }
+  }
+`;
+
+export const USER_BUYING_LIMIT_QUERY = gql`
+  query UserBuyingLimit($where: UserWhereUniqueInput!) {
+    user(where: $where) {
+      id
+      firstName
+      lastName
+      emdUpdates {
+        id
+        emdNo
+        vehicleBuyingLimitIncrement
+        createdAt
+        createdById
+        createdBy {
+          id
+          firstName
+        }
+        payment {
+          id
+          amount
+        }
+      }
     }
   }
 `;

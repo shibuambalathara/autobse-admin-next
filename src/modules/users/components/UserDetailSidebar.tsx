@@ -29,7 +29,7 @@ export function UserDetailSidebar({
     { label: "Notifications", href: USER_ROUTES.notifications(userId), adminOnly: true },
     { label: "Blocked Sellers", href: USER_ROUTES.blockedSellers(userId), adminOnly: true },
     { label: "Audit Log", href: ROUTES.userAuditLogs(userId), adminOnly: true },
-    { label: "Accepted Events", href: USER_LEGACY_ROUTES.termsCondition(userId) },
+    { label: "Accepted Events", href: USER_ROUTES.termsCondition(userId) },
   ].filter((link) => !link.adminOnly || isAdmin);
 
   return (

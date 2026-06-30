@@ -23,15 +23,18 @@ function toSelectOptions(
   }));
 }
 
-export function useEventFilterOptions() {
+export function useEventFilterOptions(enabled = true) {
   const { data: locationsData } = useQuery<LocationsFilterResult>(
-    LOCATIONS_FILTER_QUERY
+    LOCATIONS_FILTER_QUERY,
+    { skip: !enabled }
   );
   const { data: sellersData } = useQuery<SellersFilterResult>(
-    SELLERS_FILTER_QUERY
+    SELLERS_FILTER_QUERY,
+    { skip: !enabled }
   );
   const { data: vehicleCategoriesData } = useQuery<VehicleCategoriesResult>(
-    VEHICLE_CATEGORIES_QUERY
+    VEHICLE_CATEGORIES_QUERY,
+    { skip: !enabled }
   );
 
   const locationOptions = useMemo(

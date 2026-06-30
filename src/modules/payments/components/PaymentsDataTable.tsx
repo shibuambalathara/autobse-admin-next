@@ -12,6 +12,7 @@ import { PERMISSIONS } from "@/auth/permissions";
 import { DataTable } from "@/components/table";
 import { ROUTES } from "@/constants/routes";
 import { ChangePaymentStatusModal } from "@/modules/payments/components/ChangePaymentStatusModal";
+import { downloadPaymentStatusPdf } from "@/modules/payments/utils/payment-status-pdf";
 import type { PaymentListItem } from "@/modules/payments/types";
 import type { TableColumn } from "@/types";
 
@@ -70,6 +71,20 @@ export function PaymentsDataTable({
         <p>Thank you.</p>
       </div>`,
     });
+  };
+
+  const handleDownloadPdf = (payment: PaymentListItem) => {
+    try {
+      downloadPaymentStatusPdf(payment);
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Failed to generate payment PDF.";
+      void Swal.fire({
+        icon: "error",
+        title: "Download failed",
+        text: message,
+      });
+    }
   };
 
   const columns = useMemo(
@@ -244,13 +259,7 @@ export function PaymentsDataTable({
                   <button
                     type="button"
                     className={`${actionBtn} bg-blue-600 hover:bg-blue-700`}
-                    onClick={() =>
-                      void Swal.fire({
-                        icon: "info",
-                        title: "PDF export",
-                        text: "Payment PDF download is not yet migrated to the new admin panel.",
-                      })
-                    }
+                    onClick={() => handleDownloadPdf(row)}
                   >
                     PDF
                   </button>

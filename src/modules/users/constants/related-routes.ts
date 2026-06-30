@@ -3,15 +3,15 @@ export const USER_ROUTES = {
   bids: (userId: string) => `/bids-user/${userId}`,
   payments: (userId: string) => `/payment/${userId}`,
   createPayment: (userId: string) => `/create-payment/${userId}`,
+  buyingLimit: (userId: string) => `/buying-limit/${userId}`,
+  termsCondition: (userId: string) => `/user-terms-condition/${userId}`,
   blockedSellers: (userId: string) => `/blocked-sellers/${userId}`,
   notifications: (userId: string) => `/user-notifications/${userId}`,
 } as const;
 
 /** Drill-down routes for user-related pages not yet migrated to Next.js. */
 export const USER_LEGACY_ROUTES = {
-  buyingLimit: (userId: string) => `/buying-limit/${userId}`,
   staffCreatedUsers: (userId: string) => `/staff-created-users/${userId}`,
-  termsCondition: (userId: string) => `/user-terms-condition/${userId}`,
 } as const;
 
 export const IDENTITY_IMAGE_KEYS = [
