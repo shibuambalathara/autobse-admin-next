@@ -152,7 +152,18 @@ export function EditEventForm({ eventId }: EditEventFormProps) {
 
       const file = formData.downloadable?.[0];
       if (file) {
-        await uploadEventVehicleList(eventId, file);
+        try {
+          await uploadEventVehicleList(eventId, file);
+        } catch (uploadError: unknown) {
+          const { message } = extractGraphqlError(uploadError);
+          await Swal.fire({
+            icon: "error",
+            title: "Downloadable file upload failed",
+            text: message,
+          });
+          return;
+        }
+
         await Swal.fire({
           icon: "success",
           title: "Success",
@@ -376,7 +387,7 @@ export function EditEventForm({ eventId }: EditEventFormProps) {
             <Input
               id="downloadable"
               type="file"
-              accept=".xlsx,.xls,.pdf"
+              accept=".xlsx,.xls"
               disabled={readOnly}
               {...register("downloadable")}
             />

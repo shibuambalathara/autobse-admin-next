@@ -4,7 +4,7 @@ import type { EditUserFormValues, SelectOption } from "@/modules/users/types";
 export const PAN_REGEX = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
 
 export const lettersOnly = (value: string) =>
-  value.replace(/[^A-Za-z]/g, "");
+  value.replace(/[^A-Za-z ]/g, "");
 
 export const digitsOnly = (value: string, maxLength?: number) => {
   let digits = value.replace(/[^0-9]/g, "");

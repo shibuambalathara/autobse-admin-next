@@ -132,11 +132,22 @@ export function AddEventForm() {
 
       const file = formData.downloadable?.[0];
       if (file) {
-        await uploadEventVehicleList(eventId, file);
+        try {
+          await uploadEventVehicleList(eventId, file);
+        } catch (uploadError: unknown) {
+          const { message } = extractGraphqlError(uploadError);
+          await Swal.fire({
+            icon: "error",
+            title: "Downloadable file upload failed",
+            html: `The event was created, but the file could not be uploaded.<br><br>${message}`,
+          });
+          return;
+        }
+
         await Swal.fire({
           icon: "success",
           title: "Success",
-          text: "Excel file added successfully!",
+          text: "Event and downloadable file added successfully!",
           timer: 2500,
           showConfirmButton: false,
         });
@@ -297,7 +308,7 @@ export function AddEventForm() {
             <Input
               id="downloadable"
               type="file"
-              accept=".xlsx,.xls,.pdf"
+              accept=".xlsx,.xls"
               {...register("downloadable")}
             />
           </FormField>
