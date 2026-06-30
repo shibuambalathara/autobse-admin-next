@@ -37,7 +37,7 @@ export function AuthBrandPanel({ className }: AuthBrandPanelProps) {
             Management Portal
           </p>
           <h1 className="mt-4 text-4xl font-bold tracking-tight text-white xl:text-5xl">
-            AUTO<span className="text-orange-400">BSE</span>
+            AUTO<span className="text-orange-400">BSe</span>
           </h1>
           <p className="mt-3 max-w-md text-base text-brand-200">
             {AUTH_COPY.tagline}
@@ -64,7 +64,7 @@ export function AuthBrandPanel({ className }: AuthBrandPanelProps) {
         </ul>
 
         <p className="text-xs text-brand-400">
-          &copy; {new Date().getFullYear()} AutoBSE. All rights reserved.
+          &copy; {new Date().getFullYear()} AUTOBSe. All rights reserved.
         </p>
       </div>
     </aside>
