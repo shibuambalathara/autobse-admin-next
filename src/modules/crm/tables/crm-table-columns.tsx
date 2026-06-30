@@ -28,9 +28,15 @@ export function createCrmTableColumns(options: {
   onDelete: (client: CrmClient) => void;
   onMoveToUser: (client: CrmClient) => void;
   showAssignedStaff?: boolean;
+  isAdmin?: boolean;
 }): TableColumn<CrmClient>[] {
-  const { stateNameById, onDelete, onMoveToUser, showAssignedStaff = true } =
-    options;
+  const {
+    stateNameById,
+    onDelete,
+    onMoveToUser,
+    showAssignedStaff = true,
+    isAdmin = false,
+  } = options;
 
   const columns: TableColumn<CrmClient>[] = [
     { id: "idNo", header: "SL No", accessor: "idNo" },
@@ -172,8 +178,11 @@ export function createCrmTableColumns(options: {
             <ArrowRightLeft className="h-4 w-4" />
           </Button>
         ),
-    },
-    {
+    }
+  );
+
+  if (isAdmin) {
+    columns.push({
       id: "delete",
       header: "Delete",
       mobileFooter: true,
@@ -189,8 +198,8 @@ export function createCrmTableColumns(options: {
           <Trash2 className="h-4 w-4" />
         </Button>
       ),
-    }
-  );
+    });
+  }
 
   return columns;
 }

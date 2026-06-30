@@ -17,10 +17,15 @@
   body {
     @apply bg-surface-muted text-brand-900;
   }
+}
 
-  dialog::backdrop {
-    @apply bg-black/40;
-  }
+/* SweetAlert2 must sit above modals (z-modal: 60) and drawers (z-drawer: 50). */
+:root {
+  --swal2-z-index: 100;
+}
+
+.swal2-container {
+  z-index: 100 !important;
 }
 
 @layer utilities {

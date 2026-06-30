@@ -3,12 +3,12 @@
 import Link from "next/link";
 import {
   CreditCard,
-  Eye,
   Loader2,
   MessageCircle,
   MoveRight,
   Pencil,
   Trash2,
+  UserPen,
 } from "lucide-react";
 import { Button, StatusBadge } from "@/components/ui";
 import { ROUTES } from "@/constants/routes";
@@ -225,8 +225,9 @@ export function createUsersTableColumns(
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-brand-50 text-brand-700 hover:bg-brand-100"
+            title="View creator"
           >
-            <Eye className="h-4 w-4" />
+            <UserPen className="h-4 w-4" />
           </Link>
         ) : (
           "—"

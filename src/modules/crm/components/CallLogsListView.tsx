@@ -20,9 +20,9 @@ interface CallLogsListViewProps {
 
 export function CallLogsListView({ clientId }: CallLogsListViewProps) {
   const { user } = useAuth();
+  const isAdmin = isRole(user?.role ?? null, APP_ROLES.ADMIN);
   const canEdit =
-    isRole(user?.role ?? null, APP_ROLES.ADMIN) ||
-    isRole(user?.role ?? null, APP_ROLES.STAFF);
+    isAdmin || isRole(user?.role ?? null, APP_ROLES.STAFF);
 
   const list = useCrmCallLogsList(clientId);
   const actions = useCrmCallLogActions(() => list.refetch());
@@ -33,8 +33,9 @@ export function CallLogsListView({ clientId }: CallLogsListViewProps) {
         onDelete: actions.deleteCrmCallLog,
         canEdit,
         showStaffColumn: !list.isStaff,
+        isAdmin,
       }),
-    [actions.deleteCrmCallLog, canEdit, list.isStaff]
+    [actions.deleteCrmCallLog, canEdit, isAdmin, list.isStaff]
   );
 
   return (

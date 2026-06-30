@@ -12,6 +12,10 @@ import {
 } from "@/modules/users/utils";
 import { sendRegistrationExpiryWhatsapp } from "@/modules/users/utils/user-api";
 import { formatDateOnly } from "@/lib/date-format";
+import {
+  extractGraphqlError,
+  getGraphqlResultErrorMessage,
+} from "@/lib/graphql-errors";
 import type { UserListItem } from "@/modules/users/types";
 import Swal from "sweetalert2";
 
@@ -78,6 +82,13 @@ export function useUserRowActions(onRefetch: () => void) {
       const res = await moveToPotentialClient({
         variables: { where: { id: user.id } },
       });
+
+      const gqlErrorMessage = getGraphqlResultErrorMessage(res);
+      if (gqlErrorMessage) {
+        await Swal.fire({ icon: "error", title: "Failed", text: gqlErrorMessage });
+        return;
+      }
+
       if (res?.data?.moveUserToPotentialClient?.id) {
         await Swal.fire({
           icon: "success",
@@ -87,11 +98,17 @@ export function useUserRowActions(onRefetch: () => void) {
           showConfirmButton: false,
         });
         await onRefetch();
+        return;
       }
+
+      await Swal.fire({
+        icon: "error",
+        title: "Failed",
+        text: "Failed to move user to potential buyers.",
+      });
     } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : "Failed to move client";
-      await Swal.fire({ icon: "error", title: "Error", text: message });
+      const { message } = extractGraphqlError(error);
+      await Swal.fire({ icon: "error", title: "Failed", text: message });
     }
   };
 

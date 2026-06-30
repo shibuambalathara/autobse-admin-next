@@ -69,6 +69,9 @@ export function AddEventForm() {
     formState: { errors },
   } = useForm<AddEventFormValues>({
     defaultValues: {
+      sellerName: "",
+      eventId: "",
+      location: "",
       noOfBids: "10",
       status: "active",
       lockedOrNot: "unlocked",

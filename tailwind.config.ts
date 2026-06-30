@@ -42,6 +42,7 @@ const config: Config = {
         header: "40",
         drawer: "50",
         modal: "60",
+        alert: "100",
       },
     },
   },

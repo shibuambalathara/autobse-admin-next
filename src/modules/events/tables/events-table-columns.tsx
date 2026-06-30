@@ -45,6 +45,7 @@ export interface EventsTableColumnOptions {
   whatsappLoading?: boolean;
   canManageEvents?: boolean;
   canManageVehicles?: boolean;
+  isAdmin?: boolean;
 }
 
 export function createEventsTableColumns(
@@ -61,6 +62,7 @@ export function createEventsTableColumns(
     whatsappLoading,
     canManageEvents = false,
     canManageVehicles = false,
+    isAdmin = false,
   } = options;
 
   const vehicleManageColumns: TableColumn<EventListItem>[] = canManageVehicles
@@ -186,6 +188,11 @@ export function createEventsTableColumns(
             </button>
           ),
         },
+      ]
+    : [];
+
+  const archiveColumn: TableColumn<EventListItem>[] = isAdmin
+    ? [
         {
           id: "archive",
           header: "Archive",
@@ -297,28 +304,6 @@ export function createEventsTableColumns(
       cell: (row) => formatDate(row.endDate),
     },
     {
-      id: "status",
-      header: "Status",
-      cell: (row) => {
-        if (!row.status) return "—";
-        const variant =
-          row.status === "active"
-            ? "success"
-            : row.status === "inactive"
-              ? "neutral"
-              : "warning";
-        const label =
-          row.status.charAt(0).toUpperCase() + row.status.slice(1).toLowerCase();
-        return <StatusBadge variant={variant} label={label} />;
-      },
-    },
-    {
-      id: "createdAt",
-      header: "Created At",
-      cell: (row) => formatDate(row.createdAt),
-    },
-    ...vehicleManageColumns,
-    {
       id: "viewVehicles",
       header: "View Vehicles",
       mobileFooter: true,
@@ -341,6 +326,23 @@ export function createEventsTableColumns(
         );
       },
     },
+    {
+      id: "status",
+      header: "Status",
+      cell: (row) => {
+        if (!row.status) return "—";
+        const variant =
+          row.status === "active"
+            ? "success"
+            : row.status === "inactive"
+              ? "neutral"
+              : "warning";
+        const label =
+          row.status.charAt(0).toUpperCase() + row.status.slice(1).toLowerCase();
+        return <StatusBadge variant={variant} label={label} />;
+      },
+    },
+    ...vehicleManageColumns,
     {
       id: "editEvent",
       header: "View/Edit Event",
@@ -436,5 +438,11 @@ export function createEventsTableColumns(
         </Link>
       ),
     },
+    {
+      id: "createdAt",
+      header: "Created At",
+      cell: (row) => formatDate(row.createdAt),
+    },
+    ...archiveColumn,
   ];
 }
