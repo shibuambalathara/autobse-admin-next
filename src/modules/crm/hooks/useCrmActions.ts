@@ -9,7 +9,10 @@ import {
   RESTORE_CRM_MUTATION,
 } from "@/graphql/documents/crm";
 import type { CrmClient, CrmDeletedClient } from "@/modules/crm/types";
-import { extractGraphqlError } from "@/lib/graphql-errors";
+import {
+  extractGraphqlError,
+  getGraphqlResultErrorMessage,
+} from "@/lib/graphql-errors";
 
 export function useCrmActions(onSuccess?: () => void) {
   const [deletePotentialClient] = useMutation(DELETE_CRM_MUTATION);
@@ -68,20 +71,36 @@ export function useCrmActions(onSuccess?: () => void) {
       if (!response.isConfirmed) return;
 
       try {
-        await movePotentialClientToUser({
+        const res = await movePotentialClientToUser({
           variables: { where: { id: client.id } },
         });
+
+        const gqlErrorMessage = getGraphqlResultErrorMessage(res);
+        if (gqlErrorMessage) {
+          await Swal.fire({ icon: "error", title: "Failed", text: gqlErrorMessage });
+          return;
+        }
+
+        if (res?.data?.movePotentialClientToUser?.id) {
+          await Swal.fire({
+            icon: "success",
+            title: "Moved",
+            text: "Potential buyer moved to users successfully.",
+            timer: 2000,
+            showConfirmButton: false,
+          });
+          onSuccess?.();
+          return;
+        }
+
         await Swal.fire({
-          icon: "success",
-          title: "Moved",
-          text: "Potential buyer moved to users successfully.",
-          timer: 2000,
-          showConfirmButton: false,
+          icon: "error",
+          title: "Failed",
+          text: "Failed to move potential buyer to users.",
         });
-        onSuccess?.();
       } catch (error: unknown) {
         const { message } = extractGraphqlError(error);
-        await Swal.fire({ icon: "error", title: "Error", text: message });
+        await Swal.fire({ icon: "error", title: "Failed", text: message });
       }
     },
     [movePotentialClientToUser, onSuccess]
