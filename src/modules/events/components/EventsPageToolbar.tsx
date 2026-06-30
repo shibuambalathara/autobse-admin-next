@@ -15,6 +15,7 @@ import {
 export type EventsPageToolbarProps = EventsFilterFieldsProps & {
   onClear: () => void;
   showAddEvent?: boolean;
+  showArchivedEvents?: boolean;
 };
 
 function countActiveFilters(props: EventsFilterFieldsProps) {
@@ -34,6 +35,7 @@ const mobileActionButtonClass =
 export function EventsPageToolbar({
   onClear,
   showAddEvent = true,
+  showArchivedEvents = false,
   ...fieldProps
 }: EventsPageToolbarProps) {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
@@ -55,7 +57,7 @@ export function EventsPageToolbar({
   return (
     <div className="mb-4 w-full min-w-0 max-w-full">
       <div className="w-full min-w-0 space-y-3 lg:hidden">
-        <div className="grid w-full min-w-0 grid-cols-2 gap-2">
+        <div className={cn("grid w-full min-w-0 gap-2", showArchivedEvents ? "grid-cols-2" : "grid-cols-1")}>
           <button
             type="button"
             className={cn(mobileActionButtonClass, "justify-center border-neutral-900")}
@@ -70,13 +72,15 @@ export function EventsPageToolbar({
             )}
           </button>
 
-          <Link
-            href={ROUTES.archiveEvents}
-            className={cn(mobileActionButtonClass, "justify-center")}
-          >
-            <Archive className="h-4 w-4 shrink-0" />
-            <span className="truncate">Archived</span>
-          </Link>
+          {showArchivedEvents && (
+            <Link
+              href={ROUTES.archiveEvents}
+              className={cn(mobileActionButtonClass, "justify-center")}
+            >
+              <Archive className="h-4 w-4 shrink-0" />
+              <span className="truncate">Archived</span>
+            </Link>
+          )}
         </div>
 
         <div className="grid w-full min-w-0 grid-cols-1 gap-2">

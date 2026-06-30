@@ -29,10 +29,12 @@ export function CrmListView() {
         onDelete: actions.deleteClient,
         onMoveToUser: actions.moveToUser,
         showAssignedStaff: !list.isStaff,
+        isAdmin,
       }),
     [
       actions.deleteClient,
       actions.moveToUser,
+      isAdmin,
       list.filterOptions.stateNameById,
       list.isStaff,
     ]

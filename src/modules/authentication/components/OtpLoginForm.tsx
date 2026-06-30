@@ -13,8 +13,10 @@ import {
 import { useAuth } from "@/auth/use-auth";
 import { ROUTES } from "@/constants/routes";
 import { env } from "@/config/env";
-import { Button, Input } from "@/components/ui";
-import { FormField } from "@/components/forms";
+import { AuthFormField } from "@/modules/authentication/components/AuthFormField";
+import { AuthMobileInput } from "@/modules/authentication/components/AuthMobileInput";
+import { AuthTextInput } from "@/modules/authentication/components/AuthTextInput";
+import { AuthSubmitButton } from "@/modules/authentication/components/AuthSubmitButton";
 import { extractGraphqlError, getGraphqlResultErrorMessage } from "@/lib/graphql-errors";
 import { mapLoginUserToAuthUser } from "@/modules/authentication/utils/map-auth-user";
 import { getPostLoginRoute } from "@/auth/default-route";
@@ -152,24 +154,25 @@ export function OtpLoginForm() {
   if (step === "verify") {
     return (
       <div className="space-y-5">
-        <div>
-          <button
-            type="button"
-            onClick={() => {
-              setStep("mobile");
-              setFormError(null);
-            }}
-            className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-brand-600 transition-colors hover:text-brand-800"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Change mobile number
-          </button>
-          <h2 className="text-lg font-semibold text-brand-900">
+        <button
+          type="button"
+          onClick={() => {
+            setStep("mobile");
+            setFormError(null);
+          }}
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-[#FF6B00] transition-colors hover:text-[#ff8534]"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Change mobile number
+        </button>
+
+        <div className="rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3">
+          <h2 className="text-sm font-semibold text-white">
             {AUTH_COPY.verifyTitle}
           </h2>
-          <p className="mt-1 text-sm text-brand-500">
+          <p className="mt-1 text-sm text-white/50">
             {AUTH_COPY.verifyDescription}{" "}
-            <span className="font-medium text-brand-800">+91 {mobile}</span>
+            <span className="font-medium text-white">+91 {mobile}</span>
           </p>
         </div>
 
@@ -177,41 +180,36 @@ export function OtpLoginForm() {
           onSubmit={verifyForm.handleSubmit(onVerifyOtp)}
           className="space-y-5"
         >
-          <FormField
+          <AuthFormField
             label="One-time password"
             htmlFor="otp-code"
             required
             error={verifyForm.formState.errors.otp?.message}
           >
-            <Input
+            <AuthTextInput
               id="otp-code"
               type="text"
               inputMode="numeric"
               autoComplete="one-time-code"
               placeholder="4-digit OTP"
-              className="tracking-[0.3em]"
+              className="tracking-[0.35em]"
+              error={Boolean(verifyForm.formState.errors.otp)}
               {...verifyForm.register("otp", otpValidation)}
             />
-          </FormField>
+          </AuthFormField>
 
           {formError && (
             <p
-              className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+              className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300"
               role="alert"
             >
               {formError}
             </p>
           )}
 
-          <Button
-            type="submit"
-            className="w-full"
-            size="lg"
-            isLoading={verifyingOtp}
-            loadingText="Verifying…"
-          >
+          <AuthSubmitButton isLoading={verifyingOtp} loadingText="Verifying…">
             Verify &amp; sign in
-          </Button>
+          </AuthSubmitButton>
         </form>
       </div>
     );
@@ -219,21 +217,20 @@ export function OtpLoginForm() {
 
   return (
     <form onSubmit={mobileForm.handleSubmit(onSendOtp)} className="space-y-5">
-      <FormField
-        label="Mobile number"
+      <AuthFormField
+        label="Mobile Number"
         htmlFor="otp-login-mobile"
         required
         error={mobileForm.formState.errors.mobile?.message}
       >
-        <Input
+        <AuthMobileInput
           id="otp-login-mobile"
-          type="tel"
-          inputMode="numeric"
           autoComplete="tel"
-          placeholder="10-digit mobile number"
+          placeholder="Enter 10-digit mobile number"
+          error={Boolean(mobileForm.formState.errors.mobile)}
           {...mobileForm.register("mobile", mobileValidation)}
         />
-      </FormField>
+      </AuthFormField>
 
       {showCaptcha && (
         <TurnstileCaptcha
@@ -260,22 +257,19 @@ export function OtpLoginForm() {
 
       {formError && (
         <p
-          className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+          className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300"
           role="alert"
         >
           {formError}
         </p>
       )}
 
-      <Button
-        type="submit"
-        className="w-full"
-        size="lg"
+      <AuthSubmitButton
         isLoading={isVerifying || sendingOtp}
         loadingText={isVerifying ? "Verifying…" : "Sending OTP…"}
       >
         Send OTP
-      </Button>
+      </AuthSubmitButton>
     </form>
   );
 }

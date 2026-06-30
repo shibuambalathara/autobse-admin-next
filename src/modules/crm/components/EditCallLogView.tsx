@@ -15,12 +15,12 @@ interface EditCallLogViewProps {
 export function EditCallLogView({ callLogId }: EditCallLogViewProps) {
   const router = useRouter();
   const { user } = useAuth();
-  const canEdit =
-    isRole(user?.role ?? null, APP_ROLES.ADMIN) ||
-    isRole(user?.role ?? null, APP_ROLES.STAFF);
+  const isAdmin = isRole(user?.role ?? null, APP_ROLES.ADMIN);
+  const canAccess =
+    isAdmin || isRole(user?.role ?? null, APP_ROLES.STAFF);
   const [isEditable, setIsEditable] = useState(false);
 
-  if (!canEdit) {
+  if (!canAccess) {
     return (
       <PageContainer
         title="Edit Call Log"
@@ -48,14 +48,16 @@ export function EditCallLogView({ callLogId }: EditCallLogViewProps) {
       title="Edit Call Log"
       description="View or update call log details."
       actions={
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
-          onClick={() => setIsEditable((prev) => !prev)}
-        >
-          {isEditable ? "Cancel Edit" : "Enable Edit"}
-        </Button>
+        isAdmin ? (
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={() => setIsEditable((prev) => !prev)}
+          >
+            {isEditable ? "Cancel Edit" : "Enable Edit"}
+          </Button>
+        ) : undefined
       }
     >
       <div className="mx-auto w-full max-w-4xl">

@@ -10,8 +10,10 @@ import { LOGIN_MUTATION } from "@/graphql/documents/auth";
 import { useAuth } from "@/auth/use-auth";
 import { ROUTES } from "@/constants/routes";
 import { env } from "@/config/env";
-import { Button, Input } from "@/components/ui";
-import { FormField } from "@/components/forms";
+import { AuthFormField } from "@/modules/authentication/components/AuthFormField";
+import { AuthMobileInput } from "@/modules/authentication/components/AuthMobileInput";
+import { AuthPasswordInput } from "@/modules/authentication/components/AuthPasswordInput";
+import { AuthSubmitButton } from "@/modules/authentication/components/AuthSubmitButton";
 import { extractGraphqlError, getGraphqlResultErrorMessage } from "@/lib/graphql-errors";
 import { mapLoginUserToAuthUser } from "@/modules/authentication/utils/map-auth-user";
 import { getPostLoginRoute } from "@/auth/default-route";
@@ -126,41 +128,40 @@ export function PasswordLoginForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-      <FormField
-        label="Mobile number"
+      <AuthFormField
+        label="Mobile Number"
         htmlFor="password-login-mobile"
         required
         error={errors.mobile?.message}
       >
-        <Input
+        <AuthMobileInput
           id="password-login-mobile"
-          type="tel"
-          inputMode="numeric"
           autoComplete="tel"
-          placeholder="10-digit mobile number"
+          placeholder="Enter 10-digit mobile number"
+          error={Boolean(errors.mobile)}
           {...register("mobile", mobileValidation)}
         />
-      </FormField>
+      </AuthFormField>
 
-      <FormField
+      <AuthFormField
         label="Password"
         htmlFor="password-login-password"
         required
         error={errors.password?.message}
       >
-        <Input
+        <AuthPasswordInput
           id="password-login-password"
-          type="password"
           autoComplete="current-password"
           placeholder="Enter your password"
+          error={Boolean(errors.password)}
           {...register("password", passwordValidation)}
         />
-      </FormField>
+      </AuthFormField>
 
-      <div className="flex items-center justify-between text-sm">
+      <div className="flex justify-end">
         <Link
           href={ROUTES.accountRecovery}
-          className="font-medium text-brand-600 transition-colors hover:text-brand-800"
+          className="text-sm font-medium text-[#FF6B00] transition-colors hover:text-[#ff8534]"
         >
           Forgot password?
         </Link>
@@ -183,22 +184,19 @@ export function PasswordLoginForm() {
 
       {formError && (
         <p
-          className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+          className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300"
           role="alert"
         >
           {formError}
         </p>
       )}
 
-      <Button
-        type="submit"
-        className="w-full"
-        size="lg"
+      <AuthSubmitButton
         isLoading={isVerifying || loading}
         loadingText={isVerifying ? "Verifying…" : "Signing in…"}
       >
         Sign in
-      </Button>
+      </AuthSubmitButton>
     </form>
   );
 }

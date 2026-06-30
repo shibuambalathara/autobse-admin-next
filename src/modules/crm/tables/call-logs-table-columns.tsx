@@ -17,8 +17,9 @@ export function createCallLogsTableColumns(options: {
   onDelete: (callLog: CrmCallLog) => void;
   canEdit: boolean;
   showStaffColumn?: boolean;
+  isAdmin?: boolean;
 }): TableColumn<CrmCallLog>[] {
-  const { onDelete, canEdit, showStaffColumn = true } = options;
+  const { onDelete, canEdit, showStaffColumn = true, isAdmin = false } = options;
 
   const columns: TableColumn<CrmCallLog>[] = [];
 
@@ -81,8 +82,11 @@ export function createCallLogsTableColumns(options: {
         ) : (
           "—"
         ),
-    },
-    {
+    }
+  );
+
+  if (isAdmin) {
+    columns.push({
       id: "delete",
       header: "Delete",
       mobileFooter: true,
@@ -98,26 +102,27 @@ export function createCallLogsTableColumns(options: {
           <Trash2 className="h-4 w-4" />
         </Button>
       ),
+    });
+  }
+
+  columns.push({
+    id: "createdBy",
+    header: "Created By",
+    mobileFooter: true,
+    cell: (row) => {
+      const createdById = row.createdById ?? row.createdBy?.id;
+      return createdById ? (
+        <Link
+          href={ROUTES.userDetail(createdById)}
+          className={actionLinkClass("bg-blue-600 hover:bg-blue-700")}
+        >
+          <Eye className="h-4 w-4" />
+        </Link>
+      ) : (
+        "—"
+      );
     },
-    {
-      id: "createdBy",
-      header: "Created By",
-      mobileFooter: true,
-      cell: (row) => {
-        const createdById = row.createdById ?? row.createdBy?.id;
-        return createdById ? (
-          <Link
-            href={ROUTES.userDetail(createdById)}
-            className={actionLinkClass("bg-blue-600 hover:bg-blue-700")}
-          >
-            <Eye className="h-4 w-4" />
-          </Link>
-        ) : (
-          "—"
-        );
-      },
-    }
-  );
+  });
 
   return columns;
 }

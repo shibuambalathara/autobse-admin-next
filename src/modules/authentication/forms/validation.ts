@@ -37,8 +37,14 @@ export const otpValidation = {
 } satisfies RegisterOptions;
 
 export const AUTH_COPY = {
-  brandName: "AUTOBSe",
+  brandName: "AUTOBSE",
   tagline: "Vehicle auction management portal",
+  heroTitle: "Powering auctions.",
+  heroHighlight: "Driving success.",
+  heroDescription:
+    "Manage live auctions, vehicles, users and workflows seamlessly in one powerful platform.",
+  welcomeTitle: "Welcome back!",
+  welcomeDescription: "Sign in to access your account",
   passwordTitle: "Sign in with password",
   passwordDescription: "Use your registered mobile number and password.",
   otpTitle: "Sign in with OTP",

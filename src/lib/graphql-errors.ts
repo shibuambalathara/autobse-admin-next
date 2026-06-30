@@ -1,6 +1,9 @@
 const ERROR_MESSAGES: Record<number, string> = {
   1001: "No such user found. Please check the details and try again.",
   1002: "Failed to update user. Please try again later.",
+  1011: "This mobile number is already registered. Please use a different number.",
+  1012: "This PAN card number is already registered. Please check or use a different one.",
+  1013: "This ID number already exists. Please verify the details.",
   1015: "Only administrators can update mobile or role fields.",
   1007: "Failed to set user OTP.",
   2002: "Invalid username and password.",
@@ -14,6 +17,7 @@ const ERROR_MESSAGES: Record<number, string> = {
   2010: "Amount is less than your previous bid.",
   2011: "Amount is less than current bid.",
   2012: "Buying limit reached.",
+  2001: "Only administrators or staff have permission to perform this action.",
   20001: "You are not allowed to perform this action.",
   2022: "Dealer already blocked by this seller.",
   2023: "Dealer not blocked by this seller.",

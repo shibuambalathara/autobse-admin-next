@@ -7,6 +7,7 @@ import { PageContainer, buttonVariants } from "@/components/ui";
 import { DataTable } from "@/components/table";
 import { LoadingState } from "@/components/feedback";
 import { PERMISSIONS } from "@/auth/permissions";
+import { APP_ROLES, isRole } from "@/auth/roles";
 import { useAccess } from "@/auth/use-access";
 import { ROUTES } from "@/constants/routes";
 import { LocationModal } from "@/modules/events/components/modals/LocationModal";
@@ -21,9 +22,10 @@ import { getEventPptUrl } from "@/modules/events/utils/event-ppt";
 import Swal from "sweetalert2";
 
 export function EventsListView() {
-  const { can } = useAccess();
+  const { can, role } = useAccess();
   const canManageEvents = can(PERMISSIONS.EVENTS_MANAGE);
   const canManageVehicles = can(PERMISSIONS.VEHICLES_MANAGE);
+  const isAdmin = isRole(role, APP_ROLES.ADMIN);
   const list = useEventsList();
   const filterOptions = useEventFilterOptions();
   const rowActions = useEventRowActions(() => list.refetch());
@@ -111,10 +113,12 @@ export function EventsListView() {
         whatsappLoading: rowActions.whatsappLoading,
         canManageEvents,
         canManageVehicles,
+        isAdmin,
       }),
     [
       canManageEvents,
       canManageVehicles,
+      isAdmin,
       handleOpenPptDownload,
       handleOpenPptLink,
       handleViewLocation,
@@ -129,13 +133,15 @@ export function EventsListView() {
         description="Manage auction events and schedules."
         actions={
           <div className="hidden flex-wrap gap-2 lg:flex">
-            <Link
-              href={ROUTES.archiveEvents}
-              className={buttonVariants({ size: "sm", variant: "outline" })}
-            >
-              <Archive className="h-4 w-4 shrink-0" />
-              Archived events
-            </Link>
+            {isAdmin && (
+              <Link
+                href={ROUTES.archiveEvents}
+                className={buttonVariants({ size: "sm", variant: "outline" })}
+              >
+                <Archive className="h-4 w-4 shrink-0" />
+                Archived events
+              </Link>
+            )}
             {canManageEvents && (
               <Link
                 href={ROUTES.eventsAdd}
@@ -165,6 +171,7 @@ export function EventsListView() {
           sellerOptions={filterOptions.sellerOptions}
           vehicleCategoryOptions={filterOptions.vehicleCategoryOptions}
           showAddEvent={canManageEvents}
+          showArchivedEvents={isAdmin}
           onClear={list.clearFilters}
         />
 
