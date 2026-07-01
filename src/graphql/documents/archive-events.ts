@@ -68,12 +68,63 @@ export const ARCHIVE_VEHICLES_QUERY = gql`
         bidStartTime
         bidTimeExpire
         totalBids
-        images
         currentBidAmount
         createdAt
         currentBidUser {
           firstName
           lastName
+        }
+      }
+    }
+  }
+`;
+
+export const ARCHIVE_VEHICLE_DETAIL_QUERY = gql`
+  query ArchiveVehicleDetail(
+    $where: VehicleWhereUniqueInput
+    $take: Int
+    $skip: Int
+  ) {
+    vehiclesArchive(where: $where, take: $take, skip: $skip) {
+      vehicles {
+        id
+        bidStatus
+        registrationNumber
+        loanAgreementNo
+        repoDt
+        make
+        model
+        varient
+        lotNumber
+        fuel
+        rcStatus
+        ownership
+        kmReading
+        insuranceStatus
+        startPrice
+        reservePrice
+        city
+        state
+        area
+        paymentTerms
+        dateOfRegistration
+        vehicleCondition
+        chassisNo
+        YOM
+        quoteIncreament
+        inspectionLink
+        yardLocation
+        image
+        registeredOwnerName
+        currentBidAmount
+        startBidAmount
+        bidStartTime
+        bidTimeExpire
+        totalBids
+        createdAt
+        event {
+          id
+          eventNo
         }
       }
     }

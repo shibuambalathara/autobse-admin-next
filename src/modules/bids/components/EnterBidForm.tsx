@@ -6,7 +6,10 @@ import Swal from "sweetalert2";
 import { Button, Input, Select } from "@/components/ui";
 import { FormField } from "@/components/forms";
 import { CREATE_BID_MUTATION } from "@/graphql/documents/bids";
-import { extractGraphqlError } from "@/lib/graphql-errors";
+import {
+  extractGraphqlError,
+  getGraphqlResultErrorMessage,
+} from "@/lib/graphql-errors";
 import { INDIAN_STATE_OPTIONS } from "@/modules/bids/constants";
 import type { BidModalEvent, BidModalVehicle } from "@/modules/bids/types";
 import {
@@ -33,6 +36,7 @@ export function EnterBidForm({
   const [bidAmount, setBidAmount] = useState("");
   const [stateCode, setStateCode] = useState("");
   const [tokenNumber, setTokenNumber] = useState("");
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const isOpenEvent = eventCategory === "open";
 
@@ -59,14 +63,28 @@ export function EnterBidForm({
 
     const effectiveAmount = amount === 0 ? (vehicle.startPrice ?? 0) : amount;
 
+    setSubmitError(null);
+
     try {
-      await createBid({
+      const response = await createBid({
         variables: {
           bidVehicleId: vehicle.id,
           createBidInput: { amount: effectiveAmount },
           userUniqueInput: openToken ? { openToken } : { mobile },
         },
       });
+
+      const gqlErrorMessage = getGraphqlResultErrorMessage(response);
+      if (gqlErrorMessage) {
+        setSubmitError(gqlErrorMessage);
+        return;
+      }
+
+      if (!response.data?.createBid) {
+        setSubmitError("Failed to submit bid.");
+        return;
+      }
+
       await Swal.fire({
         icon: "success",
         title: "Bid submitted",
@@ -75,8 +93,7 @@ export function EnterBidForm({
       });
       onSuccess();
     } catch (error: unknown) {
-      const { message } = extractGraphqlError(error);
-      await Swal.fire({ icon: "error", title: "Failed", text: message });
+      setSubmitError(extractGraphqlError(error).message);
     }
   };
 
@@ -148,6 +165,12 @@ export function EnterBidForm({
           onChange={(e) => setBidAmount(e.target.value.replace(/\D/g, ""))}
         />
       </FormField>
+
+      {submitError && (
+        <p className="text-sm font-bold text-red-600" role="alert">
+          {submitError}
+        </p>
+      )}
 
       <Button type="button" className="w-full" disabled={loading} onClick={handleSubmit}>
         {loading ? "Submitting…" : "Bid Now"}

@@ -113,6 +113,23 @@ export const ROUTES = {
       ? (`/archive-events/${id}/terms?${query}` as const)
       : (`/archive-events/${id}/terms` as const);
   },
+  archiveVehicleDetail: (
+    vehicleId: string,
+    params?: {
+      eventArchiveId?: string;
+      eventNo?: number | string | null;
+      sellerName?: string;
+    }
+  ) => {
+    const search = new URLSearchParams();
+    if (params?.eventArchiveId) search.set("eventArchiveId", params.eventArchiveId);
+    if (params?.eventNo != null) search.set("eventNo", String(params.eventNo));
+    if (params?.sellerName) search.set("sellerName", params.sellerName);
+    const query = search.toString();
+    return query
+      ? (`/view-archive-vehicle/${vehicleId}?${query}` as const)
+      : (`/view-archive-vehicle/${vehicleId}` as const);
+  },
   notifications: "/notifications",
   notificationsDeleted: "/notifications/deleted",
   userNotifications: (userId: string) => `/user-notifications/${userId}` as const,

@@ -13,8 +13,9 @@ export type DeletedEventBotDisplayRow = DeletedEventBotItem & {
 export function createDeletedEventBotsTableColumns(options: {
   onRestore: (event: DeletedEventBotItem) => void;
   onPermanentDelete: (event: DeletedEventBotItem) => void;
+  isAdmin?: boolean;
 }): TableColumn<DeletedEventBotDisplayRow>[] {
-  const { onRestore, onPermanentDelete } = options;
+  const { onRestore, onPermanentDelete, isAdmin = false } = options;
 
   return [
     {
@@ -63,21 +64,25 @@ export function createDeletedEventBotsTableColumns(options: {
         </Button>
       ),
     },
-    {
-      id: "delete",
-      header: "Action",
-      mobileFooter: true,
-      cell: (row) => (
-        <Button
-          type="button"
-          size="icon"
-          variant="danger"
-          className="h-8 w-8"
-          onClick={() => onPermanentDelete(row)}
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
-      ),
-    },
+    ...(isAdmin
+      ? [
+          {
+            id: "delete",
+            header: "Action",
+            mobileFooter: true,
+            cell: (row: DeletedEventBotDisplayRow) => (
+              <Button
+                type="button"
+                size="icon"
+                variant="danger"
+                className="h-8 w-8"
+                onClick={() => onPermanentDelete(row)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            ),
+          } satisfies TableColumn<DeletedEventBotDisplayRow>,
+        ]
+      : []),
   ];
 }

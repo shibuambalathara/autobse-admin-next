@@ -47,7 +47,6 @@ export interface ArchivedVehicle {
   bidStartTime?: string | null;
   bidTimeExpire?: string | null;
   totalBids?: number | null;
-  images?: string[] | null;
   currentBidAmount?: number | null;
   createdAt?: string | null;
   currentBidUser?: {
@@ -60,6 +59,54 @@ export interface ArchiveVehiclesResult {
   vehiclesArchive: {
     vehiclesCount: number;
     vehicles: ArchivedVehicle[];
+  };
+}
+
+export interface ArchivedVehicleDetail {
+  id: string;
+  bidStatus?: string | null;
+  registrationNumber?: string | null;
+  loanAgreementNo?: string | null;
+  repoDt?: string | null;
+  make?: string | null;
+  model?: string | null;
+  varient?: string | null;
+  lotNumber?: number | null;
+  fuel?: string | null;
+  rcStatus?: string | null;
+  ownership?: number | null;
+  kmReading?: number | null;
+  insuranceStatus?: string | null;
+  startPrice?: number | null;
+  reservePrice?: number | null;
+  city?: string | null;
+  state?: string | null;
+  area?: string | null;
+  paymentTerms?: string | null;
+  dateOfRegistration?: string | null;
+  vehicleCondition?: string | null;
+  chassisNo?: string | null;
+  YOM?: number | null;
+  quoteIncreament?: number | null;
+  inspectionLink?: string | null;
+  yardLocation?: string | null;
+  image?: string | null;
+  registeredOwnerName?: string | null;
+  currentBidAmount?: number | null;
+  startBidAmount?: number | null;
+  bidStartTime?: string | null;
+  bidTimeExpire?: string | null;
+  totalBids?: number | null;
+  createdAt?: string | null;
+  event?: {
+    id?: string | null;
+    eventNo?: number | null;
+  } | null;
+}
+
+export interface ArchiveVehicleDetailResult {
+  vehiclesArchive: {
+    vehicles: ArchivedVehicleDetail[];
   };
 }
 

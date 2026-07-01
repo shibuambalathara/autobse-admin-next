@@ -5,8 +5,7 @@ import { Download, FilePenLine, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui";
 import { ROUTES } from "@/constants/routes";
 import { formatDate } from "@/lib/date-format";
-import { vehicleHasHttpsImages } from "@/modules/vehicles/utils/vehicle-payload";
-import type { ArchivedEvent } from "@/modules/archive-events/types";
+import type { ArchivedEvent, ArchivedVehicle } from "@/modules/archive-events/types";
 import type { EventFilterOption } from "@/modules/events/types";
 import type { TableColumn } from "@/types";
 
@@ -181,9 +180,13 @@ export function createArchiveEventsTableColumns(
   ];
 }
 
-export function createArchiveVehiclesTableColumns(): TableColumn<
-  import("@/modules/archive-events/types").ArchivedVehicle
->[] {
+export function createArchiveVehiclesTableColumns(options?: {
+  eventArchiveId?: string;
+  eventNo?: string;
+  sellerName?: string;
+}): TableColumn<ArchivedVehicle>[] {
+  const { eventArchiveId, eventNo, sellerName } = options ?? {};
+
   return [
     {
       id: "lotNumber",
@@ -205,7 +208,21 @@ export function createArchiveVehiclesTableColumns(): TableColumn<
     {
       id: "registrationNumber",
       header: "Registration Number",
-      accessor: "registrationNumber",
+      cell: (row) =>
+        row.registrationNumber ? (
+          <Link
+            href={ROUTES.archiveVehicleDetail(row.id, {
+              eventArchiveId,
+              eventNo,
+              sellerName,
+            })}
+            className={actionLinkClass("bg-sky-500 text-white hover:bg-sky-600")}
+          >
+            {row.registrationNumber}
+          </Link>
+        ) : (
+          "—"
+        ),
     },
     {
       id: "model",
@@ -231,11 +248,6 @@ export function createArchiveVehiclesTableColumns(): TableColumn<
       id: "totalBids",
       header: "Bid History",
       cell: (row) => row.totalBids ?? 0,
-    },
-    {
-      id: "hasImage",
-      header: "Have Image",
-      cell: (row) => (vehicleHasHttpsImages(row.images) ? "Yes" : "No"),
     },
     {
       id: "currentBidAmount",
