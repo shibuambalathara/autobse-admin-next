@@ -7,6 +7,8 @@ import { PageContainer, buttonVariants } from "@/components/ui";
 import { DataTable } from "@/components/table";
 import { LoadingState } from "@/components/feedback";
 import { ROUTES } from "@/constants/routes";
+import { APP_ROLES, isRole } from "@/auth/roles";
+import { useAccess } from "@/auth/use-access";
 import { EventBotsPageToolbar } from "@/modules/event-bots/components/EventBotsPageToolbar";
 import {
   useEventBotActions,
@@ -23,6 +25,8 @@ interface DeletedEventBotsViewProps {
 export function DeletedEventBotsView({
   initialSellerId,
 }: DeletedEventBotsViewProps) {
+  const { role } = useAccess();
+  const isAdmin = isRole(role, APP_ROLES.ADMIN);
   const list = useDeletedEventBotsList({ initialSellerId });
   const actions = useEventBotActions(() => list.refetch());
   const sellerMap = useEventBotSellerMap(list.sellers);
@@ -42,8 +46,9 @@ export function DeletedEventBotsView({
       createDeletedEventBotsTableColumns({
         onRestore: actions.restoreEventBot,
         onPermanentDelete: actions.permanentlyDeleteEventBot,
+        isAdmin,
       }),
-    [actions.permanentlyDeleteEventBot, actions.restoreEventBot]
+    [actions.permanentlyDeleteEventBot, actions.restoreEventBot, isAdmin]
   );
 
   return (

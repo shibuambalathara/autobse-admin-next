@@ -28,7 +28,6 @@ export function CrmListView() {
         stateNameById: list.filterOptions.stateNameById,
         onDelete: actions.deleteClient,
         onMoveToUser: actions.moveToUser,
-        showAssignedStaff: !list.isStaff,
         isAdmin,
       }),
     [
@@ -36,7 +35,6 @@ export function CrmListView() {
       actions.moveToUser,
       isAdmin,
       list.filterOptions.stateNameById,
-      list.isStaff,
     ]
   );
 

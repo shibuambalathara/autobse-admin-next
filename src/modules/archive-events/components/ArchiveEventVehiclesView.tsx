@@ -48,7 +48,15 @@ export function ArchiveEventVehiclesView({
 
   const vehicles = data?.vehiclesArchive?.vehicles ?? [];
   const total = data?.vehiclesArchive?.vehiclesCount ?? 0;
-  const columns = useMemo(() => createArchiveVehiclesTableColumns(), []);
+  const columns = useMemo(
+    () =>
+      createArchiveVehiclesTableColumns({
+        eventArchiveId,
+        eventNo,
+        sellerName,
+      }),
+    [eventArchiveId, eventNo, sellerName]
+  );
 
   useEffect(() => {
     setPage(1);

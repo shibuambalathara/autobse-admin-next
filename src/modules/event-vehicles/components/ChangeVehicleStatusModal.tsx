@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Modal, Select, Button } from "@/components/ui";
 import { FormField } from "@/components/forms";
@@ -12,7 +12,7 @@ interface ChangeVehicleStatusModalProps {
   vehicleId: string;
   currentBidStatus: string;
   onClose: () => void;
-  onSubmit: (vehicleId: string, status: string) => Promise<void>;
+  onSubmit: (vehicleId: string, status: string) => Promise<string | void>;
 }
 
 interface FormValues {
@@ -27,6 +27,7 @@ export function ChangeVehicleStatusModal({
   onSubmit,
 }: ChangeVehicleStatusModalProps) {
   const { role } = useAccess();
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
@@ -39,11 +40,16 @@ export function ChangeVehicleStatusModal({
   useEffect(() => {
     if (open) {
       reset({ vehicleStatus: "" });
+      setSubmitError(null);
     }
   }, [open, reset]);
 
   const submit = handleSubmit(async (values) => {
-    await onSubmit(vehicleId, values.vehicleStatus);
+    setSubmitError(null);
+    const errorMessage = await onSubmit(vehicleId, values.vehicleStatus);
+    if (errorMessage) {
+      setSubmitError(errorMessage);
+    }
   });
 
   return (
@@ -64,6 +70,11 @@ export function ChangeVehicleStatusModal({
             })}
           />
         </FormField>
+        {submitError && (
+          <p className="text-sm font-bold text-red-600" role="alert">
+            {submitError}
+          </p>
+        )}
         <div className="flex justify-end gap-2">
           <Button type="button" variant="outline" onClick={onClose}>
             Cancel

@@ -225,6 +225,7 @@ export const ROUTE_PERMISSIONS: Record<string, Permission> = {
   [ROUTES.pdfImageExtract]: PERMISSIONS.PDF_IMAGE_EXTRACT_READ,
   [ROUTES.archiveEvents]: PERMISSIONS.ARCHIVE_EVENTS_READ,
   "/archive-events/": PERMISSIONS.ARCHIVE_EVENTS_READ,
+  "/view-archive-vehicle/": PERMISSIONS.ARCHIVE_EVENTS_READ,
   [ROUTES.notifications]: PERMISSIONS.NOTIFICATIONS_READ,
   [ROUTES.notificationsDeleted]: PERMISSIONS.NOTIFICATIONS_READ,
   "/notifications/": PERMISSIONS.NOTIFICATIONS_READ,

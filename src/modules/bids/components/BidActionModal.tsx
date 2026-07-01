@@ -6,7 +6,10 @@ import Swal from "sweetalert2";
 import { Button, Modal } from "@/components/ui";
 import { Textarea } from "@/components/forms";
 import { DELETE_BID_MUTATION, RESTORE_BID_MUTATION } from "@/graphql/documents/bids";
-import { extractGraphqlError } from "@/lib/graphql-errors";
+import {
+  extractGraphqlError,
+  getGraphqlResultErrorMessage,
+} from "@/lib/graphql-errors";
 
 interface BidActionModalProps {
   open: boolean;
@@ -39,22 +42,27 @@ export function BidActionModal({
     }
 
     try {
-      if (actionType === "delete") {
-        await deleteBid({
-          variables: {
-            where: { id: bidId },
-            deleteBidInput: { reasonForDeletion: reason.trim() },
-          },
-        });
-      } else {
-        await restoreBid({
-          variables: {
-            where: { id: bidId },
-            restoreBidInput: {
-              reasonForRestore: reason.trim() || "Restored by admin",
-            },
-          },
-        });
+      const response =
+        actionType === "delete"
+          ? await deleteBid({
+              variables: {
+                where: { id: bidId },
+                deleteBidInput: { reasonForDeletion: reason.trim() },
+              },
+            })
+          : await restoreBid({
+              variables: {
+                where: { id: bidId },
+                restoreBidInput: {
+                  reasonForRestore: reason.trim() || "Restored by admin",
+                },
+              },
+            });
+
+      const gqlErrorMessage = getGraphqlResultErrorMessage(response);
+      if (gqlErrorMessage) {
+        setError(gqlErrorMessage);
+        return;
       }
 
       await Swal.fire({
@@ -68,8 +76,7 @@ export function BidActionModal({
       onSuccess();
       onClose();
     } catch (err: unknown) {
-      const { message } = extractGraphqlError(err);
-      await Swal.fire({ icon: "error", title: "Failed", text: message });
+      setError(extractGraphqlError(err).message);
     }
   };
 
@@ -99,7 +106,11 @@ export function BidActionModal({
                 : "Restored by admin"
             }
           />
-          {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
+          {error && (
+            <p className="mt-1 text-sm font-bold text-red-600" role="alert">
+              {error}
+            </p>
+          )}
         </div>
 
         <div className="flex justify-end gap-2">

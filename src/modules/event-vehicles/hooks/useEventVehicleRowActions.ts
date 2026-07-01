@@ -8,7 +8,10 @@ import {
   DELETE_VEHICLE_MUTATION,
   UPDATE_VEHICLE_DATE_MUTATION,
 } from "@/graphql/documents/vehicles";
-import { extractGraphqlError } from "@/lib/graphql-errors";
+import {
+  extractGraphqlError,
+  getGraphqlResultErrorMessage,
+} from "@/lib/graphql-errors";
 import type { EventVehicleListItem } from "@/modules/event-vehicles/types";
 
 export type BidTimeUpdateTarget = "startTime" | "endtime";
@@ -54,7 +57,15 @@ export function useEventVehicleRowActions(onUpdated: () => void) {
       }
 
       try {
-        await deleteVehicle({ variables: { where: { id: vehicle.id } } });
+        const response = await deleteVehicle({
+          variables: { where: { id: vehicle.id } },
+        });
+        const gqlErrorMessage = getGraphqlResultErrorMessage(response);
+        if (gqlErrorMessage) {
+          await Swal.fire({ icon: "error", title: "Failed", text: gqlErrorMessage });
+          return;
+        }
+
         await Swal.fire({
           icon: "success",
           title: "Deleted",
@@ -92,7 +103,7 @@ export function useEventVehicleRowActions(onUpdated: () => void) {
   );
 
   const handleChangeStatus = useCallback(
-    async (vehicleId: string, status: string) => {
+    async (vehicleId: string, status: string): Promise<string | void> => {
       const confirmed = await Swal.fire({
         title: "Save Changes Confirmation",
         html: "Are you sure you want to update the vehicle status?",
@@ -105,12 +116,22 @@ export function useEventVehicleRowActions(onUpdated: () => void) {
       if (!confirmed.isConfirmed) return;
 
       try {
-        await createVehicleStatus({
+        const response = await createVehicleStatus({
           variables: {
             vehicleId,
             createVehicleStatusInput: { status },
           },
         });
+
+        const gqlErrorMessage = getGraphqlResultErrorMessage(response);
+        if (gqlErrorMessage) {
+          return gqlErrorMessage;
+        }
+
+        if (!response.data?.createVehicleStatus) {
+          return "Failed to update vehicle status.";
+        }
+
         setStatusModalOpen(false);
         await Swal.fire({
           icon: "success",
@@ -122,7 +143,7 @@ export function useEventVehicleRowActions(onUpdated: () => void) {
         onUpdated();
       } catch (error: unknown) {
         const { message } = extractGraphqlError(error);
-        await Swal.fire({ icon: "error", title: "Failed", text: message });
+        return message;
       }
     },
     [createVehicleStatus, onUpdated]
@@ -138,12 +159,18 @@ export function useEventVehicleRowActions(onUpdated: () => void) {
           : { bidTimeExpire: isoDate };
 
       try {
-        await updateVehicleDate({
+        const response = await updateVehicleDate({
           variables: {
             where: { id: bidTimeUpdate.id },
             updateVehicleInput,
           },
         });
+        const gqlErrorMessage = getGraphqlResultErrorMessage(response);
+        if (gqlErrorMessage) {
+          await Swal.fire({ icon: "error", title: "Failed", text: gqlErrorMessage });
+          return;
+        }
+
         setBidTimeUpdate(null);
         await Swal.fire({
           icon: "success",
